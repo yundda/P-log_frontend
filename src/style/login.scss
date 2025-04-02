@@ -1,0 +1,88 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: white;
+
+  .title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .login-card {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px #0000001a;
+    display: flex;
+    align-items: center;
+    width: 940px;
+    height: 600px;
+
+    .img {
+      width: 350px;
+      height: 350px;
+      margin-right: 50px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+
+      label {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      .find-pw {
+        display: flex;
+        justify-content: flex-end;
+        font-size: 14px;
+        margin-bottom: 15px;
+
+        a {
+          color: #8f8e8e;
+        }
+      }
+
+      button {
+        background-color: #9c6644;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+
+        &:hover {
+          background-color: #7f5539;
+        }
+      }
+
+      .register-link {
+        margin-top: 15px;
+        font-size: 16px;
+        text-align: center;
+
+        a {
+          color: #7d7d7d;
+          font-weight: bold;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
