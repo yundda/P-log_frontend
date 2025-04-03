@@ -1,0 +1,77 @@
+@import './util.scss';
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: $color-white;
+  color: #374151;
+}
+
+.content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 50%;
+  padding: 24px;
+  animation: fadeIn 0.5s ease-in-out;
+
+  h1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 8px;
+  }
+}
+
+.button-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.button {
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 12px;
+  width: 160px;
+  color: white;
+  background-color: $color-2;
+  transition: background-color 0.3s ease-in-out;
+
+  &:hover {
+    background-color: $color-1;
+  }
+}
+
+@media (max-width: 923px) {
+  .content-box {
+    width: 100%;
+    text-align: center;
+    align-items: center;
+  }
+
+  .button-group {
+    grid-template-columns: 1fr;
+  }
+}
