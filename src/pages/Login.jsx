@@ -5,7 +5,7 @@ export default function Login() {
     <div className="login-container">
       <h3 className="title">로그인</h3>
       <div className="login-card">
-        <img src="../../public/images/img1.png" alt="사진" className="img" />
+        <img src="/images/img1.png" alt="사진" className="img" />
         <form className="login-form">
           <label htmlFor="email">이메일:</label>
           <input type="email" id="email" name="email" required />
