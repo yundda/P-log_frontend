@@ -1,0 +1,113 @@
+@import './util.scss';
+
+.mypage-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: $color-light-gray;
+  padding: 20px;
+}
+
+.profile-card {
+  background: $color-white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: $boxShadow;
+  width: 320px;
+  text-align: center;
+
+  .profile-image {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: $color-gray;
+    margin-bottom: 10px;
+  }
+
+  button {
+    background: $color-5;
+    color: $color-white;
+    padding: 10px 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    &:hover {
+      background: $color-4;
+    }
+  }
+
+  input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid $color-gray;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+}
+
+.pet-card {
+  background: $color-white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: $boxShadow;
+  width: 500px;
+  margin-left: 20px;
+
+  h3 {
+    color: $color-4;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .pet-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .pet-item {
+    text-align: center;
+
+    .pet-image {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: $color-gray;
+      margin-bottom: 8px;
+    }
+
+    .pet-name {
+      background: $color-1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      color: $color-gray;
+    }
+
+    button {
+      background: $color-5;
+      color: $color-white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-top: 5px;
+      &:hover {
+        background: $color-4;
+      }
+    }
+  }
+}
+
+.logout-button {
+  background: $color-5;
+  color: $color-white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  position: absolute;
+  bottom: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background: $color-4;
+  }
+}
