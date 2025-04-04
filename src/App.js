@@ -4,6 +4,7 @@ import './style/index.css';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import ChooseProfile from './pages/ChooseProfile';
+import MyPage from './pages/mypage';
 function App() {
   return (
     <>
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="ChooseProfile" element={<ChooseProfile />} />
+        <Route path="/mypage" element={<MyPage />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
