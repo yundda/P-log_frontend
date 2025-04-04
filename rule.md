@@ -10,6 +10,17 @@
 
 - sass, styled-compnents
 - tailwind 사용
+- Tailwind 사용
+  ✔ 레이아웃 → flex, grid, gap, p-4, m-2 등
+  ✔ 빠른 스타일링 → 버튼, 카드 등 간단한 요소
+  ✔ 유틸리티 스타일 → 색상, 폰트, 간격 등 (text-gray-700, bg-blue-500)
+  ✔ 공통 스타일 → @apply 사용
+- SCSS 사용
+  ✔ 반응형 스타일 → @media (max-width: 923px) {...}
+  ✔ 중첩 스타일 → &:hover, &::after✔ 커스텀 애니메이션 → @keyframes
+  ✔ 변수 & 믹스인 → $primary-color, @mixin
+
+- Tailwind → 빠르고 간단한 스타일 SCSS → 반응형 & 복잡한 스타일
 
 ### 함수
 
