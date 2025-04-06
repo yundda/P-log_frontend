@@ -1,0 +1,43 @@
+@import './util.scss';
+
+.add-button {
+  @include button1;
+}
+
+.submit-button {
+  @include button1;
+}
+.add-container {
+  @media (max-width: 923px) {
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+
+  .img-card {
+    .img {
+      transition: transform 0.3s ease;
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .add-button {
+      @include button1-small;
+    }
+  }
+
+  .input-card {
+    label {
+      font-size: 1rem;
+    }
+
+    input,
+    select {
+      font-size: 1rem;
+    }
+
+    .submit-button {
+      @include button1-small;
+    }
+  }
+}
