@@ -1,0 +1,147 @@
+@import './util.scss';
+
+.detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+
+  @media (min-width: 923px) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+}
+
+.pet-wrapper,
+.daily-wrapper,
+.health-wrapper {
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.daily-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  .calendar-card {
+    @include box-shadow;
+    margin-top: 0;
+  }
+}
+
+.daily-card {
+  @include box-shadow;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+
+  .daily-btn {
+    @include button2;
+  }
+}
+
+.custom-calendar {
+  border: none;
+  font-family: inherit;
+  box-shadow: 0 4px 10px rgba($color-1, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .react-calendar__navigation {
+    background-color: $color-5;
+    color: $color-white;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+      background: transparent;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font-size: 1rem;
+      &:hover {
+        color: $color-4;
+      }
+    }
+  }
+
+  .react-calendar__month-view__weekdays {
+    text-align: center;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: $color-4;
+    background-color: $color-2;
+    padding: 0.5rem 0;
+    abbr {
+      text-decoration: none;
+    }
+  }
+}
+
+/* 캘린더 */
+.calendar-card {
+  .react-calendar {
+    border: none;
+    font-family: inherit;
+
+    abbr {
+      font-size: 14px;
+      color: $color-black;
+    }
+
+    .react-calendar__tile--now {
+      background: $color-2;
+    }
+
+    .react-calendar__tile--active {
+      background: $color-5;
+      color: $color-white;
+    }
+
+    .react-calendar__tile--hover {
+      background: $color-3;
+    }
+  }
+}
+
+/* 건강 기록 */
+.health-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+
+  .vacc-card {
+    flex: 1;
+    border-right: 2px solid $color-4;
+    padding-right: 1rem;
+  }
+
+  .hospital-card {
+    flex: 1;
+    padding-left: 1rem;
+  }
+
+  @media (max-width: 923px) {
+    flex-direction: column;
+    gap: 10px;
+
+    .vacc-card {
+      border-right: none;
+      border-bottom: 2px solid $color-4;
+      padding-right: 0;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .hospital-card {
+      padding-left: 0;
+
+      .health-btn {
+        @include button2;
+      }
+    }
+  }
+}

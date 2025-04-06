@@ -7,6 +7,7 @@ import ChooseProfile from './pages/ChooseProfile';
 import MyPage from './pages/mypage';
 import Accept from './components/Accept';
 import PetSetting from './pages/PetSetting';
+import Detail from './pages/Detail';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
 
         <Route path="chooseProfile" element={<ChooseProfile />} />
         <Route path="petSetting" element={<PetSetting />} />
+
+        <Route path="/detail" element={<Detail />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
