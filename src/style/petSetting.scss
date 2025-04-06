@@ -4,7 +4,7 @@
   padding: 2rem;
 
   .pet-card {
-    border: 1px solid $color-3;
+    border: 1px solid $color-4;
     border-radius: 12px;
     padding: 20px;
     @include box-shadow;
@@ -12,7 +12,7 @@
   }
 
   .collab-card {
-    border: 1px solid $color-3;
+    border: 1px solid $color-4;
     border-radius: 12px;
     @include box-shadow;
     background-color: $color-white;
@@ -43,26 +43,4 @@
       }
     }
   }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba($color-black, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
-}
-
-.modal-content {
-  background-color: $color-white;
-  padding: 2rem;
-  border-radius: 1rem;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 20px rgba($color-black, 0.2);
 }
