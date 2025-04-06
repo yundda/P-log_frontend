@@ -6,6 +6,7 @@ import NotFound from './pages/NotFound';
 import ChooseProfile from './pages/ChooseProfile';
 import MyPage from './pages/mypage';
 import Accept from './components/Accept';
+
 function App() {
   return (
     <>
@@ -13,10 +14,11 @@ function App() {
         {/* auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="ChooseProfile" element={<ChooseProfile />} />
-        <Route path="/mypage" element={<MyPage />} />
-
         <Route path="/accept" element={<Accept />} />
+        <Route path="/myPage" element={<MyPage />} />
+
+        <Route path="chooseProfile" element={<ChooseProfile />} />
+
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -20,7 +20,7 @@
   background-color: $color-2;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: $boxShadow;
+  @include box-shadow;
   align-items: center;
   justify-content: space-between;
   width: 70%;
