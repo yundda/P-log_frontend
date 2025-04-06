@@ -1,0 +1,20 @@
+@import './util.scss';
+
+.invite-modal {
+  border: 1px solid $color-3;
+  background-color: $color-white;
+  @include box-shadow;
+
+  .btn-send {
+    @include button1-small;
+  }
+
+  .btn-cancel {
+    @include button2-small;
+  }
+
+  @media (max-width: 923px) {
+    width: 90%;
+    padding: 1.5rem;
+  }
+}
