@@ -2,8 +2,13 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useState } from 'react';
 import '../style/login.scss';
+import { useSetRecoilState } from 'recoil';
+import { authState } from '../recoil/authAtom';
+// import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  // const { navigate } = useNavigate();
+  const setAuthState = useSetRecoilState(authState);
   const {
     register,
     handleSubmit,
@@ -19,8 +24,9 @@ export default function Login() {
       if (response.data.code === 'SU') {
         const { nickname, token } = response.data.data;
         localStorage.setItem('token', token);
+        setAuthState(token);
         alert(`${nickname}님, 환영합니다!`);
-        window.location.href = '/';
+        window.location.href = '/ChooseProfile';
       }
     } catch (error) {
       if (error.response) {
