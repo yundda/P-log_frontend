@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
-import { ko } from 'date-fns/locale';
+// import { ko } from 'date-fns/locale';
 import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
 import '../style/detail.scss';
