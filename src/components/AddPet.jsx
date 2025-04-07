@@ -3,6 +3,7 @@ import Pet from './Pet';
 import '../style/addPet.scss';
 
 export default function AddPet({ onClose }) {
+  // 참여하기
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
