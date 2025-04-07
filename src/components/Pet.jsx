@@ -1,22 +1,61 @@
 import { useRef, useState } from 'react';
+import axios from 'axios';
 import '../style/pet.scss';
 
-export default function Pet() {
+export default function Pet({ mode }) {
+  const isCreateMode = mode === 'create';
+  const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
   const [previewImage, setPreviewImage] = useState('');
+
+  const [formData, setFormData] = useState({
+    name: '',
+    species: '',
+    breed: '',
+    birthday: '',
+    gender: '',
+    weight: '',
+  });
 
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleImageChange = e => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleImageChange = e => {};
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!isCreateMode) return;
+
+    const petData = {
+      name: formData.name,
+      species: formData.species,
+      breed: formData.breed,
+      birthday: formData.birthday,
+      gender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
+      weight: parseFloat(formData.weight),
+      photo: previewImage || '',
+    };
+
+    try {
+      const response = await axios.post('/api/pets/', petData);
+
+      if (response.data?.message) {
+        alert(response.data.message);
+      } else {
+        alert('등록 완료');
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || '에러가 발생했습니다.');
     }
   };
 
@@ -24,7 +63,7 @@ export default function Pet() {
     <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl">
       <div className="img-card flex items-center gap-4">
         <img
-          src={previewImage || '/images/default-pet.png'}
+          src={previewImage}
           alt="사진"
           className="img w-52 h-52 rounded-full object-cover"
         />
@@ -44,8 +83,10 @@ export default function Pet() {
         />
       </div>
 
-      <form className="input-card flex flex-col gap-4 w-full max-w-sm">
-        {/* 이름 */}
+      <form
+        className="input-card flex flex-col gap-4 w-full max-w-sm"
+        onSubmit={handleSubmit}
+      >
         <div className="flex items-center gap-4">
           <label htmlFor="name" className="text-plog-main4 font-semibold w-20">
             이름:
@@ -55,11 +96,12 @@ export default function Pet() {
             id="name"
             name="name"
             required
+            value={formData.name}
+            onChange={handleChange}
             className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
           />
         </div>
 
-        {/* 품종 */}
         <div className="flex items-center gap-4">
           <label
             htmlFor="species"
@@ -72,33 +114,45 @@ export default function Pet() {
             id="species"
             name="species"
             required
+            value={formData.species}
+            onChange={handleChange}
             className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
           />
         </div>
 
-        {/* 나이 */}
         <div className="flex items-center gap-4">
-          <label htmlFor="age" className="text-plog-main4 font-semibold w-20">
-            나이:
+          <label htmlFor="breed" className="text-plog-main4 font-semibold w-20">
+            견종:
           </label>
           <input
-            type="number"
-            id="age"
-            name="age"
+            type="text"
+            id="breed"
+            name="breed"
             required
+            value={formData.breed}
+            onChange={handleChange}
             className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
           />
-          <select
-            id="ageUnit"
-            name="ageUnit"
-            className="border border-plog-main1 rounded-md px-4 py-2"
-          >
-            <option value="month">개월</option>
-            <option value="year">살</option>
-          </select>
         </div>
 
-        {/* 성별 */}
+        <div className="flex items-center gap-4">
+          <label
+            htmlFor="birthday"
+            className="text-plog-main4 font-semibold w-20"
+          >
+            생일:
+          </label>
+          <input
+            type="date"
+            id="birthday"
+            name="birthday"
+            required
+            value={formData.birthday}
+            onChange={handleChange}
+            className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
+          />
+        </div>
+
         <div className="flex items-center gap-4">
           <label
             htmlFor="gender"
@@ -110,9 +164,11 @@ export default function Pet() {
             id="gender"
             name="gender"
             required
+            value={formData.gender}
+            onChange={handleChange}
             className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
           >
-            <option value="" disabled selected>
+            <option value="" disabled>
               선택
             </option>
             <option value="man">남자</option>
@@ -120,7 +176,6 @@ export default function Pet() {
           </select>
         </div>
 
-        {/* 몸무게 */}
         <div className="flex items-center gap-4">
           <label
             htmlFor="weight"
@@ -133,14 +188,18 @@ export default function Pet() {
             id="weight"
             name="weight"
             required
+            value={formData.weight}
+            onChange={handleChange}
             className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
           />
           <span className="text-plog-main4">kg</span>
         </div>
 
-        <button type="submit" className="submit-button self-end">
-          추가하기
-        </button>
+        {!isReadMode && (
+          <button type="submit" className="submit-button self-end">
+            {isCreateMode ? '수정하기' : '추가하기'}
+          </button>
+        )}
       </form>
     </div>
   );
