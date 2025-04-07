@@ -23,6 +23,7 @@ export default function Register() {
     try {
       const response = await axios.post('/api/auth/signup', data);
       if (response.data.code === 'SU') {
+        alert(`${data.nickname}님! 회원가입 성공하셨습니다🥳 `);
         navigate('/login');
       }
     } catch (error) {
