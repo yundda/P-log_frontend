@@ -9,20 +9,30 @@ import Accept from './components/Accept';
 import PetSetting from './pages/PetSetting';
 import Detail from './pages/Detail';
 import { RecoilRoot } from 'recoil';
+import { useEffect } from 'react';
+import axios from 'axios';
+import './api/axiosInterceptor';
 
 function App() {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, []);
+
   return (
     <RecoilRoot>
       <Routes>
-        {/* auth */}
+        {/* 유저 페이지 관련 */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/accept" element={<Accept />} />
         <Route path="/myPage" element={<MyPage />} />
 
-        <Route path="chooseProfile" element={<ChooseProfile />} />
-        <Route path="petSetting" element={<PetSetting />} />
-
+        {/* 반려동물 페이지 관련 */}
+        <Route path="/chooseProfile" element={<ChooseProfile />} />
+        <Route path="/petSetting" element={<PetSetting />} />
         <Route path="/detail" element={<Detail />} />
 
         {/* 404 */}
