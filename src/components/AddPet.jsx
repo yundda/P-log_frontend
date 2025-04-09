@@ -33,7 +33,7 @@ export default function AddPet({ onClose }) {
           </h1>
 
           <div className="content-wrapper">
-            <Pet />
+            <Pet mode="create" />
 
             <div className="vertical-line"></div>
 
