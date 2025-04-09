@@ -12,6 +12,7 @@ import { RecoilRoot } from 'recoil';
 import { useEffect } from 'react';
 import axios from 'axios';
 import './api/axiosInterceptor';
+import Header from './components/Header';
 
 function App() {
   useEffect(() => {
@@ -23,14 +24,17 @@ function App() {
 
   return (
     <RecoilRoot>
+      <Header />
+
+      {/* 페이지 라우팅 */}
       <Routes>
-        {/* 유저 페이지 관련 */}
+        {/* 유저 관련 */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/accept" element={<Accept />} />
         <Route path="/myPage" element={<MyPage />} />
 
-        {/* 반려동물 페이지 관련 */}
+        {/* 반려동물 관련 */}
         <Route path="/chooseProfile" element={<ChooseProfile />} />
         <Route path="/petSetting" element={<PetSetting />} />
         <Route path="/detail" element={<Detail />} />

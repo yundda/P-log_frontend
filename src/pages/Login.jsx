@@ -30,6 +30,7 @@ export default function Login() {
         setAuthState(newAuth);
         alert(`${nickname}님, 환영합니다!`);
         window.location.href = '/ChooseProfile';
+        console.log('로그인 성공:', response.data);
       }
     } catch (error) {
       if (error.response) {
