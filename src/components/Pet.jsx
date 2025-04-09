@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../style/pet.scss';
 
@@ -8,6 +9,7 @@ export default function Pet({ mode, petId, pet }) {
   const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
   const [previewImage, setPreviewImage] = useState('');
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -18,11 +20,16 @@ export default function Pet({ mode, petId, pet }) {
     weight: '',
   });
 
+  const token = localStorage.getItem('accessToken');
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
   useEffect(() => {
     if (isReadMode && petId) {
       (async () => {
         try {
-          const res = await axios.get(`/api/pets/${petId}`);
+          const res = await axios.get(`/api/pets/${petId}`, {
+            headers: authHeader,
+          });
           const data = res.data;
           setFormData({
             name: data.name,
@@ -78,7 +85,9 @@ export default function Pet({ mode, petId, pet }) {
 
   const handleSubmit = async e => {
     e.preventDefault();
+
     const petData = {
+      ...(isEditMode && petId ? { id: petId } : {}),
       name: formData.name,
       species: formData.species,
       breed: formData.breed,
@@ -90,16 +99,21 @@ export default function Pet({ mode, petId, pet }) {
 
     try {
       if (isCreateMode) {
-        const response = await axios.post('/api/pets/', petData);
+        const response = await axios.post('/api/pets', petData, {
+          headers: authHeader,
+        });
         alert(response.data?.message || '등록 완료');
+        navigate('/ChooseProfile');
       }
 
       if (isEditMode && petId) {
-        const response = await axios.put(`/api/pets/${petId}`, petData);
+        const response = await axios.patch(`/api/pets/${petId}`, petData, {
+          headers: authHeader,
+        });
         alert(response.data?.message || '수정 완료');
       }
     } catch (error) {
-      console.error(error);
+      console.error('요청 실패:', error);
       alert(error.response?.data?.message || '에러가 발생했습니다.');
     }
   };
@@ -108,7 +122,7 @@ export default function Pet({ mode, petId, pet }) {
     <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl">
       <div className="img-card flex items-center gap-4">
         <img
-          src={previewImage || '/default-pet.png'}
+          src={previewImage || '../../public/images/default-pet.png'}
           alt="사진"
           className="img w-52 h-52 rounded-full object-cover"
         />
