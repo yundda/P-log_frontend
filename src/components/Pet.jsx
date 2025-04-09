@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../style/pet.scss';
 
@@ -8,6 +9,7 @@ export default function Pet({ mode, petId, pet }) {
   const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
   const [previewImage, setPreviewImage] = useState('');
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -101,6 +103,7 @@ export default function Pet({ mode, petId, pet }) {
           headers: authHeader,
         });
         alert(response.data?.message || '등록 완료');
+        navigate('/ChooseProfile');
       }
 
       if (isEditMode && petId) {
