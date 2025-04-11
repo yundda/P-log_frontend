@@ -17,7 +17,7 @@ export default function Detail() {
           <br />
           일상 생활을 기록해주세요.
         </h1>
-        <Pet className="pet-profile" />
+        <Pet className="pet-profile" mode="read" />
       </div>
 
       <div className="flex flex-col gap-4 w-[800px] ">
