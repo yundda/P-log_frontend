@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import './api/axiosInterceptor';
 import Header from './components/Header';
+import Home from './pages/Index';
 
 function App() {
   useEffect(() => {
@@ -28,6 +29,9 @@ function App() {
 
       {/* 페이지 라우팅 */}
       <Routes>
+        {/* 메인 페이지 */}
+        <Route path="/" element={<Home />} />
+
         {/* 유저 관련 */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
