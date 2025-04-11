@@ -27,19 +27,24 @@ export default function Pet({ mode, petId, pet }) {
     if (isReadMode && petId) {
       (async () => {
         try {
-          const res = await axios.get(`/api/pets/${petId}`, {
-            headers: authHeader,
-          });
-          const data = res.data;
-          setFormData({
-            name: data.name,
-            species: data.species,
-            breed: data.breed,
-            birthday: data.birthday,
-            gender: data.gender === 'MALE' ? 'man' : 'woman',
-            weight: data.weight,
-          });
-          setPreviewImage(data.photo || '');
+          const res = await axios.get(
+            `${process.env.REACT_APP_API_SERVER}/pets/${petId}`,
+            {
+              headers: authHeader,
+            },
+          );
+          const data = res.data?.data;
+          if (data) {
+            setFormData({
+              name: data.petName || '',
+              species: data.petSpecies || '',
+              breed: data.petBreed || '',
+              birthday: data.petBirthday || '',
+              gender: data.petGender === 'MALE' ? 'man' : 'woman',
+              weight: data.petWeight?.toString() || '',
+            });
+            setPreviewImage(data.petImageUrl || '');
+          }
         } catch (error) {
           console.error('반려동물 조회 실패:', error);
         }
@@ -53,11 +58,11 @@ export default function Pet({ mode, petId, pet }) {
         breed: pet.breed || '',
         birthday: pet.birthday || '',
         gender: pet.gender === 'MALE' ? 'man' : 'woman',
-        weight: pet.weight || '',
+        weight: pet.weight?.toString() || '',
       });
       setPreviewImage(pet.photo || '');
     }
-  }, [isReadMode, isEditMode, pet, petId]);
+  }, [isReadMode, isEditMode, pet, petId, authHeader]);
 
   const handleImageClick = () => {
     if (isReadMode) return;

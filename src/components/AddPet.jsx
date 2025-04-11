@@ -1,23 +1,56 @@
 import { useState } from 'react';
 import Pet from './Pet';
+import axios from 'axios';
 import '../style/addPet.scss';
 
 export default function AddPet({ onClose }) {
-  // 참여하기
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [petName, setPetName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setEmailError('올바른 이메일 주소를 입력해주세요.');
+    if (!nickname || !petName) {
+      setErrorMessage('닉네임과 동물 이름은 필수입니다.');
       return;
     }
 
-    setEmailError('');
-    alert('폼이 제출되었습니다!');
+    const payload = {
+      familyNick: nickname,
+      petName,
+    };
+
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_SERVER}/request/invite`,
+        payload,
+      );
+      const { code, data } = res.data;
+
+      if (code === 'SU') {
+        if (data.isAlreadyRequested) {
+          setSuccessMessage(
+            `이미 요청을 보냈습니다. 대기 중입니다. 링크: /request/pending/${data.requestId}`,
+          );
+        } else {
+          setSuccessMessage('요청을 성공적으로 보냈습니다!');
+        }
+        setErrorMessage('');
+      }
+    } catch (err) {
+      if (err.response) {
+        const { code, message } = err.response.data;
+        if (code === 'NF' || code === 'BR' || code === 'DBE') {
+          setErrorMessage(message);
+        } else {
+          setErrorMessage('요청 중 오류가 발생했습니다.');
+        }
+      } else {
+        setErrorMessage('서버에 연결할 수 없습니다.');
+      }
+    }
   };
 
   return (
@@ -34,7 +67,6 @@ export default function AddPet({ onClose }) {
 
           <div className="content-wrapper">
             <Pet mode="create" />
-
             <div className="vertical-line"></div>
 
             <div className="participate-wrapper">
@@ -58,26 +90,22 @@ export default function AddPet({ onClose }) {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-4">
                       <label
-                        htmlFor="email"
+                        htmlFor="nickname"
                         className="text-plog-main4 font-semibold w-20"
                       >
-                        이메일:
+                        닉네임:
                       </label>
                       <input
                         type="text"
-                        id="email"
-                        name="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        id="nickname"
+                        name="nickname"
+                        placeholder="닉네임을 입력하세요"
+                        value={nickname}
+                        onChange={e => setNickname(e.target.value)}
                         required
                         className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
                       />
                     </div>
-                    {emailError && (
-                      <span className="text-red-500 text-sm ml-24">
-                        {emailError}
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -91,10 +119,24 @@ export default function AddPet({ onClose }) {
                       type="text"
                       id="petName"
                       name="petName"
+                      value={petName}
+                      onChange={e => setPetName(e.target.value)}
                       required
                       className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
                     />
                   </div>
+
+                  {errorMessage && (
+                    <span className="text-red-500 text-sm self-start ml-24">
+                      {errorMessage}
+                    </span>
+                  )}
+                  {successMessage && (
+                    <span className="text-green-600 text-sm self-start ml-24">
+                      {successMessage}
+                    </span>
+                  )}
+
                   <button type="submit" className="send-button self-end">
                     보내기
                   </button>
