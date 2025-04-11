@@ -25,7 +25,7 @@ export default function PetSetting() {
     <div className="container mt-20 ml-40">
       <div className="pet-setting-container flex flex-row justify-center items-start min-h-screen gap-20 pt-20">
         <div className="pet-card ml-4">
-          <Pet />
+          <Pet mode="Edit" />
         </div>
 
         <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-4xl">

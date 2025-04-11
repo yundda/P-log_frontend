@@ -104,17 +104,25 @@ export default function Pet({ mode, petId, pet }) {
 
     try {
       if (isCreateMode) {
-        const response = await axios.post('/api/pets', petData, {
-          headers: authHeader,
-        });
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_SERVER}/pets`,
+          petData,
+          {
+            headers: authHeader,
+          },
+        );
         alert(response.data?.message || '등록 완료');
         navigate('/ChooseProfile');
       }
 
       if (isEditMode && petId) {
-        const response = await axios.patch(`/api/pets/${petId}`, petData, {
-          headers: authHeader,
-        });
+        const response = await axios.patch(
+          `${process.env.REACT_APP_API_SERVER}/pets/${petId}`,
+          petData,
+          {
+            headers: authHeader,
+          },
+        );
         alert(response.data?.message || '수정 완료');
       }
     } catch (error) {
