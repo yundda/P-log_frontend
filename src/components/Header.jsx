@@ -13,27 +13,29 @@ export default function Header() {
     setMenuOpen(!menuOpen);
   };
 
-  // 로그인 상태 확인
-  const fetchUserInfo = async () => {
-    try {
-      const res = await axios.get('/api/auth/login'); // 로그인 상태 확인 API
-      if (res.data.result) {
-        setIsLoggedIn(true);
-        setNickname(res.data.nickname);
-      } else {
-        setIsLoggedIn(false);
-        setNickname('');
-      }
-    } catch (err) {
-      setIsLoggedIn(false);
-      setNickname('');
-    }
-  };
+  // // 로그인 상태 확인
+  // const fetchUserInfo = async () => {
+  //   try {
+  //     const res = await axios.get(
+  //       `${process.env.REACT_APP_API_SERVER}/auth/login`,
+  //     ); // 로그인 상태 확인 API
+  //     if (res.data.result) {
+  //       setIsLoggedIn(true);
+  //       setNickname(res.data.nickname);
+  //     } else {
+  //       setIsLoggedIn(false);
+  //       setNickname('');
+  //     }
+  //   } catch (err) {
+  //     setIsLoggedIn(false);
+  //     setNickname('');
+  //   }
+  // };
 
   // location 변경 시마다 호출
-  useEffect(() => {
-    fetchUserInfo();
-  }, [location]);
+  // useEffect(() => {
+  //   fetchUserInfo();
+  // }, [location]);
 
   return (
     <>

@@ -21,7 +21,10 @@ export default function Register() {
 
   const onSubmit = async data => {
     try {
-      const response = await axios.post('/api/auth/signup', data);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_SERVER}/auth/signup`,
+        data,
+      );
       if (response.data.code === 'SU') {
         alert(`${data.nickname}님! 회원가입 성공하셨습니다🥳 `);
         navigate('/login');
