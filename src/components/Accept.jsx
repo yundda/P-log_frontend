@@ -38,7 +38,7 @@ export default function Accept() {
   const handleAccept = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_SERVER}request/accept/${requestId}`,
+        `${process.env.REACT_APP_API_SERVER}/request/accept/${requestId}`,
       );
       console.log(' 요청 수락 응답:', response.data);
       if (response.data.code === 'SU') {

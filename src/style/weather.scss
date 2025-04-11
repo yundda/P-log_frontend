@@ -1,0 +1,28 @@
+.weather-container {
+  transition: all 0.3s ease;
+
+  .weather-content {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+  }
+
+  @media screen and (max-width: 923px) {
+    margin-top: 2rem;
+    padding: 1rem;
+
+    .weather-content {
+      font-size: 0.95rem;
+      padding: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+    }
+  }
+}
