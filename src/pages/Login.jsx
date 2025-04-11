@@ -15,11 +15,18 @@ export default function Login() {
   const [serverError, setServerError] = useState('');
 
   const onSubmit = async data => {
+    console.log('로그인 시도:', data);
     setServerError('');
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_SERVER}/auth/login`,
         data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // withCredentials: true,
+        },
       );
 
       if (response.data.code === 'SU') {
