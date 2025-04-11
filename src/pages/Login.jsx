@@ -17,7 +17,10 @@ export default function Login() {
   const onSubmit = async data => {
     setServerError('');
     try {
-      const response = await axios.post('api/auth/login', data);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_SERVER}/auth/login`,
+        data,
+      );
 
       if (response.data.code === 'SU') {
         const { nickname, token } = response.data.data;
