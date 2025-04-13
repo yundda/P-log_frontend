@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../style/pet.scss';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function Pet({ mode, petId, pet }) {
   const isCreateMode = mode === 'create';
   const isEditMode = mode === 'edit';
@@ -27,12 +29,9 @@ export default function Pet({ mode, petId, pet }) {
     if (isReadMode && petId) {
       (async () => {
         try {
-          const res = await axios.get(
-            `${process.env.REACT_APP_API_SERVER}/pets/${petId}`,
-            {
-              headers: authHeader,
-            },
-          );
+          const res = await axios.get(`${API}/pets/${petId}`, {
+            headers: authHeader,
+          });
           const data = res.data?.data;
           if (data) {
             setFormData({
@@ -104,25 +103,17 @@ export default function Pet({ mode, petId, pet }) {
 
     try {
       if (isCreateMode) {
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_SERVER}/pets`,
-          petData,
-          {
-            headers: authHeader,
-          },
-        );
+        const response = await axios.post(`${API}/pets`, petData, {
+          headers: authHeader,
+        });
         alert(response.data?.message || '등록 완료');
         navigate('/ChooseProfile');
       }
 
       if (isEditMode && petId) {
-        const response = await axios.patch(
-          `${process.env.REACT_APP_API_SERVER}/pets/${petId}`,
-          petData,
-          {
-            headers: authHeader,
-          },
-        );
+        const response = await axios.patch(`${API}/pets/${petId}`, petData, {
+          headers: authHeader,
+        });
         alert(response.data?.message || '수정 완료');
       }
     } catch (error) {

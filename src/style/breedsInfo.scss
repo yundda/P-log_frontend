@@ -1,0 +1,44 @@
+// BreedsInfo.scss
+// (필요시, util.scss의 변수/믹스인 포함 가능)
+@import './util.scss';
+
+.breeds-info {
+  .breeds-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+
+    @media (max-width: 923px) {
+      flex-direction: column;
+    }
+  }
+
+  section {
+    // SCSS 믹스인으로 box-shadow 효과 적용 (util.scss에 정의된 box-shadow 믹스인을 사용)
+    @include box-shadow;
+
+    .scroll-container {
+      /* 고정 높이 영역 및 세로 스크롤 */
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+
+      li {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        background-color: #f5f5f5; // $color-light-gray
+        border-radius: 4px;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: translateX(5px);
+        }
+      }
+    }
+  }
+}

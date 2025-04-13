@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../style/Header.scss';
 
 export default function Header() {
-  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nickname, setNickname] = useState('');

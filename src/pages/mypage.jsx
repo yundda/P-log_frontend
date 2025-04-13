@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function MyPage() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
@@ -18,7 +20,7 @@ export default function MyPage() {
   // 유저 정보 조회
   useEffect(() => {
     axios
-      .get('/api/user/mypage', { withCredentials: true })
+      .get(`${API}/user/mypage`, { withCredentials: true })
       .then(res => {
         const { nickname, email } = res.data.data;
         setUserData({ nickname, email });
@@ -82,7 +84,7 @@ export default function MyPage() {
       if (form.nickname !== userData.nickname) payload.nickname = form.nickname;
       if (form.afterPassword) payload.afterPassword = form.afterPassword;
 
-      const res = await axios.patch('/api/user/update', payload, {
+      const res = await axios.patch(`${API}/user/update`, payload, {
         withCredentials: true,
       });
 
@@ -109,7 +111,7 @@ export default function MyPage() {
   // 로그아웃
   const handleLogout = async () => {
     try {
-      await axios.post('/api/user/logout', {}, { withCredentials: true });
+      await axios.post(`${API}/user/logout`, {}, { withCredentials: true });
       navigate('/');
     } catch (err) {
       setMessage('로그아웃에 실패했습니다. 다시 시도해주세요.');

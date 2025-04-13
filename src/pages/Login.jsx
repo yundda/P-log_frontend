@@ -5,6 +5,8 @@ import '../style/login.scss';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/authAtom';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function Login() {
   const setAuthState = useSetRecoilState(authState);
   const {
@@ -18,16 +20,12 @@ export default function Login() {
     console.log('로그인 시도:', data);
     setServerError('');
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_SERVER}/auth/login`,
-        data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // withCredentials: true,
+      const response = await axios.post(`${API}/auth/login`, data, {
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        // withCredentials: true,
+      });
 
       if (response.data.code === 'SU') {
         const { nickname, token } = response.data.data;

@@ -3,6 +3,8 @@ import Pet from './Pet';
 import axios from 'axios';
 import '../style/addPet.scss';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function AddPet({ onClose }) {
   const [nickname, setNickname] = useState('');
   const [petName, setPetName] = useState('');
@@ -23,10 +25,7 @@ export default function AddPet({ onClose }) {
     };
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_SERVER}/request/invite`,
-        payload,
-      );
+      const res = await axios.post(`${API}/request/invite`, payload);
       const { code, data } = res.data;
 
       if (code === 'SU') {
