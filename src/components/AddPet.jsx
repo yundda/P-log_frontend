@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import Pet from './Pet';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../style/addPet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 
 export default function AddPet({ onClose }) {
+  const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [petName, setPetName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [requestLink, setRequestLink] = useState(''); // 링크 저장
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -20,19 +23,20 @@ export default function AddPet({ onClose }) {
     }
 
     const payload = {
-      familyNick: nickname,
+      ownerNick: nickname,
       petName,
     };
 
     try {
-      const res = await axios.post(`${API}/request/invite`, payload);
+      const res = await axios.post(`${API}/request/permission`, payload);
       const { code, data } = res.data;
 
       if (code === 'SU') {
+        const link = `/request/pending/${data.requestId}`;
+        setRequestLink(link);
+
         if (data.isAlreadyRequested) {
-          setSuccessMessage(
-            `이미 요청을 보냈습니다. 대기 중입니다. 링크: /request/pending/${data.requestId}`,
-          );
+          setSuccessMessage('이미 요청을 보냈습니다. 대기 중입니다.');
         } else {
           setSuccessMessage('요청을 성공적으로 보냈습니다!');
         }
@@ -41,15 +45,24 @@ export default function AddPet({ onClose }) {
     } catch (err) {
       if (err.response) {
         const { code, message } = err.response.data;
-        if (code === 'NF' || code === 'BR' || code === 'DBE') {
+        if (['NF', 'BR', 'DBE'].includes(code)) {
           setErrorMessage(message);
         } else {
-          setErrorMessage('요청 중 오류가 발생했습니다.');
+          setErrorMessage('요청 중 알 수 없는 오류가 발생했습니다.');
         }
       } else {
         setErrorMessage('서버에 연결할 수 없습니다.');
       }
     }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(`${window.location.origin}${requestLink}`);
+    alert('링크가 클립보드에 복사되었습니다.');
+  };
+
+  const goToRequestPage = () => {
+    navigate(requestLink);
   };
 
   return (
@@ -76,7 +89,6 @@ export default function AddPet({ onClose }) {
                     className="img w-52 h-52 object-cover"
                     alt="참여 이미지"
                   />
-
                   <h2 className="text-plog-main4 text-3xl font-thin mb-4">
                     참여하기
                   </h2>
@@ -131,9 +143,27 @@ export default function AddPet({ onClose }) {
                     </span>
                   )}
                   {successMessage && (
-                    <span className="text-green-600 text-sm self-start ml-24">
-                      {successMessage}
-                    </span>
+                    <div className="text-green-600 text-sm self-start ml-24 flex flex-col gap-2">
+                      <span>{successMessage}</span>
+                      {requestLink && (
+                        <div className="flex gap-4 mt-1">
+                          <button
+                            type="button"
+                            onClick={copyToClipboard}
+                            className="text-blue-500 underline"
+                          >
+                            링크 복사
+                          </button>
+                          <button
+                            type="button"
+                            onClick={goToRequestPage}
+                            className="text-blue-500 underline"
+                          >
+                            바로가기
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   <button type="submit" className="send-button self-end">
