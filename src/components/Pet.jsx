@@ -22,7 +22,9 @@ export default function Pet({ mode, petId, pet }) {
     weight: '',
   });
 
-  const token = localStorage.getItem('accessToken');
+  const storedAuth = localStorage.getItem('auth');
+  const token = storedAuth ? JSON.parse(storedAuth).token : '';
+  const nickname = storedAuth ? JSON.parse(storedAuth).nickname : '';
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export default function Pet({ mode, petId, pet }) {
       });
       setPreviewImage(pet.photo || '');
     }
-  }, [isReadMode, isEditMode, pet, petId, authHeader]);
+  }, [isReadMode, isEditMode, pet, petId]);
 
   const handleImageClick = () => {
     if (isReadMode) return;
@@ -90,20 +92,24 @@ export default function Pet({ mode, petId, pet }) {
   const handleSubmit = async e => {
     e.preventDefault();
 
-    const petData = {
-      ...(isEditMode && petId ? { id: petId } : {}),
-      name: formData.name,
-      species: formData.species,
-      breed: formData.breed,
-      birthday: formData.birthday,
-      gender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
-      weight: parseFloat(formData.weight),
-      photo: previewImage || '',
+    const petRequest = {
+      petProfile: {
+        petName: formData.name,
+        petSpecies: formData.species,
+        petBreed: formData.breed,
+        petBirthday: formData.birthday,
+        petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
+        petWeight: parseFloat(formData.weight),
+        petPhoto: previewImage || '',
+      },
+      userRegistration: {
+        familyNick: nickname,
+      },
     };
 
     try {
       if (isCreateMode) {
-        const response = await axios.post(`${API}/pets`, petData, {
+        const response = await axios.post(`${API}/pets`, petRequest, {
           headers: authHeader,
         });
         alert(response.data?.message || '등록 완료');
@@ -111,7 +117,7 @@ export default function Pet({ mode, petId, pet }) {
       }
 
       if (isEditMode && petId) {
-        const response = await axios.patch(`${API}/pets/${petId}`, petData, {
+        const response = await axios.patch(`${API}/pets/${petId}`, petRequest, {
           headers: authHeader,
         });
         alert(response.data?.message || '수정 완료');
@@ -126,7 +132,7 @@ export default function Pet({ mode, petId, pet }) {
     <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl">
       <div className="img-card flex items-center gap-4">
         <img
-          src={previewImage || '../../public/images/default-pet.png'}
+          src={previewImage || '/images/default-pet.png'}
           alt="사진"
           className="img w-52 h-52 rounded-full object-cover"
         />
