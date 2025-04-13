@@ -1,11 +1,26 @@
+@import './util.scss';
+
 .weather-container {
   transition: all 0.3s ease;
+  @include box-shadow;
+  animation: fadeIn 0.5s ease-out;
 
   .weather-content {
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid $color-4;
     padding-left: 1rem;
-    background-color: #f9fafb;
+    background-color: $color-light-gray;
     border-radius: 0.75rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @media screen and (max-width: 923px) {

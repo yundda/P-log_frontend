@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../style/accept.scss';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function Accept() {
   const { requestId } = useParams();
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ export default function Accept() {
     const fetchRequestInfo = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_SERVER}/auth/requestInfo/${requestId}`,
+          `${API}}/auth/requestInfo/${requestId}`,
         );
         console.log('요청 정보 응답:', response.data);
         if (response.data.code === 'SU') {
@@ -37,9 +39,7 @@ export default function Accept() {
 
   const handleAccept = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_SERVER}/request/accept/${requestId}`,
-      );
+      const response = await axios.get(`${API}/request/accept/${requestId}`);
       console.log(' 요청 수락 응답:', response.data);
       if (response.data.code === 'SU') {
         alert('요청을 수락했습니다.');

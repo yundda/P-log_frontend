@@ -24,9 +24,9 @@
     padding: 24px;
   }
 
-  .login-button {
-    @include button1-small;
-  }
+  // .login-button {
+  //   @include button1-small;
+  // }
 
   .logout-button {
     @include button2-small;

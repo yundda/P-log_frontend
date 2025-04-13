@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../style/weather.scss';
 
 const API_KEY = 'da450c832635d5d57538d8acdd43e25f';
+// const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
 export default function Weather() {
   const [weather, setWeather] = useState(null);
@@ -46,11 +47,10 @@ export default function Weather() {
   }, []);
 
   return (
-    <div className="weather-container max-w-md mx-auto mt-10 p-4 rounded-2xl shadow-lg bg-white">
-      <h1 className="text-2xl font-bold text-center mb-4 text-blue-600">
-        내 위치 날씨 정보
+    <div className="weather-container max-w-md mx-auto mt-10 p-4 rounded-2xl shadow-lg bg-plog-main2">
+      <h1 className="text-2xl font-bold text-center mb-4 text-plog-main4">
+        날씨 정보
       </h1>
-
       {loading ? (
         <p className="text-center text-gray-500">불러오는 중...</p>
       ) : weather ? (

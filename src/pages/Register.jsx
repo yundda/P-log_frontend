@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
+const API = process.env.REACT_APP_API_SERVER;
+
 export default function Register() {
   const navigate = useNavigate();
   const [apiError, setApiError] = useState('');
@@ -21,10 +23,7 @@ export default function Register() {
 
   const onSubmit = async data => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_SERVER}/auth/signup`,
-        data,
-      );
+      const response = await axios.post(`${API}/auth/signup`, data);
       if (response.data.code === 'SU') {
         alert(`${data.nickname}님! 회원가입 성공하셨습니다🥳 `);
         navigate('/login');
