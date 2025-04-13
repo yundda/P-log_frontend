@@ -5,12 +5,25 @@
   z-index: 20;
 }
 
+// 모바일 메뉴 오버레이
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 25;
+}
+
+// 모바일 사이드 메뉴
 .mobile-nav {
   position: fixed;
   top: 0;
   right: 0;
   width: 280px;
   height: 100vh;
+  background-color: white;
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
   transform: translateX(100%);
   transition: transform 0.3s ease-in-out;
@@ -24,12 +37,20 @@
     padding: 24px;
   }
 
-  // .login-button {
-  //   @include button1-small;
-  // }
+  .login-button {
+    @include button1;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    text-align: center;
+  }
 
   .logout-button {
-    @include button2-small;
+    @include button2;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    text-align: center;
   }
 
   &.open {
@@ -37,15 +58,22 @@
   }
 }
 
+// PC 버튼 스타일
 .login-button {
   @include button1;
+  padding: 10px 40px;
+  font-size: 15px;
+  border-radius: 6px;
 }
 
 .logout-button {
   @include button2;
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 6px;
 }
 
-// 반응형
+// 반응형 - PC header 숨김
 @media screen and (max-width: 923px) {
   .header {
     display: none;

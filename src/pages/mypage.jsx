@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axiosInterceptor';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -111,8 +112,9 @@ export default function MyPage() {
   // 로그아웃
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/user/logout`, {}, { withCredentials: true });
-      navigate('/');
+      await api.post(`${API}/user/logout`);
+      localStorage.removeItem('auth');
+      window.location.href = '/login';
     } catch (err) {
       setMessage('로그아웃에 실패했습니다. 다시 시도해주세요.');
     }

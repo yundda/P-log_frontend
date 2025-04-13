@@ -1,9 +1,12 @@
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import { useState } from 'react';
-import '../style/login.scss';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/authAtom';
+import api from '../api/axiosInterceptor'; // axios interceptor
+import '../style/login.scss';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -15,20 +18,15 @@ export default function Login() {
     formState: { errors },
   } = useForm();
   const [serverError, setServerError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async data => {
-    console.log('로그인 시도:', data);
     setServerError('');
     try {
-      const response = await axios.post(`${API}/auth/login`, data, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // withCredentials: true,
-      });
+      const response = await api.post(`${API}/auth/login`, data);
 
       if (response.data.code === 'SU') {
-        const { nickname, token } = response.data.data;
+        const { nickname, token, requestId } = response.data.data;
         const newAuth = {
           isLoggedIn: true,
           nickname,
@@ -37,16 +35,18 @@ export default function Login() {
         localStorage.setItem('auth', JSON.stringify(newAuth));
         setAuthState(newAuth);
         alert(`${nickname}님, 환영합니다!`);
-        window.location.href = '/ChooseProfile';
-        console.log('로그인 성공:', response.data);
+
+        if (requestId !== undefined && requestId !== null) {
+          window.location.href = `/request/pending/${requestId}`;
+        } else {
+          window.location.href = '/ChooseProfile';
+        }
       }
     } catch (error) {
       if (error.response) {
         const { code, message } = error.response.data;
-        if (code === 'NF') {
+        if (code === 'NF' || code === 'BR' || code === 'DBE') {
           setServerError(message);
-        } else if (code === 'DBE') {
-          setServerError('서버 오류로 로그인에 실패했습니다.');
         }
       } else {
         setServerError('네트워크 오류가 발생했습니다.');
@@ -68,15 +68,27 @@ export default function Login() {
           />
           {errors.email && <p className="error-msg">{errors.email.message}</p>}
 
-          <label htmlFor="password">비밀번호:</label>
-          <input
-            type="password"
-            id="password"
-            {...register('password', { required: '비밀번호를 입력해주세요.' })}
-          />
-          {errors.password && (
-            <p className="error-msg">{errors.password.message}</p>
-          )}
+          <div className="password-wrapper">
+            <label htmlFor="password">비밀번호:</label>
+            <div className="password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                {...register('password', {
+                  required: '비밀번호를 입력해주세요.',
+                })}
+              />
+              <span
+                className="toggle-visibility"
+                onClick={() => setShowPassword(prev => !prev)}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </span>
+            </div>
+            {errors.password && (
+              <p className="error-msg">{errors.password.message}</p>
+            )}
+          </div>
 
           {serverError && <p className="error-msg">{serverError}</p>}
 

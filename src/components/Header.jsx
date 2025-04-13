@@ -1,40 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axiosInterceptor';
 import '../style/Header.scss';
+
+const API = process.env.REACT_APP_API_SERVER;
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nickname, setNickname] = useState('');
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+  const toggleMenu = () => setMenuOpen(prev => !prev);
+
+  useEffect(() => {
+    const storedAuth = localStorage.getItem('auth');
+    if (storedAuth) {
+      const { isLoggedIn, nickname } = JSON.parse(storedAuth);
+      if (isLoggedIn) {
+        setIsLoggedIn(true);
+        setNickname(nickname);
+      }
+    }
+
+    const handleResize = () => {
+      if (window.innerWidth > 923) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await api.post(`${API}/user/logout`);
+      localStorage.removeItem('auth');
+      setIsLoggedIn(false);
+      setNickname('');
+      setMenuOpen(false);
+      window.location.href = '/login';
+    } catch (error) {
+      alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+    }
   };
-
-  // // 로그인 상태 확인
-  // const fetchUserInfo = async () => {
-  //   try {
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_API_SERVER}/auth/login`,
-  //     ); // 로그인 상태 확인 API
-  //     if (res.data.result) {
-  //       setIsLoggedIn(true);
-  //       setNickname(res.data.nickname);
-  //     } else {
-  //       setIsLoggedIn(false);
-  //       setNickname('');
-  //     }
-  //   } catch (err) {
-  //     setIsLoggedIn(false);
-  //     setNickname('');
-  //   }
-  // };
-
-  // location 변경 시마다 호출
-  // useEffect(() => {
-  //   fetchUserInfo();
-  // }, [location]);
 
   return (
     <>
@@ -62,7 +71,7 @@ export default function Header() {
         <div className="mr-4">
           {isLoggedIn ? (
             <Link to="/mypage" className="login-button">
-              {nickname}님
+              {nickname}님 페이지
             </Link>
           ) : (
             <Link to="/login" className="login-button">
@@ -82,6 +91,10 @@ export default function Header() {
         </button>
       </div>
 
+      {menuOpen && (
+        <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />
+      )}
+
       {/* Mobile Side Nav */}
       <nav className={`mobile-nav ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-nav-content">
@@ -100,18 +113,9 @@ export default function Header() {
             {isLoggedIn ? (
               <>
                 <Link to="/mypage" className="login-button">
-                  {nickname}님
+                  {nickname}님 페이지
                 </Link>
-                <button
-                  className="logout-button"
-                  onClick={() => {
-                    axios.post('/api/auth/logout').then(() => {
-                      setIsLoggedIn(false);
-                      setNickname('');
-                      setMenuOpen(false);
-                    });
-                  }}
-                >
+                <button className="logout-button" onClick={handleLogout}>
                   로그아웃
                 </button>
               </>
