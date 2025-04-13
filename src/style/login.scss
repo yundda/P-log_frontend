@@ -45,6 +45,54 @@
         margin-bottom: 20px;
         border: 1px solid #ddd;
         border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      .password-wrapper {
+        margin-bottom: 20px;
+
+        .password-field {
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          input {
+            width: 100%;
+            height: 48px;
+            padding: 12px;
+            padding-right: 40px; // 아이콘 위치 확보
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+          }
+
+          .toggle-visibility {
+            position: absolute;
+            top: 0;
+            right: 12px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #888;
+            user-select: none;
+
+            &:hover {
+              color: #555;
+            }
+          }
+        }
+      }
+
+      .error-msg {
+        font-size: 14px;
+        color: red;
+        margin-top: -15px;
+        margin-bottom: 15px;
       }
 
       .find-pw {
@@ -55,6 +103,11 @@
 
         a {
           color: #8f8e8e;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
 
@@ -66,6 +119,7 @@
         border-radius: 5px;
         cursor: pointer;
         font-size: 18px;
+        transition: background-color 0.2s ease;
 
         &:hover {
           background-color: #7f5539;
@@ -81,6 +135,10 @@
           color: #7d7d7d;
           font-weight: bold;
           text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
     }
