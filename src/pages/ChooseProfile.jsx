@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import AddPet from '../components/AddPet';
+import AddPet from '../components/Modal/AddPet';
 import axios from 'axios';
 
 const API = process.env.REACT_APP_API_SERVER;

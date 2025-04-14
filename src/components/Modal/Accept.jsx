@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../style/accept.scss';
+import '../../style/accept.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 

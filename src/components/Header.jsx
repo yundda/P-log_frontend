@@ -64,7 +64,7 @@ export default function Header() {
               <Link to="/petSetting">반려동물 설정</Link>
             </li>
             <li>
-              <Link to="/accept">수락</Link>
+              <Link to="/invite">수락</Link>
             </li>
           </ul>
         </nav>
