@@ -14,6 +14,7 @@ import axios from 'axios';
 import './api/axiosInterceptor';
 import Header from './components/Header';
 import Home from './pages/Index';
+import RequestList from './pages/RequestList';
 
 function App() {
   useEffect(() => {
@@ -35,7 +36,8 @@ function App() {
         {/* 유저 관련 */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/accept" element={<Accept />} />
+        {/* <Route path="/accept" element={<Accept />} /> */}
+        <Route path="/request" element={<RequestList />} />
         <Route path="/myPage" element={<MyPage />} />
 
         {/* 반려동물 관련 */}
