@@ -1,11 +1,40 @@
-import { useState } from 'react';
-import { mockRequestList } from './mockRequestData';
-import AcceptModal from '../components/Accept';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import AcceptModal from '../components/Modal/Accept';
 
 export default function RequestList() {
+  const [requests, setRequests] = useState([]);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
-  const [requests, setRequests] = useState(mockRequestList);
 
+  // 요청 목록
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const token = JSON.parse(localStorage.getItem('auth'))?.token;
+
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_SERVER}/request/pending`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (res.data.code === 'SU') {
+          setRequests(res.data.data);
+        } else {
+          console.error('요청 목록 불러오기 실패:', res.data.message);
+        }
+      } catch (error) {
+        console.error('요청 목록 API 에러:', error);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  // 수락/거절 후 상태 업데이트
   const handleResult = (requestId, result) => {
     setRequests(prev =>
       prev.map(req =>

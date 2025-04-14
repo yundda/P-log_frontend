@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +21,7 @@ const PROFILE_ICONS = [
 ];
 
 export default function MyPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [userData, setUserData] = useState({ nickname: '', email: '' });
   const [form, setForm] = useState({
     nickname: '',

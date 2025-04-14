@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Pet from './Pet';
+import Pet from '../Pet';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import '../style/addPet.scss';
+import '../../style/addPet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 
