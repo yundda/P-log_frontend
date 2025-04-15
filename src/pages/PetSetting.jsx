@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Pet from '../components/Pet';
-import InviteModal from '../components/InviteModal';
+import InviteModal from '../components/Modal/InviteModal';
 import '../style/petSetting.scss';
 
 export default function PetSetting() {
@@ -10,6 +10,8 @@ export default function PetSetting() {
       .map((_, i) => ({ id: i, nickname: `닉네임${i + 1}`, checked: false })),
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const petName = '흰둥이';
 
   const toggleCheck = id => {
     setCollaborators(prev =>
@@ -21,25 +23,40 @@ export default function PetSetting() {
     setCollaborators(prev => prev.filter(c => !c.checked));
   };
 
+  const handleInviteSuccess = (nicknameOrEmail, requestId) => {
+    const newCollaborator = {
+      id: collaborators.length + 1,
+      nickname: nicknameOrEmail,
+      checked: false,
+      requestId,
+    };
+    setCollaborators(prev => [...prev, newCollaborator]);
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className="container mt-20 ml-40">
-      <div className="pet-setting-container flex flex-row justify-center items-start min-h-screen gap-20 pt-20">
-        <div className="pet-card ml-4">
+    <div className="container mx-auto px-4">
+      <div className="pet-setting-container flex flex-col lg:flex-row justify-center items-start min-h-screen gap-8 pt-20">
+        {/* 반려동물 카드 */}
+        <div className="pet-card w-full lg:w-[360px]">
           <Pet mode="Edit" />
         </div>
 
+        {/* 협업자 카드 */}
         <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-4xl">
-          <div className="w-full flex justify-between items-center">
+          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
             <button className="btn-invite" onClick={() => setIsModalOpen(true)}>
               초대하기
             </button>
-            <h2 className="text-5xl font-bold text-plog-main4">협업자 목록</h2>
+            <h2 className="text-3xl lg:text-5xl font-bold text-plog-main4 text-center">
+              협업자 목록
+            </h2>
             <button className="btn-delete" onClick={deleteSelected}>
               선택 삭제
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-8 collaborator-grid">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 collaborator-grid w-full">
             {collaborators.map(c => (
               <label
                 key={c.id}
@@ -65,7 +82,13 @@ export default function PetSetting() {
         </div>
       </div>
 
-      {isModalOpen && <InviteModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <InviteModal
+          petName={petName}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleInviteSuccess}
+        />
+      )}
     </div>
   );
 }

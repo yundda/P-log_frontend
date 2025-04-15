@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import '../style/mypage.scss';
 
 const PROFILE_ICONS = [
   '/images/profile1.png',
@@ -21,7 +21,6 @@ const PROFILE_ICONS = [
 ];
 
 export default function MyPage() {
-  // const navigate = useNavigate();
   const [userData, setUserData] = useState({ nickname: '', email: '' });
   const [form, setForm] = useState({
     nickname: '',
@@ -190,150 +189,147 @@ export default function MyPage() {
   };
 
   return (
-    <div className="flex justify-center items-start min-h-screen p-8 relative gap-8 flex-wrap">
-      {/* 유저 정보 카드 */}
-      <div className="bg-white p-6 border-plog-main4 rounded-xl shadow-lg w-120 flex flex-col items-center">
-        <img
-          src={selectedIcon}
-          alt="Profile Icon"
-          className="w-40 h-40 rounded-full mb-4 object-cover border-4 border-gray-300"
-        />
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 mb-2">
-          {PROFILE_ICONS.map(icon => (
-            <img
-              key={icon}
-              src={icon}
-              alt="선택 아이콘"
-              onClick={() => handleIconSelect(icon)}
-              className={`w-12 h-12 rounded-full cursor-pointer border-2 transition-all duration-200 ${
-                selectedIcon === icon
-                  ? 'border-plog-main5 scale-110'
-                  : 'border-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleIconSave}
-          className="bg-plog-main5 text-white py-1 px-3 rounded-md mb-4"
-        >
-          아이콘 저장
-        </button>
-
-        {/* 이메일 */}
-        <label className="text-gray-700 w-full mt-2">이메일</label>
-        <input
-          name="email"
-          type="email"
-          value={userData.email}
-          readOnly
-          className="w-full border p-2 rounded-md mb-2 bg-gray-100 text-gray-500 cursor-not-allowed"
-        />
-
-        {/* 닉네임 */}
-        <label className="text-gray-700 w-full mt-2">닉네임</label>
-        <input
-          name="nickname"
-          value={form.nickname}
-          onChange={handleChange}
-          className="w-full border p-2 rounded-md mb-2"
-        />
-
-        {/* 현재 비밀번호 */}
-        <label className="text-gray-700 w-full">현재 비밀번호</label>
-        <div className="relative w-full mb-2">
-          <input
-            name="beforePassword"
-            type={showCurrentPassword ? 'text' : 'password'}
-            value={form.beforePassword}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-md pr-10"
+    <div className="mypage-wrapper">
+      <div className="mypage-container">
+        {/* 유저 정보 카드 */}
+        <div className="profile-card">
+          <img
+            src={selectedIcon}
+            alt="Profile Icon"
+            className="w-40 h-40 rounded-full mb-4 object-cover border-4 border-gray-300"
           />
-          <span
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
-            onClick={() => setShowCurrentPassword(prev => !prev)}
-          >
-            <FontAwesomeIcon icon={showCurrentPassword ? faEyeSlash : faEye} />
-          </span>
-        </div>
-
-        {/* 새 비밀번호 */}
-        <label className="text-gray-700 w-full">새 비밀번호</label>
-        <div className="relative w-full mb-2">
-          <input
-            name="afterPassword"
-            type={showNewPassword ? 'text' : 'password'}
-            value={form.afterPassword}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-md pr-10"
-          />
-          <span
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
-            onClick={() => setShowNewPassword(prev => !prev)}
-          >
-            <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
-          </span>
-        </div>
-
-        {message && (
-          <p className="text-red-500 text-sm mt-1 whitespace-pre-wrap text-center">
-            {message}
-          </p>
-        )}
-
-        <button
-          onClick={handleSubmit}
-          className="bg-plog-main5 text-white py-2 px-4 rounded-md mt-4"
-        >
-          수정하기
-        </button>
-      </div>
-
-      {/* 반려동물 카드 */}
-      <div className="bg-white p-6 border-plog-main4 rounded-xl shadow-lg w-[500px]">
-        <h3 className="text-plog-main4 text-3xl font-bold mb-4">
-          나의 반려동물
-        </h3>
-
-        {petList.length === 0 ? (
-          <p className="text-gray-500">등록된 반려동물이 없습니다.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {petList.map(pet => (
-              <div key={pet.petId} className="flex flex-col items-center">
-                <img
-                  src={pet.profileImageUrl || '/images/default-pet.png'}
-                  alt={pet.name}
-                  className="w-24 h-24 rounded-full object-cover mb-2"
-                />
-                <span className="bg-plog-main1 text-gray-700 px-2 py-1 rounded mb-1">
-                  {pet.name}
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleLeavePet(pet.name)}
-                    className="bg-yellow-500 text-white py-1 px-2 rounded-md text-sm hover:bg-yellow-600"
-                  >
-                    가족에서 빠지기
-                  </button>
-                  <button
-                    onClick={() => handleDeletePet(pet.petId)}
-                    className="bg-red-500 text-white py-1 px-2 rounded-md text-sm hover:bg-red-600"
-                  >
-                    삭제하기
-                  </button>
-                </div>
-              </div>
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 mb-2">
+            {PROFILE_ICONS.map(icon => (
+              <img
+                key={icon}
+                src={icon}
+                alt="선택 아이콘"
+                onClick={() => handleIconSelect(icon)}
+                className={`w-12 h-12 rounded-full cursor-pointer border-2 transition-all duration-200 ${
+                  selectedIcon === icon
+                    ? 'border-plog-main5 scale-110'
+                    : 'border-gray-300'
+                }`}
+              />
             ))}
           </div>
-        )}
+          <button
+            onClick={handleIconSave}
+            className="bg-plog-main5 text-white py-1 px-3 rounded-md mb-4"
+          >
+            아이콘 저장
+          </button>
+
+          <label>이메일</label>
+          <input
+            name="email"
+            type="email"
+            value={userData.email}
+            readOnly
+            className="w-full border p-2 rounded-md mb-2 bg-gray-100 text-gray-500 cursor-not-allowed"
+          />
+
+          <label>닉네임</label>
+          <input
+            name="nickname"
+            value={form.nickname}
+            onChange={handleChange}
+            className="w-full border p-2 rounded-md mb-2"
+          />
+
+          <label>현재 비밀번호</label>
+          <div className="relative w-full mb-2">
+            <input
+              name="beforePassword"
+              type={showCurrentPassword ? 'text' : 'password'}
+              value={form.beforePassword}
+              onChange={handleChange}
+              className="w-full border p-2 rounded-md pr-10"
+            />
+            <span
+              className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowCurrentPassword(prev => !prev)}
+            >
+              <FontAwesomeIcon
+                icon={showCurrentPassword ? faEyeSlash : faEye}
+              />
+            </span>
+          </div>
+
+          <label>새 비밀번호</label>
+          <div className="relative w-full mb-2">
+            <input
+              name="afterPassword"
+              type={showNewPassword ? 'text' : 'password'}
+              value={form.afterPassword}
+              onChange={handleChange}
+              className="w-full border p-2 rounded-md pr-10"
+            />
+            <span
+              className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowNewPassword(prev => !prev)}
+            >
+              <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
+            </span>
+          </div>
+
+          {message && (
+            <p className="text-red-500 text-sm mt-1 whitespace-pre-wrap text-center">
+              {message}
+            </p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            className="bg-plog-main5 text-white py-2 px-4 rounded-md mt-4"
+          >
+            수정하기
+          </button>
+        </div>
+
+        {/* 반려동물 카드 */}
+        <div className="pet-card">
+          <h3 className="text-plog-main4 text-3xl font-bold mb-4">
+            나의 반려동물
+          </h3>
+
+          {petList.length === 0 ? (
+            <p className="text-gray-500">등록된 반려동물이 없습니다.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {petList.map(pet => (
+                <div key={pet.petId} className="flex flex-col items-center">
+                  <img
+                    src={pet.profileImageUrl || '/images/default-pet.png'}
+                    alt={pet.name}
+                    className="w-24 h-24 rounded-full object-cover mb-2"
+                  />
+                  <span className="bg-plog-main1 text-gray-700 px-2 py-1 rounded mb-1">
+                    {pet.name}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleLeavePet(pet.name)}
+                      className="bg-yellow-500 text-white py-1 px-2 rounded-md text-sm hover:bg-yellow-600"
+                    >
+                      가족에서 빠지기
+                    </button>
+                    <button
+                      onClick={() => handleDeletePet(pet.petId)}
+                      className="bg-red-500 text-white py-1 px-2 rounded-md text-sm hover:bg-red-600"
+                    >
+                      삭제하기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* 로그아웃 */}
-      <button
-        onClick={handleLogout}
-        className="bg-plog-main5 text-white py-2 px-6 rounded-md absolute bottom-10"
-      >
+      {/* 로그아웃 버튼 */}
+      <button onClick={handleLogout} className="logout-button mt-8">
         로그아웃
       </button>
     </div>

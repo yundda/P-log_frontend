@@ -48,7 +48,7 @@ export default function Header() {
   return (
     <>
       {/* PC Header */}
-      <header className="hidden md:flex justify-between items-center px-6 py-3 shadow-md h-16">
+      <header className="hidden md:flex justify-between items-center px-6 py-3 w-[90%] h-20 mx-auto">
         <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-14" />
         </Link>
@@ -64,11 +64,20 @@ export default function Header() {
               <Link to="/petSetting">반려동물 설정</Link>
             </li>
             <li>
-              <Link to="/invite">수락</Link>
+              <Link to="/request">요청</Link>
+            </li>
+            <li>
+              <a
+                href="https://github.com/your-repo-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                About Us
+              </a>
             </li>
           </ul>
         </nav>
-        <div className="mr-4">
+        <div className="mr-4 flex items-center gap-4">
           {isLoggedIn ? (
             <Link to="/mypage" className="login-button">
               {nickname}님 페이지
@@ -87,7 +96,7 @@ export default function Header() {
           <img src="/images/Logo.png" alt="logo" className="w-24" />
         </Link>
         <button className="menu-button" onClick={toggleMenu}>
-          <img src="/images/bones.png" alt="nav" className="w-6 h-6" />
+          <img src="/images/bonebar.png" alt="nav" className="w-20" />
         </button>
       </div>
 
@@ -97,34 +106,67 @@ export default function Header() {
 
       {/* Mobile Side Nav */}
       <nav className={`mobile-nav ${menuOpen ? 'open' : ''}`}>
-        <div className="mobile-nav-content">
-          <ul className="flex flex-col gap-4 text-plog-main4 font-semibold text-lg mt-10">
-            <li>
-              <Link to="/">홈</Link>
-            </li>
-            <li>
-              <Link to="/detail">상세페이지</Link>
-            </li>
-            <li>
-              <Link to="/petSetting">반려동물 설정</Link>
-            </li>
-          </ul>
-          <div className="flex flex-col gap-3 mt-6">
-            {isLoggedIn ? (
-              <>
-                <Link to="/mypage" className="login-button">
+        <div className="mobile-nav-content flex flex-col justify-between h-full p-6">
+          <div>
+            <ul className="flex flex-col gap-4 text-plog-main4 font-semibold text-lg mt-10">
+              {isLoggedIn ? (
+                <Link
+                  to="/mypage"
+                  className="login-button"
+                  onClick={() => setMenuOpen(false)}
+                >
                   {nickname}님 페이지
                 </Link>
-                <button className="logout-button" onClick={handleLogout}>
-                  로그아웃
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="login-button">
-                로그인
-              </Link>
-            )}
+              ) : (
+                <Link
+                  to="/login"
+                  className="login-button"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  로그인
+                </Link>
+              )}
+              <li>
+                <Link to="/" onClick={() => setMenuOpen(false)}>
+                  홈
+                </Link>
+              </li>
+              <li>
+                <Link to="/detail" onClick={() => setMenuOpen(false)}>
+                  상세페이지
+                </Link>
+              </li>
+              <li>
+                <Link to="/petSetting" onClick={() => setMenuOpen(false)}>
+                  반려동물 설정
+                </Link>
+              </li>
+              <li>
+                <Link to="/request" onClick={() => setMenuOpen(false)}>
+                  요청
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  About Us
+                </a>
+              </li>
+            </ul>
           </div>
+
+          {isLoggedIn && (
+            <button
+              className="logout-button text-red-500 border-t border-gray-200 pt-4 mt-4"
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
+          )}
         </div>
       </nav>
     </>

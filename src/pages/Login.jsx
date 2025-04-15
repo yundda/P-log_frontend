@@ -99,7 +99,13 @@ export default function Login() {
           <button type="submit">로그인</button>
 
           <div className="register-link">
-            아직 계정이 없나요? <a href="/register">회원가입</a>
+            아직 계정이 없나요?{' '}
+            <a
+              href="/register"
+              className="text-plog-main4 font-medium underline"
+            >
+              회원가입
+            </a>
           </div>
         </form>
       </div>

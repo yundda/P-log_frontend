@@ -1,45 +1,51 @@
 @import './util.scss';
 
 .pet-setting-container {
-  padding: 2rem;
+  padding: 2rem 2rem 2rem 2rem;
+  padding-top: 4rem;
 
-  .pet-card {
-    border: 1px solid $color-4;
-    border-radius: 12px;
-    padding: 20px;
-    @include box-shadow;
-    background-color: $color-white;
+  @media (max-width: 768px) {
+    padding-top: 8rem;
+  }
+}
+.pet-card {
+  border: 1px solid $color-2;
+  border-radius: 12px;
+  padding: 20px;
+  @include box-shadow;
+  background-color: $color-white;
+}
+
+.collab-card {
+  border: 1px solid $color-2;
+  border-radius: 12px;
+  @include box-shadow;
+  background-color: $color-white;
+  width: 600px;
+
+  .btn-invite,
+  .btn-delete {
+    @include button2;
+    padding: 8px 10px;
+    font-size: 1rem;
   }
 
-  .collab-card {
-    border: 1px solid $color-4;
-    border-radius: 12px;
-    @include box-shadow;
-    background-color: $color-white;
-    width: 600px;
+  .collaborator-grid {
+    grid-template-columns: repeat(3, 1fr);
 
-    .btn-invite,
-    .btn-delete {
-      @include button2;
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    .collaborator-grid {
-      grid-template-columns: repeat(3, 1fr);
+    label {
+      transition: all 0.3s ease;
 
-      @media (max-width: 923px) {
-        grid-template-columns: repeat(2, 1fr);
+      &:hover {
+        transform: translateY(-4px);
       }
 
-      label {
-        transition: all 0.3s ease;
-
-        &:hover {
-          transform: translateY(-4px);
-        }
-
-        input[type='checkbox']:checked + img {
-          box-shadow: 0 0 0 4px $color-4;
-        }
+      input[type='checkbox']:checked + img {
+        box-shadow: 0 0 0 4px $color-4;
       }
     }
   }

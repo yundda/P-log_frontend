@@ -1,71 +1,140 @@
 @import './util.scss';
 
 .register-container {
-  background-color: $color-white;
-  min-height: 100vh;
-  padding-top: 6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: $color-white;
+
+  .title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
 
   .register-card {
+    background-color: $color-white;
+    padding: 40px;
+    border-radius: 10px;
     @include box-shadow;
-    max-width: 800px;
-    width: 100%;
-  }
-
-  .input {
-    width: 16rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-radius: 0.5rem;
-    border-width: 1px;
-    border-color: $color-3;
-  }
-
-  .btn {
-    @include button1;
-  }
-
-  .btn-small {
-    @include button2;
-  }
-
-  .form-group {
     display: flex;
     align-items: center;
-  }
-}
-
-@media screen and (max-width: 923px) {
-  .register-card {
-    flex-direction: column;
-    align-items: center;
+    width: 940px;
+    height: 600px;
 
     .img {
-      margin-right: 0;
-      margin-bottom: 2rem;
+      width: 350px;
+      height: 350px;
+      margin-right: 50px;
     }
 
     .register-form {
-      width: 100%;
-      align-items: center;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
 
-      .form-group {
-        flex-direction: column;
-        align-items: flex-start;
+      label {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input {
         width: 100%;
-        .input {
-          width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      .password-wrapper {
+        margin-bottom: 20px;
+
+        .password-field {
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          input {
+            width: 100%;
+            height: 48px;
+            padding: 12px;
+            padding-right: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+          }
+
+          .toggle-visibility {
+            position: absolute;
+            top: 0;
+            right: 12px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #888;
+            user-select: none;
+
+            &:hover {
+              color: #555;
+            }
+          }
         }
       }
 
-      .btn {
-        width: 100%;
-        align-self: flex-end;
+      .error-msg {
+        font-size: 14px;
+        color: red;
+        margin-top: -15px;
+        margin-bottom: 15px;
       }
+
+      button {
+        @include button1;
+      }
+
+      .login-link {
+        margin-top: 15px;
+        font-size: 16px;
+        text-align: center;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .register-container {
+      padding-top: 80px;
+      height: auto;
+      min-height: 100vh;
+    }
+    .register-card {
+      flex-direction: column;
+      width: 80%;
+      height: auto;
+      padding: 20px;
+
+      .img {
+        margin-right: 0;
+        margin-bottom: 2rem;
+      }
+
+      .register-form {
+        width: 100%;
+      }
+    }
+
+    .title {
+      font-size: 40px;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
   }
 }
