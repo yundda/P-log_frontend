@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../style/pet.scss';
@@ -10,9 +10,9 @@ export default function Pet({ mode, petId, pet }) {
   const isEditMode = mode === 'edit';
   const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
-  const [previewImage, setPreviewImage] = useState('');
   const navigate = useNavigate();
 
+  const [previewImage, setPreviewImage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     species: '',
@@ -25,7 +25,10 @@ export default function Pet({ mode, petId, pet }) {
   const storedAuth = localStorage.getItem('auth');
   const token = storedAuth ? JSON.parse(storedAuth).token : '';
   const nickname = storedAuth ? JSON.parse(storedAuth).nickname : '';
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const authHeader = useMemo(() => {
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, [token]);
 
   useEffect(() => {
     if (isReadMode && petId) {
@@ -40,11 +43,11 @@ export default function Pet({ mode, petId, pet }) {
               name: data.petName || '',
               species: data.petSpecies || '',
               breed: data.petBreed || '',
-              birthday: data.petBirthday || '',
+              birthday: data.petBirthday?.slice(0, 10) || '', // YYYY-MM-DD
               gender: data.petGender === 'MALE' ? 'man' : 'woman',
               weight: data.petWeight?.toString() || '',
             });
-            setPreviewImage(data.petImageUrl || '');
+            setPreviewImage(data.petImageUrl || '/images/default-pet.png');
           }
         } catch (error) {
           console.error('반려동물 조회 실패:', error);
@@ -57,13 +60,17 @@ export default function Pet({ mode, petId, pet }) {
         name: pet.name || '',
         species: pet.species || '',
         breed: pet.breed || '',
-        birthday: pet.birthday || '',
+        birthday: pet.birthday?.slice(0, 10) || '',
         gender: pet.gender === 'MALE' ? 'man' : 'woman',
         weight: pet.weight?.toString() || '',
       });
-      setPreviewImage(pet.photo || '');
+      setPreviewImage(pet.photo || '/images/default-pet.png');
     }
-  }, [isReadMode, isEditMode, pet, petId]);
+
+    if (isCreateMode) {
+      setPreviewImage('/images/default-pet.png');
+    }
+  }, [isReadMode, isEditMode, isCreateMode, pet, petId, authHeader]);
 
   const handleImageClick = () => {
     if (isReadMode) return;
@@ -92,6 +99,11 @@ export default function Pet({ mode, petId, pet }) {
   const handleSubmit = async e => {
     e.preventDefault();
 
+    if (!formData.birthday) {
+      alert('생일을 입력해주세요.');
+      return;
+    }
+
     const petRequest = {
       petProfile: {
         petName: formData.name,
@@ -100,10 +112,7 @@ export default function Pet({ mode, petId, pet }) {
         petBirthday: formData.birthday,
         petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
         petWeight: parseFloat(formData.weight),
-        petPhoto: previewImage || '',
-      },
-      userRegistration: {
-        familyNick: nickname,
+        petPhoto: previewImage || '/images/default-pet.png',
       },
     };
 
@@ -129,8 +138,8 @@ export default function Pet({ mode, petId, pet }) {
   };
 
   return (
-    <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl">
-      <div className="img-card flex items-center gap-4">
+    <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl w-full">
+      <div className="img-card flex items-center gap-4 flex-wrap justify-center">
         <img
           src={previewImage || '/images/default-pet.png'}
           alt="사진"
@@ -140,7 +149,7 @@ export default function Pet({ mode, petId, pet }) {
           <>
             <button
               type="button"
-              className="add-button self-end"
+              className="add-button self-start"
               onClick={handleImageClick}
             >
               사진 추가하기
@@ -157,7 +166,7 @@ export default function Pet({ mode, petId, pet }) {
       </div>
 
       <form
-        className="input-card flex flex-col gap-4 w-full max-w-sm"
+        className="input-card flex flex-col gap-4 w-full"
         onSubmit={handleSubmit}
       >
         {[
@@ -166,10 +175,13 @@ export default function Pet({ mode, petId, pet }) {
           { label: '견종', name: 'breed', type: 'text' },
           { label: '생일', name: 'birthday', type: 'date' },
         ].map(({ label, name, type }) => (
-          <div className="flex items-center gap-4" key={name}>
+          <div
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full"
+            key={name}
+          >
             <label
               htmlFor={name}
-              className="text-plog-main4 font-semibold w-20"
+              className="text-plog-main4 font-semibold sm:w-20 min-w-[64px] flex-shrink-0"
             >
               {label}:
             </label>
@@ -180,16 +192,16 @@ export default function Pet({ mode, petId, pet }) {
               required
               value={formData[name]}
               onChange={handleChange}
-              className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
+              className="border border-plog-main1 rounded-md px-4 py-2 w-full"
               disabled={isReadMode}
             />
           </div>
         ))}
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
           <label
             htmlFor="gender"
-            className="text-plog-main4 font-semibold w-20"
+            className="text-plog-main4 font-semibold sm:w-20 min-w-[64px] flex-shrink-0"
           >
             성별:
           </label>
@@ -199,7 +211,7 @@ export default function Pet({ mode, petId, pet }) {
             required
             value={formData.gender}
             onChange={handleChange}
-            className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
+            className="border border-plog-main1 rounded-md px-4 py-2 w-full"
             disabled={isReadMode}
           >
             <option value="" disabled>
@@ -210,25 +222,27 @@ export default function Pet({ mode, petId, pet }) {
           </select>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
           <label
             htmlFor="weight"
-            className="text-plog-main4 font-semibold w-20"
+            className="text-plog-main4 font-semibold sm:w-20 min-w-[64px] flex-shrink-0"
           >
             몸무게:
           </label>
-          <input
-            type="number"
-            id="weight"
-            name="weight"
-            step="0.1"
-            required
-            value={formData.weight}
-            onChange={handleChange}
-            className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
-            disabled={isReadMode}
-          />
-          <span className="text-plog-main4">kg</span>
+          <div className="flex w-full gap-2">
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              step="0.1"
+              required
+              value={formData.weight}
+              onChange={handleChange}
+              className="border border-plog-main1 rounded-md px-4 py-2 w-full"
+              disabled={isReadMode}
+            />
+            <span className="text-plog-main4 self-center">kg</span>
+          </div>
         </div>
 
         {!isReadMode && (

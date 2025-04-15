@@ -1,47 +1,78 @@
 @import './util.scss';
 
+.mypage-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
 .mypage-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: $color-light-gray;
-  padding: 20px;
+  gap: 2rem;
+  padding: 2rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem 6rem;
+  }
+}
+
+.logout-button {
+  background: $color-5;
+  color: $color-white;
+  font-size: 1.25rem;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: background 0.2s ease;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background: $color-4;
+  }
 }
 
 .profile-card {
   background: $color-white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: $boxShadow;
+  @include box-shadow;
   width: 320px;
-  text-align: center;
+  // text-align: center;
+  flex-shrink: 0;
 
   .profile-image {
-    width: 128px;
-    height: 128px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: $color-gray;
     margin-bottom: 10px;
   }
 
   button {
-    background: $color-5;
-    color: $color-white;
-    padding: 10px 1px;
-    border-radius: 6px;
+    // background: $color-5;
+    // color: $color-white;
+    // padding: 10px 1px;
+    // border-radius: 6px;
     cursor: pointer;
     &:hover {
       background: $color-4;
     }
   }
 
-  input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid $color-gray;
-    border-radius: 6px;
-    margin-bottom: 10px;
+  // input {
+  //   // width: 100%;
+  //   // padding: 8px;
+  //   // border: 1px solid $color-gray;
+  //   border-radius: 6px;
+  //   margin-bottom: 10px;
+  // }
+
+  @media (max-width: 768px) {
+    width: 80%;
+    max-width: 80%;
   }
 }
 
@@ -49,9 +80,8 @@
   background: $color-white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: $boxShadow;
-  width: 500px;
-  margin-left: 20px;
+  @include box-shadow;
+  width: 600px;
 
   h3 {
     color: $color-4;
@@ -96,19 +126,8 @@
       }
     }
   }
-}
 
-.logout-button {
-  // @include button1;
-  background: $color-5;
-  color: $color-white;
-  padding: 10px 16px;
-  border-radius: 6px;
-  position: absolute;
-  bottom: 20px;
-  cursor: pointer;
-
-  &:hover {
-    background: $color-4;
+  @media (max-width: 768px) {
+    width: 80%;
   }
 }

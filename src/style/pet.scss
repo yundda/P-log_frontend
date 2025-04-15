@@ -8,6 +8,13 @@
   @include button1;
 }
 .add-container {
+  overflow: hidden;
+  // img,
+  // div,
+  // input {
+  //   max-width: 100%;
+  //   box-sizing: border-box;
+  // }
   @media (max-width: 923px) {
     padding: 1.5rem;
     gap: 2rem;
@@ -39,5 +46,24 @@
     .submit-button {
       @include button1-small;
     }
+  }
+}
+
+.input-card {
+  width: 100%;
+
+  label {
+    font-size: 1rem;
+  }
+
+  input,
+  select {
+    font-size: 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .submit-button {
+    @include button1-small;
   }
 }

@@ -11,10 +11,10 @@ import { RecoilRoot } from 'recoil';
 import { useEffect } from 'react';
 import axios from 'axios';
 import './api/axiosInterceptor';
-import Header from './components/Header';
 import Home from './pages/Index';
 import RequestList from './pages/RequestList';
 import MyPage from './pages/mypage';
+import Layout from './components/Layout';
 
 function App() {
   useEffect(() => {
@@ -26,27 +26,25 @@ function App() {
 
   return (
     <RecoilRoot>
-      <Header />
-
       {/* 페이지 라우팅 */}
       <Routes>
-        {/* 메인 페이지 */}
-        <Route path="/" element={<Home />} />
+        <Route element={<Layout />}>
+          {/* 메인 페이지 */}
+          <Route path="/" element={<Home />} />
+          {/* 유저 관련 */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/request" element={<RequestList />} />
+          <Route path="/myPage" element={<MyPage />} />
 
-        {/* 유저 관련 */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/invite" element={<RequestList />} />
-        <Route path="/request" element={<RequestList />} />
-        <Route path="/myPage" element={<MyPage />} />
+          {/* 반려동물 관련 */}
+          <Route path="/chooseProfile" element={<ChooseProfile />} />
+          <Route path="/petSetting" element={<PetSetting />} />
+          <Route path="/detail" element={<Detail />} />
 
-        {/* 반려동물 관련 */}
-        <Route path="/chooseProfile" element={<ChooseProfile />} />
-        <Route path="/petSetting" element={<PetSetting />} />
-        <Route path="/detail" element={<Detail />} />
-
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
       </Routes>
     </RecoilRoot>
   );

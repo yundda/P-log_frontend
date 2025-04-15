@@ -1,10 +1,14 @@
+@import './util.scss';
+
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: white;
+  // height: 100vh;
+  min-height: 100vh;
+  // padding-top: 80px;
+  background-color: $color-white;
 
   .title {
     font-size: 32px;
@@ -13,10 +17,10 @@
   }
 
   .login-card {
-    background-color: white;
+    background-color: $color-white;
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px #0000001a;
+    @include box-shadow;
     display: flex;
     align-items: center;
     width: 940px;
@@ -61,7 +65,7 @@
             width: 100%;
             height: 48px;
             padding: 12px;
-            padding-right: 40px; // 아이콘 위치 확보
+            padding-right: 40px;
             border: 1px solid #ddd;
             border-radius: 5px;
             box-sizing: border-box;
@@ -112,35 +116,67 @@
       }
 
       button {
-        background-color: #9c6644;
-        color: white;
-        padding: 12px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;
-        transition: background-color 0.2s ease;
+        @include button1;
+        //     background-color: #9c6644;
+        //     color: white;
+        //     padding: 12px;
+        //     border: none;
+        //     border-radius: 5px;
+        //     cursor: pointer;
+        //     font-size: 18px;
+        //     transition: background-color 0.2s ease;
 
-        &:hover {
-          background-color: #7f5539;
-        }
+        //     &:hover {
+        //       background-color: #7f5539;
+        //     }
+        //   }
+        // }
       }
-
       .register-link {
         margin-top: 15px;
         font-size: 16px;
         text-align: center;
 
-        a {
-          color: #7d7d7d;
-          font-weight: bold;
-          text-decoration: none;
+        // a {
+        //   color: $color-gray;
+        //   font-weight: bold;
+        //   text-decoration: none;
 
-          &:hover {
-            text-decoration: underline;
-          }
-        }
+        //   &:hover {
+        //     text-decoration: underline;
+        //   }
+        // }
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .login-container {
+      padding-top: 200px;
+      height: auto;
+      min-height: 100vh;
+    }
+    .login-card {
+      flex-direction: column;
+      width: 80%;
+      height: auto;
+      padding: 20px;
+
+      .img {
+        // display: none;
+        margin-right: 0;
+        margin-bottom: 2rem;
+      }
+
+      .login-form {
+        width: 100%;
+      }
+    }
+
+    .title {
+      font-size: 40px;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
   }
 }

@@ -46,43 +46,52 @@ export default function RequestList() {
   };
 
   return (
-    <div className="request-list-wrapper p-4">
-      <h2 className="text-xl font-bold mb-4">대기 중인 요청 목록</h2>
+    <div className="pt-20 w-[90%] max-w-[1200px] mx-auto">
+      <div className="bg-white border rounded-xl shadow p-6">
+        <h2 className="text-3xl font-bold text-plog-main4 mb-6 text-center">
+          대기 중인 요청 목록
+        </h2>
 
-      {requests.filter(req => req.status === 'pending').length === 0 ? (
-        <p className="text-gray-500">현재 대기 중인 요청이 없습니다.</p>
-      ) : (
-        <ul className="request-list space-y-3">
-          {requests
-            .filter(req => req.status === 'pending')
-            .map(req => (
-              <li
-                key={req.requestId}
-                className="flex items-center justify-between bg-white p-3 rounded shadow hover:bg-gray-50 cursor-pointer"
-                onClick={() => setSelectedRequestId(req.requestId)}
-              >
-                <div>
-                  <span className="text-sm text-gray-500 mr-2">
-                    [{req.type === 'invite' ? '초대' : '등록'}]
-                  </span>
-                  <strong className="text-plog-main4">
-                    {req.requesterNick}
-                  </strong>
-                  님의
-                  <span className="ml-1 font-semibold">{req.petName}</span> 요청
-                </div>
-              </li>
-            ))}
-        </ul>
-      )}
+        {requests.filter(req => req.status === 'pending').length === 0 ? (
+          <p className="text-gray-500 text-center">
+            현재 대기 중인 요청이 없습니다.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {requests
+              .filter(req => req.status === 'pending')
+              .map(req => (
+                <li
+                  key={req.requestId}
+                  className="flex items-center justify-between bg-[#fefaf6] p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                  onClick={() => setSelectedRequestId(req.requestId)}
+                >
+                  <div className="text-gray-800">
+                    <span className="text-sm text-gray-500 mr-2">
+                      [{req.type === 'invite' ? '초대' : '등록'}]
+                    </span>
+                    <strong className="text-plog-main4">
+                      {req.requesterNick}
+                    </strong>{' '}
+                    님의
+                    <span className="ml-1 font-semibold">
+                      {req.petName}
+                    </span>{' '}
+                    요청
+                  </div>
+                </li>
+              ))}
+          </ul>
+        )}
 
-      {selectedRequestId && (
-        <AcceptModal
-          requestId={selectedRequestId}
-          onClose={() => setSelectedRequestId(null)}
-          onResult={result => handleResult(selectedRequestId, result)}
-        />
-      )}
+        {selectedRequestId && (
+          <AcceptModal
+            requestId={selectedRequestId}
+            onClose={() => setSelectedRequestId(null)}
+            onResult={result => handleResult(selectedRequestId, result)}
+          />
+        )}
+      </div>
     </div>
   );
 }
