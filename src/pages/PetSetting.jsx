@@ -1,17 +1,14 @@
-import { useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { selectedPetProfileState } from '../recoil/petAtom';
 import Pet from '../components/Pet';
 import InviteModal from '../components/Modal/InviteModal';
+import { useState } from 'react';
 import '../style/petSetting.scss';
 
 export default function PetSetting() {
-  const [collaborators, setCollaborators] = useState(
-    Array(6)
-      .fill(0)
-      .map((_, i) => ({ id: i, nickname: `닉네임${i + 1}`, checked: false })),
-  );
+  const [collaborators, setCollaborators] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const petName = '흰둥이';
+  const petProfile = useRecoilValue(selectedPetProfileState);
 
   const toggleCheck = id => {
     setCollaborators(prev =>
@@ -23,10 +20,10 @@ export default function PetSetting() {
     setCollaborators(prev => prev.filter(c => !c.checked));
   };
 
-  const handleInviteSuccess = (nicknameOrEmail, requestId) => {
+  const handleInviteSuccess = (nickNameOrEmail, requestId) => {
     const newCollaborator = {
       id: collaborators.length + 1,
-      nickname: nicknameOrEmail,
+      nickName: nickNameOrEmail,
       checked: false,
       requestId,
     };
@@ -37,12 +34,10 @@ export default function PetSetting() {
   return (
     <div className="container mx-auto px-4">
       <div className="pet-setting-container flex flex-col lg:flex-row justify-center items-start min-h-screen gap-8 pt-20">
-        {/* 반려동물 카드 */}
         <div className="pet-card w-full lg:w-[360px]">
-          <Pet mode="Edit" />
+          <Pet mode="edit" pet={petProfile} />
         </div>
 
-        {/* 협업자 카드 */}
         <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-4xl">
           <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
             <button className="btn-invite" onClick={() => setIsModalOpen(true)}>
@@ -74,7 +69,7 @@ export default function PetSetting() {
                   className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
                 />
                 <span className="text-gray-700 mt-3 font-semibold text-base">
-                  {c.nickname}
+                  {c.nickName}
                 </span>
               </label>
             ))}
@@ -84,7 +79,7 @@ export default function PetSetting() {
 
       {isModalOpen && (
         <InviteModal
-          petName={petName}
+          petName={petProfile?.petName || ''}
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleInviteSuccess}
         />

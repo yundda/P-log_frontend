@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AddPet from '../components/Modal/AddPet';
 import axios from 'axios';
+import { useSetRecoilState } from 'recoil';
+import {
+  selectedpetNameState,
+  selectedPetProfileState,
+} from '../recoil/petAtom';
 
 const API = process.env.REACT_APP_API_SERVER;
 
 export default function ChooseProfile() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pets, setPets] = useState([]);
-  const [selectedPetId, setSelectedPetId] = useState(null);
+
+  const setSelectedpetName = useSetRecoilState(selectedpetNameState);
+  const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    fetchPets(); // 추가 후 목록
+    fetchPets();
   };
 
   const fetchPets = async () => {
@@ -30,9 +39,32 @@ export default function ChooseProfile() {
     }
   };
 
-  const handlePetClick = petId => {
-    setSelectedPetId(petId);
-    localStorage.setItem('selectedPetId', petId); // 선택된 반려동물 저장
+  const handlePetClick = async petName => {
+    setSelectedpetName(petName);
+    try {
+      const storedAuth = localStorage.getItem('auth');
+      const token = storedAuth ? JSON.parse(storedAuth).token : '';
+
+      const response = await axios.get(
+        `${API}/pets/profile/${encodeURIComponent(petName)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (response.data.code === 'SU') {
+        const petData = response.data.data;
+        setSelectedPetProfile(petData);
+        localStorage.setItem('selectedPet', JSON.stringify(petData));
+        navigate('/detail');
+      }
+    } catch (error) {
+      console.error('반려동물 정보 불러오기 실패:', error);
+      alert(
+        error.response?.data?.message ||
+          '반려동물 정보를 불러오는 데 실패했습니다.',
+      );
+    }
   };
 
   useEffect(() => {
@@ -48,13 +80,9 @@ export default function ChooseProfile() {
       <div className="flex gap-8 flex-wrap justify-center">
         {pets.map(pet => (
           <div
-            key={pet.petId}
-            onClick={() => handlePetClick(pet.petId)}
-            className={`cursor-pointer flex flex-col items-center p-4 rounded-lg shadow-md transition-transform hover:scale-105 ${
-              selectedPetId === pet.petId
-                ? 'ring-4 ring-plog-main4'
-                : 'ring-1 ring-gray-300'
-            }`}
+            key={pet.petName}
+            onClick={() => handlePetClick(pet.petName)}
+            className="cursor-pointer flex flex-col items-center p-4 rounded-lg shadow-md transition-transform hover:scale-105 ring-1 ring-gray-300"
           >
             <img
               src={pet.petImageUrl || '/images/default-pet.png'}

@@ -5,7 +5,7 @@ import '../style/pet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 
-export default function Pet({ mode, petId, pet }) {
+export default function Pet({ mode, pet }) {
   const isCreateMode = mode === 'create';
   const isEditMode = mode === 'edit';
   const isReadMode = mode === 'read';
@@ -14,7 +14,7 @@ export default function Pet({ mode, petId, pet }) {
 
   const [previewImage, setPreviewImage] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
+    petName: '',
     species: '',
     breed: '',
     birthday: '',
@@ -24,53 +24,30 @@ export default function Pet({ mode, petId, pet }) {
 
   const storedAuth = localStorage.getItem('auth');
   const token = storedAuth ? JSON.parse(storedAuth).token : '';
-  const nickname = storedAuth ? JSON.parse(storedAuth).nickname : '';
 
   const authHeader = useMemo(() => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }, [token]);
 
   useEffect(() => {
-    if (isReadMode && petId) {
-      (async () => {
-        try {
-          const res = await axios.get(`${API}/pets/${petId}`, {
-            headers: authHeader,
-          });
-          const data = res.data?.data;
-          if (data) {
-            setFormData({
-              name: data.petName || '',
-              species: data.petSpecies || '',
-              breed: data.petBreed || '',
-              birthday: data.petBirthday?.slice(0, 10) || '', // YYYY-MM-DD
-              gender: data.petGender === 'MALE' ? 'man' : 'woman',
-              weight: data.petWeight?.toString() || '',
-            });
-            setPreviewImage(data.petImageUrl || '/images/default-pet.png');
-          }
-        } catch (error) {
-          console.error('반려동물 조회 실패:', error);
-        }
-      })();
-    }
-
-    if (isEditMode && pet) {
+    if ((isReadMode || isEditMode) && pet) {
       setFormData({
-        name: pet.name || '',
-        species: pet.species || '',
-        breed: pet.breed || '',
-        birthday: pet.birthday?.slice(0, 10) || '',
-        gender: pet.gender === 'MALE' ? 'man' : 'woman',
-        weight: pet.weight?.toString() || '',
+        petName: pet.petName || '',
+        species: pet.petSpecies || '',
+        breed: pet.petBreed || '',
+        birthday: pet.petBirthday?.slice(0, 10) || '',
+        gender: pet.petGender === 'MALE' ? 'man' : 'woman',
+        weight: pet.petWeight?.toString() || '',
       });
-      setPreviewImage(pet.photo || '/images/default-pet.png');
+      setPreviewImage(
+        pet.petImageUrl || pet.petPhoto || '/images/default-pet.png',
+      );
     }
 
     if (isCreateMode) {
       setPreviewImage('/images/default-pet.png');
     }
-  }, [isReadMode, isEditMode, isCreateMode, pet, petId, authHeader]);
+  }, [isReadMode, isEditMode, isCreateMode, pet]);
 
   const handleImageClick = () => {
     if (isReadMode) return;
@@ -105,15 +82,14 @@ export default function Pet({ mode, petId, pet }) {
     }
 
     const petRequest = {
-      petProfile: {
-        petName: formData.name,
-        petSpecies: formData.species,
-        petBreed: formData.breed,
-        petBirthday: formData.birthday,
-        petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
-        petWeight: parseFloat(formData.weight),
-        petPhoto: previewImage || '/images/default-pet.png',
-      },
+      name: pet?.petName,
+      petName: formData.petName,
+      petSpecies: formData.species,
+      petBreed: formData.breed,
+      petBirthday: formData.birthday,
+      petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
+      petWeight: parseFloat(formData.weight),
+      petPhoto: previewImage || '/images/default-pet.png',
     };
 
     try {
@@ -125,8 +101,8 @@ export default function Pet({ mode, petId, pet }) {
         navigate('/ChooseProfile');
       }
 
-      if (isEditMode && petId) {
-        const response = await axios.patch(`${API}/pets/${petId}`, petRequest, {
+      if (isEditMode) {
+        const response = await axios.patch(`${API}/pets/update`, petRequest, {
           headers: authHeader,
         });
         alert(response.data?.message || '수정 완료');
@@ -138,7 +114,7 @@ export default function Pet({ mode, petId, pet }) {
   };
 
   return (
-    <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl w-full">
+    <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl">
       <div className="img-card flex items-center gap-4 flex-wrap justify-center">
         <img
           src={previewImage || '/images/default-pet.png'}
@@ -170,7 +146,7 @@ export default function Pet({ mode, petId, pet }) {
         onSubmit={handleSubmit}
       >
         {[
-          { label: '이름', name: 'name', type: 'text' },
+          { label: '이름', name: 'petName', type: 'text' },
           { label: '품종', name: 'species', type: 'text' },
           { label: '견종', name: 'breed', type: 'text' },
           { label: '생일', name: 'birthday', type: 'date' },
