@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axiosInterceptor';
 import '../style/Header.scss';
-
-const API = process.env.REACT_APP_API_SERVER;
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nickname, setNickname] = useState('');
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
 
@@ -32,17 +30,21 @@ export default function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await api.post(`${API}/user/logout`);
-      localStorage.removeItem('auth');
-      setIsLoggedIn(false);
-      setNickname('');
-      setMenuOpen(false);
-      window.location.href = '/login';
-    } catch (error) {
-      alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
-    }
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem('auth');
+    setIsLoggedIn(false);
+    setNickname('');
+    setMenuOpen(false);
+    setIsLogoutModalOpen(false);
+    window.location.href = '/login';
+  };
+
+  const cancelLogout = () => {
+    setIsLogoutModalOpen(false);
   };
 
   return (
@@ -79,9 +81,17 @@ export default function Header() {
         </nav>
         <div className="mr-4 flex items-center gap-4">
           {isLoggedIn ? (
-            <Link to="/mypage" className="login-button">
-              {nickname}님 페이지
-            </Link>
+            <>
+              <Link to="/mypage" className="login-button">
+                {nickname}님 페이지
+              </Link>
+              {/* <button
+                onClick={handleLogoutClick}
+                className="logout-button ml-2"
+              >
+                로그아웃
+              </button> */}
+            </>
           ) : (
             <Link to="/login" className="login-button">
               로그인
@@ -158,17 +168,41 @@ export default function Header() {
               </li>
             </ul>
           </div>
-
           {isLoggedIn && (
             <button
               className="logout-button text-red-500 border-t border-gray-200 pt-4 mt-4"
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
             >
               로그아웃
             </button>
           )}
         </div>
       </nav>
+
+      {/* 로그아웃 모달 */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
+            <p className="mb-4 text-lg font-medium">
+              정말 로그아웃 하시겠습니까?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                로그아웃
+              </button>
+              <button
+                onClick={cancelLogout}
+                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

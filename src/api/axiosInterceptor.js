@@ -9,6 +9,7 @@ const instance = axios.create({
   },
 });
 
+//토큰 꺼내서 헤더에 추가
 instance.interceptors.request.use(
   config => {
     const storedAuth = localStorage.getItem('auth');
@@ -23,6 +24,7 @@ instance.interceptors.request.use(
   error => Promise.reject(error),
 );
 
+//401이면 자동 로그아웃 처리
 instance.interceptors.response.use(
   response => response,
   error => {
