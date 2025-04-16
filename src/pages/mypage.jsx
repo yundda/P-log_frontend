@@ -35,6 +35,7 @@ export default function MyPage() {
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -148,14 +149,10 @@ export default function MyPage() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.post('/user/logout');
-      localStorage.removeItem('auth');
-      window.location.href = '/login';
-    } catch (err) {
-      setMessage('로그아웃에 실패했습니다. 다시 시도해주세요.');
-    }
+  // ✅ 백엔드 요청 없이 프론트에서만 로그아웃 처리
+  const handleLogout = () => {
+    localStorage.removeItem('auth');
+    window.location.href = '/login';
   };
 
   const handleLeavePet = async petName => {
@@ -186,6 +183,19 @@ export default function MyPage() {
       const res = err.response;
       alert(res?.data?.message || '삭제에 실패했습니다.');
     }
+  };
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem('auth');
+    window.location.href = '/login';
+  };
+
+  const cancelLogout = () => {
+    setIsLogoutModalOpen(false);
   };
 
   return (
@@ -219,7 +229,7 @@ export default function MyPage() {
           >
             아이콘 저장
           </button>
-
+          <br />
           <label>이메일</label>
           <input
             name="email"
@@ -328,10 +338,34 @@ export default function MyPage() {
         </div>
       </div>
 
-      {/* 로그아웃 버튼 */}
-      <button onClick={handleLogout} className="logout-button mt-8">
+      <button onClick={handleLogoutClick} className="logout-button mt-8">
         로그아웃
       </button>
+
+      {/* ✅ 로그아웃 모달 */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
+            <p className="mb-4 text-lg font-medium">
+              정말 로그아웃 하시겠습니까?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                로그아웃
+              </button>
+              <button
+                onClick={cancelLogout}
+                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
