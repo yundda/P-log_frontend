@@ -22,7 +22,7 @@ jobs:
       - name: Create .env.production # env 만드는 것
         run: |
           echo "REACT_APP_API_SERVER=${{ secrets.REACT_APP_API_SERVER }}" > .env.production
-          echo "REACT_APP_S3=${{ secrets.REACT_APP_S3 }}" > .env.production
+          echo "REACT_APP_S3=${{ secrets.REACT_APP_S3 }}" >> .env.production
 
       - name: Install dependencies and build
         run: |
@@ -35,8 +35,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          source: "build"
-          target: "/home/ubuntu/temp_build"
+          source: 'build'
+          target: '/home/ubuntu/temp_build'
           # target: "/usr/share/nginx/html" # 만들어지는 장소는 여기지만 접근 권한 없으므로, 위의 경로에 임시 저장
 
           # 권한 모두 허락하는 대신 sudo 명령어 actions에서 처리

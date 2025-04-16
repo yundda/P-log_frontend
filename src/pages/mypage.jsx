@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -21,6 +22,8 @@ const PROFILE_ICONS = [
 ];
 
 export default function MyPage() {
+  const navigate = useNavigate();
+
   const [userData, setUserData] = useState({ nickname: '', email: '' });
   const [form, setForm] = useState({
     nickname: '',
@@ -32,10 +35,13 @@ export default function MyPage() {
     localStorage.getItem('profileIcon') || PROFILE_ICONS[0],
   );
   const [petList, setPetList] = useState([]);
-
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // 🆕 모달 상태
+  const [modalType, setModalType] = useState(null); // 'leave' or 'delete'
+  const [selectedPetName, setSelectedPetName] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,13 +54,10 @@ export default function MyPage() {
         }
       } catch (err) {
         const res = err.response;
-        if (res?.status === 401) {
-          setMessage('인증이 필요합니다.');
-        } else if (res?.status === 404) {
+        if (res?.status === 401) setMessage('인증이 필요합니다.');
+        else if (res?.status === 404)
           setMessage(res.data.message || '사용자 정보를 찾을 수 없습니다.');
-        } else {
-          setMessage('유저 정보를 불러오는 데 실패했습니다.');
-        }
+        else setMessage('유저 정보를 불러오는 데 실패했습니다.');
       }
     };
 
@@ -149,20 +152,12 @@ export default function MyPage() {
     }
   };
 
-  // ✅ 백엔드 요청 없이 프론트에서만 로그아웃 처리
-  const handleLogout = () => {
-    localStorage.removeItem('auth');
-    window.location.href = '/login';
-  };
-
   const handleLeavePet = async petName => {
     try {
-      const res = await api.get(
-        `/user/leavePet/${encodeURIComponent(petName)}`,
-      );
+      const res = await api.get(`/user/leave/${encodeURIComponent(petName)}`);
       if (res.data.code === 'SU') {
         alert(`"${petName}"에서 가족 관계가 해제되었습니다.`);
-        setPetList(prev => prev.filter(pet => pet.name !== petName));
+        setPetList(prev => prev.filter(pet => pet.petName !== petName));
       }
     } catch (err) {
       const res = err.response;
@@ -170,19 +165,39 @@ export default function MyPage() {
     }
   };
 
-  const handleDeletePet = async petId => {
-    if (!window.confirm('정말로 이 반려동물을 삭제하시겠습니까?')) return;
-
+  const handleDeletePet = async petName => {
     try {
-      const res = await api.delete(`/pets/${petId}`);
+      const res = await api.delete(
+        `/pets/delete/${encodeURIComponent(petName)}`,
+      );
       if (res.data.code === 'SU') {
         alert('반려동물이 삭제되었습니다.');
-        setPetList(prev => prev.filter(p => p.petId !== petId));
+        setPetList(prev => prev.filter(pet => pet.petName !== petName));
       }
     } catch (err) {
       const res = err.response;
       alert(res?.data?.message || '삭제에 실패했습니다.');
     }
+  };
+
+  const openModal = (type, petName) => {
+    setModalType(type);
+    setSelectedPetName(petName);
+  };
+
+  const handleConfirm = async () => {
+    if (modalType === 'leave') {
+      await handleLeavePet(selectedPetName);
+    } else if (modalType === 'delete') {
+      await handleDeletePet(selectedPetName);
+    }
+    setModalType(null);
+    setSelectedPetName('');
+  };
+
+  const handleCancel = () => {
+    setModalType(null);
+    setSelectedPetName('');
   };
 
   const handleLogoutClick = () => {
@@ -299,9 +314,17 @@ export default function MyPage() {
 
         {/* 반려동물 카드 */}
         <div className="pet-card">
-          <h3 className="text-plog-main4 text-3xl font-bold mb-4">
-            나의 반려동물
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-plog-main4 text-3xl font-bold">
+              나의 반려동물
+            </h3>
+            <button
+              className="bg-plog-main5 text-white py-1 px-3 rounded-md"
+              onClick={() => navigate('/chooseProfile')}
+            >
+              추가하기
+            </button>
+          </div>
 
           {petList.length === 0 ? (
             <p className="text-gray-500">등록된 반려동물이 없습니다.</p>
@@ -310,22 +333,22 @@ export default function MyPage() {
               {petList.map(pet => (
                 <div key={pet.petId} className="flex flex-col items-center">
                   <img
-                    src={pet.profileImageUrl || '/images/default-pet.png'}
-                    alt={pet.name}
+                    src={pet.petImageUrl || '/images/default-pet.png'}
+                    alt={pet.petName || '반려동물'}
                     className="w-24 h-24 rounded-full object-cover mb-2"
                   />
                   <span className="bg-plog-main1 text-gray-700 px-2 py-1 rounded mb-1">
-                    {pet.name}
+                    {pet.petName || '이름 없음'}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleLeavePet(pet.name)}
+                      onClick={() => openModal('leave', pet.petName)}
                       className="bg-yellow-500 text-white py-1 px-2 rounded-md text-sm hover:bg-yellow-600"
                     >
                       가족에서 빠지기
                     </button>
                     <button
-                      onClick={() => handleDeletePet(pet.petId)}
+                      onClick={() => openModal('delete', pet.petName)}
                       className="bg-red-500 text-white py-1 px-2 rounded-md text-sm hover:bg-red-600"
                     >
                       삭제하기
@@ -342,7 +365,7 @@ export default function MyPage() {
         로그아웃
       </button>
 
-      {/* ✅ 로그아웃 모달 */}
+      {/* 로그아웃 모달 */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
@@ -358,6 +381,33 @@ export default function MyPage() {
               </button>
               <button
                 onClick={cancelLogout}
+                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🆕 가족/삭제 모달 */}
+      {modalType && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
+            <p className="mb-4 text-lg font-medium">
+              {modalType === 'leave'
+                ? `"${selectedPetName}"에서 가족 관계를 해제하시겠습니까?`
+                : `"${selectedPetName}"을(를) 정말 삭제하시겠습니까?`}
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleConfirm}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                확인
+              </button>
+              <button
+                onClick={handleCancel}
                 className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
               >
                 취소

@@ -8,22 +8,23 @@ const API = process.env.REACT_APP_API_SERVER;
 
 export default function AddPet({ onClose }) {
   const navigate = useNavigate();
-  const [nickname, setNickname] = useState('');
-  const [petName, setPetName] = useState('');
+  const [nickName, setNickName] = useState('');
+  const [petName, setpetName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [requestLink, setRequestLink] = useState(''); // 링크 저장
+  const [requestLink, setRequestLink] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault();
 
-    if (!nickname || !petName) {
+    if (!nickName || !petName) {
       setErrorMessage('닉네임과 동물 이름은 필수입니다.');
       return;
     }
 
     const payload = {
-      ownerNick: nickname,
+      ownerNick: nickName,
       petName,
     };
 
@@ -65,6 +66,15 @@ export default function AddPet({ onClose }) {
     navigate(requestLink);
   };
 
+  const handlePetCreateSuccess = () => {
+    setShowSuccessModal(true); // 성공
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    onClose(); // 부모 모달
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -78,7 +88,9 @@ export default function AddPet({ onClose }) {
           </h1>
 
           <div className="content-wrapper">
-            <Pet mode="create" />
+            {/* Pet 등록 성공*/}
+            <Pet mode="create" onSuccess={handlePetCreateSuccess} />
+
             <div className="vertical-line"></div>
 
             <div className="participate-wrapper">
@@ -101,18 +113,18 @@ export default function AddPet({ onClose }) {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-4">
                       <label
-                        htmlFor="nickname"
+                        htmlFor="nickName"
                         className="text-plog-main4 font-semibold w-20"
                       >
                         닉네임:
                       </label>
                       <input
                         type="text"
-                        id="nickname"
-                        name="nickname"
+                        id="nickName"
+                        petName="nickName"
                         placeholder="닉네임을 입력하세요"
-                        value={nickname}
-                        onChange={e => setNickname(e.target.value)}
+                        value={nickName}
+                        onChange={e => setNickName(e.target.value)}
                         required
                         className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
                       />
@@ -129,9 +141,9 @@ export default function AddPet({ onClose }) {
                     <input
                       type="text"
                       id="petName"
-                      name="petName"
+                      petName="petName"
                       value={petName}
-                      onChange={e => setPetName(e.target.value)}
+                      onChange={e => setpetName(e.target.value)}
                       required
                       className="border border-plog-main1 rounded-md px-4 py-2 flex-1"
                     />
@@ -175,6 +187,24 @@ export default function AddPet({ onClose }) {
           </div>
         </div>
       </div>
+
+      {/* 등록 완료 모달 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <h2 className="text-xl font-semibold mb-4">등록 완료!</h2>
+            <p className="text-gray-700 mb-6">
+              반려동물이 성공적으로 등록되었습니다.
+            </p>
+            <button
+              onClick={handleSuccessModalClose}
+              className="bg-plog-main5 text-white px-4 py-2 rounded hover:bg-plog-main4"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

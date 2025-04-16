@@ -4,6 +4,8 @@ import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
 import Daily from '../components/Modal/Daily';
 import Health from '../components/Modal/Health';
+import { useRecoilValue } from 'recoil';
+import { selectedPetProfileState } from '../recoil/petAtom';
 import '../style/detail.scss';
 import '../style/addPet.scss';
 
@@ -12,20 +14,20 @@ export default function Detail() {
   const [showDailyModal, setShowDailyModal] = useState(false);
   const [showHealthModal, setShowHealthModal] = useState(false);
 
+  const petProfile = useRecoilValue(selectedPetProfileState);
+
   return (
     <div className="detail-container flex gap-4 p-4 flex-wrap w-full lg:flex-nowrap justify-center items-start max-w-screen-xl mx-auto">
-      {/* 반려동물 정보 */}
       <div className="pet-wrapper bg-plog-main2/30 p-4 rounded-xl w-full h-full lg:w-1/4">
         <h1 className="text-2xl font-bold text-plog-main4 text-center mb-4 leading-tight">
           반려동물의 정보,
           <br />
           일상 생활을 기록해주세요.
         </h1>
-        <Pet className="pet-profile" mode="read" />
+        <Pet className="pet-profile" mode="read" pet={petProfile} />
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-[800px]">
-        {/* 오늘의 일상 */}
         <div className="daily-wrapper border border-plog-main2 p-4 rounded-xl w-full">
           <h2 className="text-4xl font-semibold text-plog-main4 mb-4">
             오늘의 일상
@@ -56,12 +58,10 @@ export default function Detail() {
           </div>
         </div>
 
-        {/* 건강 기록 */}
         <div className="health-wrapper border border-plog-main2 p-4 rounded-xl w-full">
           <h3 className="text-4xl font-semibold text-plog-main4 mb-4">
             이번달 건강 정보 기록
           </h3>
-
           <div className="health-content flex flex-row gap-6 flex-nowrap mb-4">
             <div className="flex flex-col justify-between w-1/2 min-w-[300px] pr-4">
               <div className="health-card flex-1 bg-white text-plog-main4 p-3 rounded">
@@ -93,7 +93,6 @@ export default function Detail() {
         </div>
       </div>
 
-      {/* Daily 모달 */}
       {showDailyModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -108,7 +107,6 @@ export default function Detail() {
         </div>
       )}
 
-      {/* Health 모달 */}
       {showHealthModal && (
         <div className="modal-overlay">
           <div className="modal-content">
