@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import '../style/register.scss';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -11,28 +11,47 @@ const API = process.env.REACT_APP_API_SERVER;
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [apiError, setApiError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({ mode: 'onChange' });
 
   const password = watch('password');
 
+  // 이메일 자동 세팅 (초대받은 경우)
+  useEffect(() => {
+    const invitedEmail = searchParams.get('email');
+    if (invitedEmail) {
+      console.log('[초대받은 이메일]', invitedEmail);
+      setValue('email', invitedEmail);
+    }
+  }, [searchParams, setValue]);
+
   const onSubmit = async data => {
+    console.log('[회원가입 요청 데이터]', data);
     try {
       const response = await axios.post(`${API}/auth/signup`, data);
+      console.log('[회원가입 응답]', response.data);
+
       if (response.data.code === 'SU') {
         alert(`${data.nickname}님! 회원가입 성공하셨습니다🥳`);
         navigate('/login');
       }
     } catch (error) {
+      console.error('[회원가입 요청 실패]', error);
       if (error.response && error.response.data) {
         const { code, message } = error.response.data;
+        console.error('[에러 응답 코드]', code);
+        console.error('[에러 응답 메시지]', message);
+
         if (code === 'VF' || code === 'DBE') {
           setApiError(message);
         }
@@ -47,11 +66,14 @@ export default function Register() {
       <h3 className="title">회원가입</h3>
       <div className="register-card">
         <img src="/images/img1.png" alt="사진" className="img" />
+
         <form className="register-form" onSubmit={handleSubmit(onSubmit)}>
+          {/* 이메일 */}
           <label htmlFor="email">이메일:</label>
           <input
             type="email"
             placeholder="test@email.com"
+            readOnly={!!searchParams.get('email')}
             {...register('email', {
               required: '이메일을 입력해주세요.',
               pattern: {
@@ -62,6 +84,7 @@ export default function Register() {
           />
           {errors.email && <p className="error-msg">{errors.email.message}</p>}
 
+          {/* 닉네임 */}
           <label htmlFor="nickname">닉네임:</label>
           <input
             type="text"
@@ -74,6 +97,7 @@ export default function Register() {
             <p className="error-msg">{errors.nickname.message}</p>
           )}
 
+          {/* 비밀번호 */}
           <div className="password-wrapper">
             <label htmlFor="password">비밀번호:</label>
             <div className="password-field">
@@ -105,6 +129,7 @@ export default function Register() {
             )}
           </div>
 
+          {/* 비밀번호 확인 */}
           <div className="password-wrapper">
             <label htmlFor="passwordConfirm">비밀번호 확인:</label>
             <div className="password-field">
@@ -131,6 +156,7 @@ export default function Register() {
             )}
           </div>
 
+          {/* 서버 에러 메시지 */}
           {apiError && <p className="error-msg">{apiError}</p>}
 
           <button type="submit">회원가입</button>

@@ -66,11 +66,8 @@ export default function Header() {
               <Link to="/petSetting">반려동물 설정</Link>
             </li>
             <li>
-              <Link to="/request">요청</Link>
-            </li>
-            <li>
               <a
-                href="https://github.com/your-repo-link"
+                href="https://github.com/yundda/P-log_frontend.git"
                 target="_blank"
                 rel="noopener noreferrer"
               >
