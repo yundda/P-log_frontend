@@ -13,10 +13,19 @@ const instance = axios.create({
 instance.interceptors.request.use(
   config => {
     const storedAuth = localStorage.getItem('auth');
+    console.log('[Interceptor] auth 내용:', storedAuth);
     if (storedAuth) {
-      const { token } = JSON.parse(storedAuth);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      try {
+        const { token } = JSON.parse(storedAuth);
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          console.log(
+            '[Interceptor] Authorization 설정됨:',
+            config.headers.Authorization,
+          );
+        }
+      } catch (e) {
+        console.warn('[Interceptor] JSON 파싱 오류', e);
       }
     }
     return config;

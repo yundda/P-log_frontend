@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axios from '../api/axiosInterceptor';
 import '../style/pet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 
-export default function Pet({ mode, pet }) {
+export default function Pet({ mode, pet, onSuccess }) {
   const isCreateMode = mode === 'create';
   const isEditMode = mode === 'edit';
   const isReadMode = mode === 'read';
@@ -22,12 +23,13 @@ export default function Pet({ mode, pet }) {
     weight: '',
   });
 
-  const storedAuth = localStorage.getItem('auth');
-  const token = storedAuth ? JSON.parse(storedAuth).token : '';
+  // const storedAuth = localStorage.getItem('auth');
+  // const token = storedAuth ? JSON.parse(storedAuth).token : '';
+  // console.log('[토큰]', token);
 
-  const authHeader = useMemo(() => {
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }, [token]);
+  // const authHeader = useMemo(() => {
+  //   return token ? { Authorization: `Bearer ${token}` } : {};
+  // }, [token]);
 
   useEffect(() => {
     if ((isReadMode || isEditMode) && pet) {
@@ -92,23 +94,31 @@ export default function Pet({ mode, pet }) {
       petPhoto: previewImage || '/images/default-pet.png',
     };
 
+    console.log('[요청 데이터]', petRequest);
+
     try {
       if (isCreateMode) {
         const response = await axios.post(`${API}/pets`, petRequest, {
-          headers: authHeader,
+          // headers: authHeader,
         });
+        console.log('[등록 성공 응답]', response.data);
         alert(response.data?.message || '등록 완료');
+        if (typeof onSuccess === 'function') {
+          onSuccess();
+        }
         navigate('/ChooseProfile');
       }
 
       if (isEditMode) {
         const response = await axios.patch(`${API}/pets/update`, petRequest, {
-          headers: authHeader,
+          // headers: authHeader,
         });
+        console.log('[수정 성공 응답]', response.data);
         alert(response.data?.message || '수정 완료');
       }
     } catch (error) {
-      console.error('요청 실패:', error);
+      console.error('[요청 실패]', error);
+      console.error('[에러 응답]', error.response?.data);
       alert(error.response?.data?.message || '에러가 발생했습니다.');
     }
   };

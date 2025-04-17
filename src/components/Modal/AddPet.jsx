@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Pet from '../Pet';
-import axios from 'axios';
+import axios from '../../api/axiosInterceptor';
 import { useNavigate } from 'react-router-dom';
 import '../../style/addPet.scss';
 
@@ -20,6 +20,7 @@ export default function AddPet({ onClose }) {
 
     if (!nickName || !petName) {
       setErrorMessage('닉네임과 동물 이름은 필수입니다.');
+      console.warn('[검증 실패] 입력값 부족', { nickName, petName });
       return;
     }
 
@@ -28,8 +29,12 @@ export default function AddPet({ onClose }) {
       petName,
     };
 
+    console.log('[요청 전송] payload:', payload);
+
     try {
       const res = await axios.post(`${API}/request/permission`, payload);
+      console.log('[응답 성공]', res.data);
+
       const { code, data } = res.data;
 
       if (code === 'SU') {
@@ -38,20 +43,26 @@ export default function AddPet({ onClose }) {
 
         if (data.isAlreadyRequested) {
           setSuccessMessage('이미 요청을 보냈습니다. 대기 중입니다.');
+          console.info('[요청 상태] 이미 요청됨', data);
         } else {
           setSuccessMessage('요청을 성공적으로 보냈습니다!');
+          console.info('[요청 상태] 새 요청 성공', data);
         }
         setErrorMessage('');
       }
     } catch (err) {
+      console.error('[요청 실패]', err);
       if (err.response) {
         const { code, message } = err.response.data;
+        console.error('[에러 응답]', { code, message });
+
         if (['NF', 'BR', 'DBE'].includes(code)) {
           setErrorMessage(message);
         } else {
           setErrorMessage('요청 중 알 수 없는 오류가 발생했습니다.');
         }
       } else {
+        console.error('[네트워크 오류 또는 서버 다운]', err.message);
         setErrorMessage('서버에 연결할 수 없습니다.');
       }
     }
@@ -60,19 +71,23 @@ export default function AddPet({ onClose }) {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(`${window.location.origin}${requestLink}`);
     alert('링크가 클립보드에 복사되었습니다.');
+    console.log('[클립보드 복사됨]', `${window.location.origin}${requestLink}`);
   };
 
   const goToRequestPage = () => {
+    console.log('[요청 상세 페이지로 이동]', requestLink);
     navigate(requestLink);
   };
 
   const handlePetCreateSuccess = () => {
-    setShowSuccessModal(true); // 성공
+    console.log('[Pet 등록 성공]');
+    setShowSuccessModal(true);
   };
 
   const handleSuccessModalClose = () => {
+    console.log('[Pet 등록 성공 모달 닫기]');
     setShowSuccessModal(false);
-    onClose(); // 부모 모달
+    onClose();
   };
 
   return (
@@ -88,11 +103,12 @@ export default function AddPet({ onClose }) {
           </h1>
 
           <div className="content-wrapper">
-            {/* Pet 등록 성공*/}
+            {/* Pet 등록 */}
             <Pet mode="create" onSuccess={handlePetCreateSuccess} />
 
             <div className="vertical-line"></div>
 
+            {/* 참여하기 */}
             <div className="participate-wrapper">
               <div className="image-and-form">
                 <div className="img-card flex items-center gap-4">

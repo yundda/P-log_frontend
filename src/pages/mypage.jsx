@@ -38,21 +38,21 @@ export default function MyPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-
-  // 🆕 모달 상태
-  const [modalType, setModalType] = useState(null); // 'leave' or 'delete'
+  const [modalType, setModalType] = useState(null);
   const [selectedPetName, setSelectedPetName] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const res = await api.get('/user/mypage');
+        console.log('[유저 정보 응답]', res.data);
         if (res.data.code === 'SU') {
           const { nickname, email } = res.data.data;
           setUserData({ nickname, email });
           setForm(prev => ({ ...prev, nickname }));
         }
       } catch (err) {
+        console.error('[유저 정보 요청 실패]', err);
         const res = err.response;
         if (res?.status === 401) setMessage('인증이 필요합니다.');
         else if (res?.status === 404)
@@ -68,11 +68,12 @@ export default function MyPage() {
     const fetchPets = async () => {
       try {
         const res = await api.get('/pets');
+        console.log('[반려동물 목록 응답]', res.data);
         if (res.data.code === 'SU') {
           setPetList(res.data.data);
         }
       } catch (error) {
-        console.error('반려동물 목록 불러오기 실패:', error);
+        console.error('[반려동물 목록 요청 실패]', error);
       }
     };
 
@@ -85,11 +86,13 @@ export default function MyPage() {
   };
 
   const handleIconSelect = icon => {
+    console.log('[아이콘 선택]', icon);
     setSelectedIcon(icon);
   };
 
   const handleIconSave = () => {
     localStorage.setItem('profileIcon', selectedIcon);
+    console.log('[아이콘 저장됨]', selectedIcon);
     alert('프로필 아이콘이 저장되었습니다!');
   };
 
@@ -132,60 +135,65 @@ export default function MyPage() {
     if (form.nickname !== userData.nickname) payload.nickname = form.nickname;
     if (form.afterPassword) payload.afterPassword = form.afterPassword;
 
+    console.log('[수정 요청 payload]', payload);
+
     try {
       const res = await api.patch('/user/update', payload);
+      console.log('[수정 성공 응답]', res.data);
       if (res.data.code === 'SU') {
         setMessage('수정이 완료되었습니다.');
-        setUserData(prev => ({
-          ...prev,
-          nickname: form.nickname,
-        }));
-        setForm(prev => ({
-          ...prev,
-          afterPassword: '',
-          beforePassword: '',
-        }));
+        setUserData(prev => ({ ...prev, nickname: form.nickname }));
+        setForm(prev => ({ ...prev, beforePassword: '', afterPassword: '' }));
       }
     } catch (err) {
+      console.error('[수정 실패]', err.response);
       const res = err.response;
       setMessage(res?.data?.message || '요청 처리 중 오류가 발생했습니다.');
     }
   };
 
   const handleLeavePet = async petName => {
+    console.log('[가족에서 빠지기 요청]', petName);
     try {
       const res = await api.get(`/user/leave/${encodeURIComponent(petName)}`);
+      console.log('[가족 해제 응답]', res.data);
       if (res.data.code === 'SU') {
         alert(`"${petName}"에서 가족 관계가 해제되었습니다.`);
         setPetList(prev => prev.filter(pet => pet.petName !== petName));
       }
     } catch (err) {
+      console.error('[가족 해제 실패]', err.response);
       const res = err.response;
       alert(res?.data?.message || '가족에서 빠지기에 실패했습니다.');
     }
   };
 
   const handleDeletePet = async petName => {
+    console.log('[삭제 요청]', petName);
     try {
       const res = await api.delete(
         `/pets/delete/${encodeURIComponent(petName)}`,
       );
+      console.log('[삭제 응답]', res.data);
       if (res.data.code === 'SU') {
         alert('반려동물이 삭제되었습니다.');
         setPetList(prev => prev.filter(pet => pet.petName !== petName));
       }
     } catch (err) {
+      console.error('[삭제 실패]', err.response);
       const res = err.response;
       alert(res?.data?.message || '삭제에 실패했습니다.');
     }
   };
 
   const openModal = (type, petName) => {
+    console.log('[모달 열기]', type, petName);
     setModalType(type);
     setSelectedPetName(petName);
   };
 
   const handleConfirm = async () => {
+    console.log('[모달 확인]', modalType, selectedPetName);
     if (modalType === 'leave') {
       await handleLeavePet(selectedPetName);
     } else if (modalType === 'delete') {
@@ -196,6 +204,7 @@ export default function MyPage() {
   };
 
   const handleCancel = () => {
+    console.log('[모달 취소]');
     setModalType(null);
     setSelectedPetName('');
   };
@@ -205,6 +214,7 @@ export default function MyPage() {
   };
 
   const confirmLogout = () => {
+    console.log('[로그아웃 수행]');
     localStorage.removeItem('auth');
     window.location.href = '/login';
   };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddPet from '../components/Modal/AddPet';
-import axios from 'axios';
+import axios from '../api/axiosInterceptor';
 import { useSetRecoilState } from 'recoil';
 import {
   selectedpetNameState,
@@ -18,8 +18,13 @@ export default function ChooseProfile() {
   const setSelectedpetName = useSetRecoilState(selectedpetNameState);
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
 
-  const openModal = () => setIsModalOpen(true);
+  const openModal = () => {
+    console.log('[모달 열기]');
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => {
+    console.log('[모달 닫기 및 반려동물 목록 새로고침]');
     setIsModalOpen(false);
     fetchPets();
   };
@@ -28,22 +33,34 @@ export default function ChooseProfile() {
     try {
       const storedAuth = localStorage.getItem('auth');
       const token = storedAuth ? JSON.parse(storedAuth).token : '';
+
+      console.log('[반려동물 목록 요청 시작] 토큰:', token);
+
       const response = await axios.get(`${API}/pets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      console.log('[반려동물 목록 응답]', response.data);
+
       if (response.data.code === 'SU') {
         setPets(response.data.data || []);
+      } else {
+        console.warn('[반려동물 목록 응답 실패]', response.data);
       }
     } catch (error) {
-      console.error('반려동물 목록 조회 실패:', error);
+      console.error('[반려동물 목록 조회 실패]', error);
     }
   };
 
   const handlePetClick = async petName => {
+    console.log('[선택된 반려동물]', petName);
     setSelectedpetName(petName);
+
     try {
       const storedAuth = localStorage.getItem('auth');
       const token = storedAuth ? JSON.parse(storedAuth).token : '';
+
+      console.log('[프로필 요청 시작]', petName);
 
       const response = await axios.get(
         `${API}/pets/profile/${encodeURIComponent(petName)}`,
@@ -52,14 +69,35 @@ export default function ChooseProfile() {
         },
       );
 
+      console.log('[반려동물 프로필 응답]', response.data);
+
+      // if (response.data.code === 'SU') {
+      //   const petData = response.data.data;
+      //   setSelectedPetProfile(petData);
+      //   localStorage.setItem('selectedPet', JSON.stringify(petData));
+      //   navigate('/detail');
       if (response.data.code === 'SU') {
         const petData = response.data.data;
-        setSelectedPetProfile(petData);
-        localStorage.setItem('selectedPet', JSON.stringify(petData));
+
+        const formattedPetData = {
+          id: petData.id || petData.petId, // ✅ id 또는 petId 포함
+          petName: petData.petName,
+          petSpecies: petData.petSpecies,
+          petBreed: petData.petBreed,
+          petGender: petData.petGender,
+          petBirthday: petData.petBirthday,
+          petImageUrl: petData.petImageUrl,
+          // 필요시 더 추가 가능
+        };
+
+        setSelectedPetProfile(formattedPetData);
+        localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
         navigate('/detail');
+      } else {
+        console.warn('[프로필 응답 실패]', response.data);
       }
     } catch (error) {
-      console.error('반려동물 정보 불러오기 실패:', error);
+      console.error('[반려동물 정보 불러오기 실패]', error);
       alert(
         error.response?.data?.message ||
           '반려동물 정보를 불러오는 데 실패했습니다.',
@@ -68,6 +106,7 @@ export default function ChooseProfile() {
   };
 
   useEffect(() => {
+    console.log('[컴포넌트 마운트] 반려동물 목록 요청');
     fetchPets();
   }, []);
 

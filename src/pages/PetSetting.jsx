@@ -2,13 +2,42 @@ import { useRecoilValue } from 'recoil';
 import { selectedPetProfileState } from '../recoil/petAtom';
 import Pet from '../components/Pet';
 import InviteModal from '../components/Modal/InviteModal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from '../api/axiosInterceptor';
 import '../style/petSetting.scss';
+
+const API = process.env.REACT_APP_API_SERVER;
 
 export default function PetSetting() {
   const [collaborators, setCollaborators] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const petProfile = useRecoilValue(selectedPetProfileState);
+
+  useEffect(() => {
+    if (!petProfile || !petProfile.petName) return;
+
+    const fetchCollaborators = async () => {
+      try {
+        const res = await axios.get(`${API}/user/family/${petProfile.petName}`);
+        if (res.data.code === 'SU') {
+          const familyList = res.data.data.familyList;
+
+          const formattedList = familyList.map((nickName, idx) => ({
+            id: idx + 1,
+            nickName,
+            checked: false,
+          }));
+
+          console.log('[가져온 협업자 목록]', formattedList);
+          setCollaborators(formattedList);
+        }
+      } catch (err) {
+        console.error('[협업자 목록 불러오기 오류]', err);
+      }
+    };
+
+    fetchCollaborators();
+  }, [petProfile]);
 
   const toggleCheck = id => {
     setCollaborators(prev =>
@@ -17,6 +46,8 @@ export default function PetSetting() {
   };
 
   const deleteSelected = () => {
+    const deleted = collaborators.filter(c => c.checked);
+    console.log('[삭제할 협업자]', deleted);
     setCollaborators(prev => prev.filter(c => !c.checked));
   };
 
@@ -27,6 +58,7 @@ export default function PetSetting() {
       checked: false,
       requestId,
     };
+    console.log('[새 협업자 추가]', newCollaborator);
     setCollaborators(prev => [...prev, newCollaborator]);
     setIsModalOpen(false);
   };
@@ -64,7 +96,10 @@ export default function PetSetting() {
                   className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
                 />
                 <img
-                  src="/images/img1.png"
+                  src={
+                    localStorage.getItem('profileIcon') ||
+                    '/images/default-user.png'
+                  }
                   alt="협업자"
                   className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
                 />
@@ -79,7 +114,7 @@ export default function PetSetting() {
 
       {isModalOpen && (
         <InviteModal
-          petName={petProfile?.petName || ''}
+          petName={petProfile.petName}
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleInviteSuccess}
         />
