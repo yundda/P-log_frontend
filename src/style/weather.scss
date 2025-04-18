@@ -1,0 +1,43 @@
+@import './util.scss';
+
+.weather-container {
+  transition: all 0.3s ease;
+  @include box-shadow;
+  animation: fadeIn 0.5s ease-out;
+
+  .weather-content {
+    border-left: 4px solid $color-4;
+    padding-left: 1rem;
+    background-color: $color-light-gray;
+    border-radius: 0.75rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media screen and (max-width: 923px) {
+    margin-top: 2rem;
+    padding: 1rem;
+
+    .weather-content {
+      font-size: 0.95rem;
+      padding: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+    }
+  }
+}

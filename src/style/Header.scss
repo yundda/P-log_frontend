@@ -1,0 +1,82 @@
+@import 'util.scss';
+
+header {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.login-button {
+  @include button1;
+  padding: 10px 40px;
+  font-size: 15px;
+  border-radius: 6px;
+}
+
+.mobile-header {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+}
+
+// 모바일 메뉴 오버레이
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 25;
+}
+
+// 모바일 사이드 메뉴
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+
+  .mobile-nav-content {
+    width: 100%;
+    padding: 24px;
+  }
+
+  .login-button {
+    @include button1;
+    padding: 12px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .logout-button {
+    @include button2;
+    padding: 6px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    text-align: center;
+    margin: 0 auto;
+    width: fit-content;
+  }
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+// 반응형 - PC header 숨김
+@media screen and (max-width: 768px) {
+  .header {
+    display: none;
+  }
+}

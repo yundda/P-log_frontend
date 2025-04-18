@@ -1,0 +1,42 @@
+@import './util.scss';
+
+.accept-wrapper {
+  background-color: $color-white;
+  position: relative;
+}
+
+.accept-card {
+  @include box-shadow;
+  width: 600px;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+}
+
+.accept-button {
+  @include button1;
+}
+
+@media (max-width: 923px) {
+  .accept-card {
+    border: 0cap;
+    box-shadow: none;
+    margin-top: 0rem;
+    gap: 4rem;
+  }
+
+  .user-profile {
+    width: 70%;
+    height: 100%;
+    padding: 0;
+    margin: 10;
+  }
+
+  .accept-alert {
+    font-size: 30px;
+  }
+
+  .accept-button {
+    @include button1-small;
+    margin-top: 5rem;
+  }
+}

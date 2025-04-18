@@ -1,0 +1,133 @@
+@import './util.scss';
+
+.mypage-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.mypage-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem 6rem;
+  }
+}
+
+.logout-button {
+  background: $color-5;
+  color: $color-white;
+  font-size: 1.25rem;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: background 0.2s ease;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background: $color-4;
+  }
+}
+
+.profile-card {
+  background: $color-white;
+  padding: 20px;
+  border-radius: 12px;
+  @include box-shadow;
+  width: 320px;
+  // text-align: center;
+  flex-shrink: 0;
+
+  .profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: $color-gray;
+    margin-bottom: 10px;
+  }
+
+  button {
+    // background: $color-5;
+    // color: $color-white;
+    // padding: 10px 1px;
+    // border-radius: 6px;
+    cursor: pointer;
+    &:hover {
+      background: $color-4;
+    }
+  }
+
+  // input {
+  //   // width: 100%;
+  //   // padding: 8px;
+  //   // border: 1px solid $color-gray;
+  //   border-radius: 6px;
+  //   margin-bottom: 10px;
+  // }
+
+  @media (max-width: 768px) {
+    width: 80%;
+    max-width: 80%;
+  }
+}
+
+.pet-card {
+  background: $color-white;
+  padding: 20px;
+  border-radius: 12px;
+  @include box-shadow;
+  width: 600px;
+
+  h3 {
+    color: $color-4;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .pet-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .pet-item {
+    text-align: center;
+
+    .pet-image {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: $color-gray;
+      margin-bottom: 8px;
+    }
+
+    .pet-name {
+      background: $color-1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      color: $color-gray;
+    }
+
+    button {
+      background: $color-5;
+      color: $color-white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-top: 5px;
+      &:hover {
+        background: $color-4;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
+}
