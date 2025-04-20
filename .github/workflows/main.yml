@@ -1,44 +1,38 @@
 name: Frontend CI/CD
-
 on:
   push:
     branches: [main]
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
       CI: false # build 테스트 강력한 검사는 하지 않도록
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - name: Create .env.production # env 만드는 것
         run: |
-          echo "REACT_APP_API_SERVER=${{ secrets.REACT_APP_API_SERVER }}" > .env.production
-          echo "REACT_APP_S3=${{ secrets.REACT_APP_S3 }}" >> .env.production
-
+          echo “REACT_APP_API_SERVER=${{ secrets.REACT_APP_API_SERVER }}” > .env.production
+          echo “REACT_APP_S3=${{ secrets.REACT_APP_S3 }}” >> .env.production
+          echo “REACT_APP_WEATHER_API_KEY=${{ secrets.REACT_APP_WEATHER_API_KEY }}” >> .env.production
+          echo “REACT_APP_TRAVEL_API_KEY=${{ secrets.REACT_APP_TRAVEL_API_KEY }}” >> .env.production
       - name: Install dependencies and build
         run: |
           npm ci #npm install 같은 것, 그런데 package-lock.json 기준으로 함. 더 강력한 도구
           npm run build # build 후 정적 파일 만들기
-
       - name: Upload build folder to EC2 # EC2 설정
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          source: 'build'
-          target: '/home/ubuntu/temp_build'
-          # target: "/usr/share/nginx/html" # 만들어지는 장소는 여기지만 접근 권한 없으므로, 위의 경로에 임시 저장
-
+          source: “build”
+          target: “/home/ubuntu/temp_build”
+          # target: “/usr/share/nginx/html” # 만들어지는 장소는 여기지만 접근 권한 없으므로, 위의 경로에 임시 저장
           # 권한 모두 허락하는 대신 sudo 명령어 actions에서 처리
       - name: Move build to nginx with sudo
         uses: appleboy/ssh-action@v1.0.0

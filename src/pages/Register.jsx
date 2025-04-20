@@ -15,6 +15,7 @@ export default function Register() {
   const [apiError, setApiError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const {
     register,
@@ -26,7 +27,6 @@ export default function Register() {
 
   const password = watch('password');
 
-  // 이메일 자동 세팅 (초대받은 경우)
   useEffect(() => {
     const invitedEmail = searchParams.get('email');
     if (invitedEmail) {
@@ -42,16 +42,12 @@ export default function Register() {
       console.log('[회원가입 응답]', response.data);
 
       if (response.data.code === 'SU') {
-        alert(`${data.nickname}님! 회원가입 성공하셨습니다🥳`);
-        navigate('/login');
+        setShowSuccessModal(true);
       }
     } catch (error) {
       console.error('[회원가입 요청 실패]', error);
       if (error.response && error.response.data) {
         const { code, message } = error.response.data;
-        console.error('[에러 응답 코드]', code);
-        console.error('[에러 응답 메시지]', message);
-
         if (code === 'VF' || code === 'DBE') {
           setApiError(message);
         }
@@ -59,6 +55,11 @@ export default function Register() {
         setApiError('알 수 없는 오류가 발생했습니다.');
       }
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigate('/login');
   };
 
   return (
@@ -169,6 +170,17 @@ export default function Register() {
           </div>
         </form>
       </div>
+
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p className="modal-message">🎉 회원가입이 완료되었습니다!</p>
+            <button onClick={handleCloseModal} className="modal-button">
+              로그인하러 가기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

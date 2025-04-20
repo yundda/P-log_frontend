@@ -18,6 +18,8 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
   const handleSend = async () => {
     setError('');
     setResponseMsg('');
+    setRequestId(null);
+    setReceiverEmail('');
 
     if (!petName) {
       setError('펫 이름이 없어 초대를 보낼 수 없습니다.');
@@ -53,10 +55,6 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
       setRequestId(data.requestId);
       setReceiverEmail(data.receiverEmail || '');
       setResponseMsg('초대가 성공적으로 전송되었습니다.');
-
-      if (onSuccess) {
-        onSuccess(nick || email, data.requestId);
-      }
     } catch (err) {
       const { message } = err.response?.data || {};
       setError(message || '초대 요청 실패');
@@ -80,6 +78,17 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
     } catch (err) {
       alert('복사에 실패했습니다. 다시 시도해주세요.');
     }
+  };
+
+  const handleClose = () => {
+    if (requestId && onSuccess) {
+      onSuccess({
+        target: nick || email,
+        requestId,
+        receiverEmail,
+      });
+    }
+    onClose();
   };
 
   return (
@@ -117,18 +126,19 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
         )}
 
         {requestId && (
-          <div className="text-sm mt-3">
-            <p className="text-blue-500">
-              초대 링크:
+          <div className="text-sm mt-4 border-t pt-4 border-gray-200">
+            <p className="text-blue-500 font-medium">
+              초대 링크:{' '}
               <a
-                href={`/request/pending/${requestId}`}
-                className="underline ml-1"
+                href={`${window.location.origin}/request/pending/${requestId}`}
+                className="underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                /request/pending/{requestId}
+                ${window.location.origin}/request/pending/{requestId}
               </a>
             </p>
+
             <button
               className="mt-2 text-sm text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600"
               onClick={() =>
@@ -141,8 +151,8 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
             </button>
 
             {receiverEmail && (
-              <div className="mt-2">
-                <p className="text-gray-700">
+              <div className="mt-3">
+                <p className="text-gray-700 text-sm">
                   아직 가입되지 않은 사용자입니다.
                 </p>
                 <button
@@ -168,6 +178,17 @@ export default function InviteModal({ petName, onClose, onSuccess }) {
             {isSending ? '전송 중...' : '전송'}
           </button>
         </div>
+
+        {requestId && (
+          <div className="text-center mt-4">
+            <button
+              onClick={handleClose}
+              className="text-sm text-gray-500 hover:underline"
+            >
+              닫기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
