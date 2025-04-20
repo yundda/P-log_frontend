@@ -13,8 +13,9 @@ export default function Health({
   mode = 'create',
   editLog,
 }) {
-  const isReadMode = mode === 'read';
-  const isEditMode = !!editLog;
+  const [currentMode, setCurrentMode] = useState(mode);
+  const isReadMode = currentMode === 'read';
+  // const isEditMode = currentMode === 'edit';
 
   const [form, setForm] = useState({
     vaccination: '',
@@ -32,8 +33,8 @@ export default function Health({
   };
 
   const closeAlert = () => {
-    setShowAlert(false);
     setAlertMessage('');
+    setShowAlert(false);
   };
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function Health({
         ? form.hospital_log + ':00'
         : form.hospital_log;
 
-    if (isEditMode) {
+    if (currentMode === 'edit') {
       try {
         await axios.patch(`${API}/logs/health/update`, {
           log_id: editLog.log_id,
@@ -79,9 +80,8 @@ export default function Health({
           hospitalLog: formattedHospitalLog,
         });
         openAlert('건강 기록이 수정되었습니다!');
-        const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
-        setHealthLogs(logsRes.data.data);
-        onClose();
+        // const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
+        // setHealthLogs(logsRes.data.data);
       } catch (err) {
         console.error('[건강 기록 수정 실패]', err);
         openAlert(err.response?.data?.message || '서버 오류');
@@ -89,6 +89,7 @@ export default function Health({
       return;
     }
 
+    // create mode
     const body = {
       petLog: {
         name: pet.petName,
@@ -105,10 +106,9 @@ export default function Health({
 
     try {
       await axios.post(`${API}/logs/health`, body);
-      openAlert(' 건강 기록이 저장되었습니다!');
-      const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
-      setHealthLogs(logsRes.data.data);
-      onClose();
+      openAlert('건강 기록이 저장되었습니다!');
+      // const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
+      // setHealthLogs(logsRes.data.data);
     } catch (err) {
       console.error('[건강 기록 등록 실패]', err);
       openAlert(err.response?.data?.message || '서버 오류');
@@ -120,16 +120,29 @@ export default function Health({
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
 
     try {
-      await axios.delete(`${API}/logs/health/${pet.petName}`, {
-        data: { log_id: editLog.log_id },
-      });
+      await axios.delete(`${API}/logs/health/${editLog.log_id}`);
       openAlert('🗑️ 삭제되었습니다!');
       const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
       setHealthLogs(logsRes.data.data);
-      onClose();
     } catch (err) {
       console.error('[건강 기록 삭제 실패]', err);
       openAlert(err.response?.data?.message || '서버 오류');
+    }
+  };
+
+  const handleEdit = () => setCurrentMode('edit');
+
+  const handleCancelEdit = () => {
+    setCurrentMode('read');
+    if (editLog) {
+      setForm({
+        vaccination: editLog.vaccination || '',
+        hospital: editLog.hospital || '',
+        hospital_log: formatEditDate(editLog.hospital_log) || '',
+        vaccination_log:
+          editLog.vaccination_log === true ||
+          editLog.vaccination_log === 'true',
+      });
     }
   };
 
@@ -141,7 +154,11 @@ export default function Health({
         </button>
         <div className="add-container bg-plog-main2/40 flex-container p-6 rounded-xl shadow-lg">
           <h1 className="text-plog-main4 font-bold text-4xl mb-6 text-center">
-            {isEditMode ? '🏥 건강 기록 보기' : '✏️ 건강 기록'}
+            {currentMode === 'edit'
+              ? '✏️ 건강 기록 수정'
+              : editLog
+              ? '🏥 건강 기록 보기'
+              : '✏️ 건강 기록'}
           </h1>
           <div className="content-wrapper">
             <div className="form-section flex flex-col gap-5 w-full max-w-xl mx-auto">
@@ -207,21 +224,55 @@ export default function Health({
                 />
               </div>
 
-              <div className="flex justify-between mt-4">
-                {isEditMode && (
+              <div className="flex justify-between mt-4 flex-wrap gap-2">
+                {mode === 'read' && currentMode === 'read' && (
                   <button
-                    className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-50"
-                    onClick={handleDelete}
+                    onClick={handleEdit}
+                    className="bg-plog-main5 text-white py-2 px-4 rounded hover:bg-plog-main4"
                   >
-                    🗑️ 삭제
+                    수정 모드로 전환
                   </button>
                 )}
-                <button
-                  onClick={handleSubmit}
-                  className="bg-plog-main5 text-white py-2 px-4 rounded hover:bg-plog-main4 transition duration-200 ml-auto"
-                >
-                  {isEditMode ? '수정하기' : '기록 등록'}
-                </button>
+
+                {currentMode === 'edit' && (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-plog-main5 text-white py-2 px-4 rounded hover:bg-plog-main4"
+                    >
+                      수정하기
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="border border-gray-400 text-gray-600 px-4 py-2 rounded hover:bg-gray-100"
+                    >
+                      취소
+                    </button>
+                    <button
+                      className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-100"
+                      onClick={handleDelete}
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </>
+                )}
+
+                {mode === 'create' && (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-plog-main5 text-white py-2 px-4 rounded hover:bg-plog-main4"
+                    >
+                      기록 등록
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="border border-gray-400 text-gray-600 px-4 py-2 rounded hover:bg-gray-100"
+                    >
+                      취소
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

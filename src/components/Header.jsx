@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../style/Header.scss';
+import '../style/header.scss';
 import axios from '../api/axiosInterceptor';
 import { useSetRecoilState, useResetRecoilState } from 'recoil';
 import {

@@ -7,6 +7,7 @@ import {
   selectedpetNameState,
   selectedPetProfileState,
 } from '../recoil/petAtom';
+import LoginRequired from '../components/Modal/LoginRequired';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -17,6 +18,27 @@ export default function ChooseProfile() {
 
   const setSelectedpetName = useSetRecoilState(selectedpetNameState);
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 로그인 여부 확인
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    } else {
+      setIsLogin(true);
+      setShowLoginModal(false);
+    }
+  }, []);
+
+  // 로그인 상태일 때만 fetchPets 호출
+  useEffect(() => {
+    if (isLogin) {
+      fetchPets();
+    }
+  }, [isLogin]);
 
   const openModal = () => {
     console.log('[모달 열기]');
@@ -71,25 +93,11 @@ export default function ChooseProfile() {
 
       console.log('[반려동물 프로필 응답]', response.data);
 
-      // if (response.data.code === 'SU') {
-      //   const petData = response.data.data;
-      //   setSelectedPetProfile(petData);
-      //   localStorage.setItem('selectedPet', JSON.stringify(petData));
-      //   navigate('/');
       if (response.data.code === 'SU') {
         const petData = response.data.data;
 
-        // const formattedPetData = {
-        //   id: petData.id || petData.petId,
-        //   petName: petData.petName,
-        //   petSpecies: petData.petSpecies,
-        //   petBreed: petData.petBreed,
-        //   petGender: petData.petGender,
-        //   petBirthday: petData.petBirthday,
-        //   petImageUrl: petData.petImageUrl,
-        // };
         const formattedPetData = {
-          id: petData.id || petData.petId, // :white_check_mark: id 또는 petId 포함
+          id: petData.id || petData.petId,
           petName: petData.petName,
           petSpecies: petData.petSpecies,
           petBreed: petData.petBreed,
@@ -101,7 +109,7 @@ export default function ChooseProfile() {
 
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
-        navigate('/detai');
+        navigate('/');
       } else {
         console.warn('[프로필 응답 실패]', response.data);
       }
@@ -114,10 +122,10 @@ export default function ChooseProfile() {
     }
   };
 
-  useEffect(() => {
-    console.log('[컴포넌트 마운트] 반려동물 목록 요청');
-    fetchPets();
-  }, []);
+  // 로그인하지 않은 경우 로그인 필요 모달
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">

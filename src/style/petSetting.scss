@@ -4,7 +4,7 @@
   height: 100vh;
 
   @media (max-width: 768px) {
-    height: 140vh;
+    height: 180vh;
   }
 }
 
@@ -35,8 +35,14 @@
   .btn-invite,
   .btn-delete {
     @include button2;
-    padding: 8px 10px;
-    font-size: 1rem;
+    padding: 8px;
+    font-size: 0.8rem;
+
+    @media (max-width: 768px) {
+      @include button2-small;
+      padding: 6px;
+      font-size: 0.6rem;
+    }
   }
 
   .collaborator-grid {

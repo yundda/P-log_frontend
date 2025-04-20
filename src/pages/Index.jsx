@@ -9,7 +9,8 @@ import { selectedPetProfileState } from '../recoil/petAtom';
 import axios from '../api/axiosInterceptor';
 import '../style/index.scss';
 import '../style/addPet.scss';
-import PetBreeds from '../components/API/PetBreeds';
+import Weather from '../components/API/Weather';
+import LoginRequired from '../components/Modal/LoginRequired';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -24,6 +25,17 @@ export default function Index() {
   const [modalMode, setModalMode] = useState('create');
 
   const petProfile = useRecoilValue(selectedPetProfileState);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 로그인 상태 확인
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDailyLogs = async () => {
@@ -108,23 +120,31 @@ export default function Index() {
     setShowHealthModal(true);
   };
 
+  // 로그인 안 되어 있으면 모달만 렌더링
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
+
   return (
     <div className="detail-container flex gap-4 p-4 flex-wrap w-full lg:flex-nowrap justify-center items-start max-w-screen-xl mx-auto">
-      <div className="pet-wrapper bg-plog-main2/30 p-4 rounded-xl w-full h-full lg:w-1/4">
-        <h1 className="text-2xl font-bold text-plog-main4 text-center mb-4 leading-tight">
-          반려동물의 정보,
-          <br />
-          일상 생활을 기록해주세요.
-        </h1>
-        {petProfile ? (
-          <Pet className="pet-profile" mode="read" pet={petProfile} />
-        ) : (
-          <p className="text-center text-red-500">
-            선택된 반려동물이 없습니다.
-          </p>
-        )}
-        <div>
-          <PetBreeds />
+      <div className="w-full lg:w-1/4 flex flex-col items-center">
+        <div className="weather-wrapper w-[280px] h-[170px] aspect-square">
+          <Weather />
+        </div>
+
+        <div className="pet-wrapper bg-plog-main2/30 p-4 rounded-xl w-full h-full">
+          <h1 className="text-2xl font-bold text-plog-main4 text-center mb-4 leading-tight">
+            반려동물의 정보,
+            <br />
+            일상 생활을 기록해주세요.
+          </h1>
+          {petProfile ? (
+            <Pet className="pet-profile" mode="read" pet={petProfile} />
+          ) : (
+            <p className="text-center text-red-500">
+              선택된 반려동물이 없습니다.
+            </p>
+          )}
         </div>
       </div>
 

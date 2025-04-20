@@ -11,10 +11,10 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import './api/axiosInterceptor';
 import Index from './pages/Index';
-import MyPage from './pages/mypage';
 import Layout from './components/Layout';
 import RequestPending from './pages/RequestPending';
 import MyPet from './pages/Mypet';
+import MyPage from './pages/Mypage';
 
 function App() {
   useEffect(() => {
@@ -34,7 +34,7 @@ function App() {
           {/* 유저 관련 */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/myPage" element={<MyPage />} />
+          <Route path="/mypage" element={<MyPage />} />
 
           <Route
             path="/request/pending/:requestId"

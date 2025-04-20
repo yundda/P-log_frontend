@@ -81,6 +81,7 @@ export default function Daily({
         memo: form.memo,
       },
     };
+    console.log('editLog', editLog);
 
     try {
       if (currentMode === 'edit') {
@@ -88,23 +89,21 @@ export default function Daily({
           log_id: editLog.log_id,
           newType: logType,
           newLogTime: body.detailLog.logTime,
-          mealType: body.detailLog.mealType,
-          place: body.detailLog.place,
-          price: body.detailLog.price,
-          takeTime: body.detailLog.takeTime,
-          memo: body.detailLog.memo,
+          mealType: body.detailLog.mealType ?? null,
+          place: body.detailLog.place ?? null,
+          price: body.detailLog.price ?? null,
+          takeTime: body.detailLog.takeTime ?? null,
+          memo: body.detailLog.memo ?? null,
         };
 
         const res = await axios.patch(`${API}/logs/update`, patchData);
+        console.log('[기록 수정 응답]', res.data);
         openAlert('기록이 수정되었습니다.');
       } else {
         const res = await axios.post(`${API}/logs`, body);
+        console.log('[기록 등록 응답]', res.data);
         openAlert('일상 기록이 저장되었습니다!');
       }
-
-      setTimeout(() => {
-        onClose();
-      }, 1500);
     } catch (err) {
       console.error('[기록 저장 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');
@@ -115,9 +114,6 @@ export default function Daily({
     try {
       await axios.delete(`${API}/logs/${editLog.log_id}`);
       openAlert('기록이 삭제되었습니다.');
-      setTimeout(() => {
-        onClose();
-      }, 1500);
     } catch (err) {
       console.error('[기록 삭제 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');
@@ -289,7 +285,7 @@ export default function Daily({
                       수정하기
                     </button>
                     <button
-                      className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-50"
+                      className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-100"
                       onClick={handleDelete}
                     >
                       🗑️ 삭제
