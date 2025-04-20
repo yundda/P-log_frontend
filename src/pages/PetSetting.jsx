@@ -66,7 +66,9 @@ export default function PetSetting() {
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold">{petName} 설정 페이지</h1>
+      <h1 className="text-2xl font-bold text-plog-main5">
+        {petProfile?.petName || '🐾'} 설정 페이지
+      </h1>
 
       <div className="pet-setting-container flex flex-col lg:flex-row justify-center items-start min-h-screen gap-8 pt-20">
         {/* 펫 정보 카드 */}

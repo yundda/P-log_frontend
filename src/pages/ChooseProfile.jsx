@@ -75,7 +75,7 @@ export default function ChooseProfile() {
       //   const petData = response.data.data;
       //   setSelectedPetProfile(petData);
       //   localStorage.setItem('selectedPet', JSON.stringify(petData));
-      //   navigate('/detail');
+      //   navigate('/');
       if (response.data.code === 'SU') {
         const petData = response.data.data;
 
@@ -101,7 +101,7 @@ export default function ChooseProfile() {
 
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
-        navigate('/detail');
+        navigate('/detai');
       } else {
         console.warn('[프로필 응답 실패]', response.data);
       }

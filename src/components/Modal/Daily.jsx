@@ -1,6 +1,7 @@
 import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
 import { useState } from 'react';
+import Alert from './Alert';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -30,6 +31,19 @@ export default function Daily({
     take_time: editLog?.takeTime?.toString() || '',
     memo: editLog?.memo || '',
   });
+
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+
+  const openAlert = msg => {
+    setAlertMessage(msg);
+    setShowAlert(true);
+  };
+
+  const closeAlert = () => {
+    setAlertMessage('');
+    setShowAlert(false);
+  };
 
   const isReadOnly = currentMode === 'read';
 
@@ -70,8 +84,8 @@ export default function Daily({
 
     try {
       if (currentMode === 'edit') {
-        await axios.patch(`${API}/logs/update`, {
-          log_id: editLog.logId,
+        const patchData = {
+          log_id: editLog.log_id,
           newType: logType,
           newLogTime: body.detailLog.logTime,
           mealType: body.detailLog.mealType,
@@ -79,25 +93,34 @@ export default function Daily({
           price: body.detailLog.price,
           takeTime: body.detailLog.takeTime,
           memo: body.detailLog.memo,
-        });
-        alert('기록이 수정되었습니다.');
+        };
+
+        const res = await axios.patch(`${API}/logs/update`, patchData);
+        openAlert('기록이 수정되었습니다.');
       } else {
-        await axios.post(`${API}/logs`, body);
-        alert('일상 기록이 저장되었습니다!');
+        const res = await axios.post(`${API}/logs`, body);
+        openAlert('일상 기록이 저장되었습니다!');
       }
-      onClose();
+
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (err) {
       console.error('[기록 저장 실패]', err.response?.data || err);
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/logs/detail/${editLog.logId}`);
-      alert('기록이 삭제되었습니다.');
-      onClose();
+      await axios.delete(`${API}/logs/${editLog.log_id}`);
+      openAlert('기록이 삭제되었습니다.');
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (err) {
       console.error('[기록 삭제 실패]', err.response?.data || err);
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
@@ -120,11 +143,7 @@ export default function Daily({
         return (
           <div className="flex gap-2">
             {['FEED', 'SNACK', 'MEDICINE'].map(value => {
-              const labelMap = {
-                FEED: '사료',
-                SNACK: '간식',
-                MEDICINE: '약',
-              };
+              const labelMap = { FEED: '사료', SNACK: '간식', MEDICINE: '약' };
               const iconMap = {
                 FEED: '/images/feed.png',
                 SNACK: '/images/snack.png',
@@ -156,95 +175,41 @@ export default function Daily({
           </div>
         );
       case 'WALK':
-        return (
-          <>
-            <input
-              name="place"
-              value={form.place}
-              placeholder="장소"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-            <input
-              name="take_time"
-              value={form.take_time}
-              placeholder="소요 시간 (분)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-          </>
-        );
       case 'HOSPITAL':
-        return (
-          <>
-            <input
-              name="place"
-              value={form.place}
-              placeholder="병원 이름"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-            <input
-              name="price"
-              value={form.price}
-              placeholder="비용 (원)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-          </>
-        );
       case 'GROOMING':
-        return (
-          <>
-            <input
-              name="place"
-              value={form.place}
-              placeholder="장소"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-            <input
-              name="take_time"
-              value={form.take_time}
-              placeholder="소요 시간 (분)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-            <input
-              name="price"
-              value={form.price}
-              placeholder="비용 (원)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-          </>
-        );
       case 'BATH':
         return (
           <>
-            <input
-              name="take_time"
-              value={form.take_time}
-              placeholder="소요 시간 (분)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
-            <input
-              name="price"
-              value={form.price}
-              placeholder="비용 (원)"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="border rounded px-4 py-2"
-            />
+            {['WALK', 'HOSPITAL', 'GROOMING'].includes(logType) && (
+              <input
+                name="place"
+                value={form.place}
+                placeholder={logType === 'HOSPITAL' ? '병원 이름' : '장소'}
+                onChange={handleChange}
+                readOnly={isReadOnly}
+                className="border rounded px-4 py-2"
+              />
+            )}
+            {['WALK', 'GROOMING', 'BATH'].includes(logType) && (
+              <input
+                name="take_time"
+                value={form.take_time}
+                placeholder="소요 시간 (분)"
+                onChange={handleChange}
+                readOnly={isReadOnly}
+                className="border rounded px-4 py-2"
+              />
+            )}
+            {['HOSPITAL', 'GROOMING', 'BATH'].includes(logType) && (
+              <input
+                name="price"
+                value={form.price}
+                placeholder="비용 (원)"
+                onChange={handleChange}
+                readOnly={isReadOnly}
+                className="border rounded px-4 py-2"
+              />
+            )}
           </>
         );
       default:
@@ -298,38 +263,61 @@ export default function Daily({
               />
 
               <div className="flex gap-2 justify-end mt-4">
-                {currentMode === 'read' && (
+                {currentMode === 'create' && (
                   <>
-                    <button onClick={handleEdit} className="btn">
-                      수정하기
+                    <button
+                      onClick={handleSubmit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      등록
                     </button>
-                    <button onClick={handleDelete} className="btn btn-danger">
-                      삭제하기
+                    <button
+                      onClick={onClose}
+                      className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+                    >
+                      취소
                     </button>
                   </>
                 )}
-                {(currentMode === 'create' || currentMode === 'edit') && (
+
+                {currentMode === 'read' && (
                   <>
-                    <button onClick={handleSubmit} className="btn btn-primary">
-                      저장
+                    <button
+                      onClick={handleEdit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      수정하기
                     </button>
-                    <button onClick={onClose} className="btn">
+                    <button
+                      className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-50"
+                      onClick={handleDelete}
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </>
+                )}
+
+                {currentMode === 'edit' && (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+                    >
                       취소
                     </button>
-                    {currentMode === 'edit' && editLog && (
-                      <button
-                        onClick={handleCancelEdit}
-                        className="btn btn-secondary"
-                      >
-                        수정 취소
-                      </button>
-                    )}
                   </>
                 )}
               </div>
             </div>
           </div>
         </div>
+        {showAlert && <Alert message={alertMessage} onClose={closeAlert} />}
       </div>
     </div>
   );
