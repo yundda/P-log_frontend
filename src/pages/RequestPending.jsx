@@ -12,7 +12,7 @@ export default function RequestPending() {
     if (result === 'accepted') {
       navigate('/petsetting');
     } else {
-      navigate('/detail');
+      navigate('/');
     }
   };
 
@@ -23,7 +23,7 @@ export default function RequestPending() {
           requestId={requestId}
           onClose={() => {
             setIsOpen(false);
-            navigate('/detail');
+            navigate('/');
           }}
           onResult={handleResult}
         />

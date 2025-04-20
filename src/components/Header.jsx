@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../style/Header.scss';
 import axios from '../api/axiosInterceptor';
-import { useSetRecoilState } from 'recoil';
-import { selectedPetProfileState } from '../recoil/petAtom';
+import { useSetRecoilState, useResetRecoilState } from 'recoil';
+import {
+  selectedPetProfileState,
+  selectedpetNameState,
+} from '../recoil/petAtom';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -11,22 +14,23 @@ export default function Header() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [nickname, setNickname] = useState('');
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showPetMenu, setShowPetMenu] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [petList, setPetList] = useState([]);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
+
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
+  const resetSelectedPetProfile = useResetRecoilState(selectedPetProfileState);
+  const resetSelectedPetName = useResetRecoilState(selectedpetNameState);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('auth');
     if (storedAuth) {
-      const { isLoggedIn, nickname } = JSON.parse(storedAuth);
+      const { isLoggedIn } = JSON.parse(storedAuth);
       if (isLoggedIn) {
         setIsLoggedIn(true);
-        // setNickname(nickname);
         fetchPetList();
       }
     }
@@ -88,7 +92,7 @@ export default function Header() {
         setSelectedPetProfile(formattedPet);
         setShowPetMenu(false);
         setMenuOpen(false);
-        navigate('/detail');
+        navigate('/');
       }
     } catch (error) {
       console.error('[펫 선택 실패]', error);
@@ -103,8 +107,18 @@ export default function Header() {
   const confirmLogout = () => {
     localStorage.removeItem('auth');
     localStorage.removeItem('selectedPet');
+    localStorage.removeItem('selectedPetNameState');
+    localStorage.removeItem('selectedpetNameState');
+    localStorage.removeItem('selectedPetProfileState');
+    localStorage.removeItem('selectedPetId');
+    localStorage.removeItem('profileIcon');
+    localStorage.removeItem('recoil-persist');
+
+    // Recoil 상태 초기화
+    resetSelectedPetProfile();
+    resetSelectedPetName();
+
     setIsLoggedIn(false);
-    // setNickname('');
     setMenuOpen(false);
     setIsLogoutModalOpen(false);
     window.location.href = '/login';
@@ -118,11 +132,11 @@ export default function Header() {
     <>
       {/* PC Header */}
       <header className="hidden md:flex justify-between items-center px-6 py-3 w-[90%] h-20 mx-auto">
-        <Link to="/detail">
+        <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-14" />
         </Link>
         <nav className="flex-1 flex justify-center items-center">
-          <ul className="flex gap-10 text-plog-main4 font-semibold text-base">
+          <ul className="flex gap-10 text-plog-main4 font-bold text-xl">
             <li>
               <Link to="/mypet">마이 펫</Link>
             </li>
@@ -189,7 +203,7 @@ export default function Header() {
 
       {/* Mobile Header */}
       <div className="md:hidden flex justify-between items-center px-6 py-3 shadow-md mobile-header">
-        <Link to="/detail">
+        <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-16" />
         </Link>
         <button className="menu-button" onClick={toggleMenu}>
@@ -205,7 +219,6 @@ export default function Header() {
       <nav className={`mobile-nav ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-nav-content flex flex-col justify-between h-full p-6">
           <div>
-            {/* 반려동물 목록 */}
             {isLoggedIn && petList.length > 0 && (
               <div className="mb-4 border-b pb-4 border-gray-200">
                 <p className="text-xl text-center text-plog-main4 font-bold mb-2">
@@ -233,7 +246,7 @@ export default function Header() {
             <ul className="flex flex-col gap-4 text-plog-main4 font-semibold text-lg mt-6">
               <li>
                 <Link to="/mypet" onClick={() => setMenuOpen(false)}>
-                  My Pet
+                  마이 펫
                 </Link>
               </li>
               <li>

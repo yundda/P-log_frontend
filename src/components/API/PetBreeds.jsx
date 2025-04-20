@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../style/breedsInfo.scss'; // CSS 파일 경로를 확인하세요
 
-const BreedsInfo = () => {
+const PetBreeds = () => {
   const [dogBreeds, setDogBreeds] = useState([]);
   const [loadingDogs, setLoadingDogs] = useState(true);
   const [errorDogs, setErrorDogs] = useState(null);
@@ -97,4 +97,4 @@ const BreedsInfo = () => {
   );
 };
 
-export default BreedsInfo;
+export default PetBreeds;

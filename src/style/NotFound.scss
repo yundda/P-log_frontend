@@ -16,9 +16,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 80vh;
   background-color: $color-white;
-  color: #374151;
+  // color: #374151;
 }
 
 .content-box {
@@ -26,19 +26,17 @@
   flex-direction: column;
   align-items: flex-start;
   width: 50%;
-  padding: 24px;
+  padding: 30px;
   animation: fadeIn 0.5s ease-in-out;
 
   h1 {
     font-size: 20px;
     font-weight: bold;
-    color: #1f2937;
     margin-bottom: 16px;
   }
 
   p {
     font-size: 14px;
-    color: #4b5563;
     margin-bottom: 8px;
   }
 }
@@ -56,11 +54,11 @@
   font-size: 12px;
   width: 160px;
   color: white;
-  background-color: $color-2;
+  background-color: $color-3;
   transition: background-color 0.3s ease-in-out;
 
   &:hover {
-    background-color: $color-1;
+    background-color: $color-4;
   }
 }
 

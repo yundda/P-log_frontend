@@ -6,11 +6,11 @@ export default function NotFound() {
   return (
     <div className="container">
       <div className="content-box">
-        <p className="text-lg text-gray-600 mb-4">
-          요청하신 페이지를 찾을 수 없습니다.
+        <p className="text-lg text-red-500 mb-4">
+          앗! 찾으시는 페이지가 길을 잃었어요 🐾
         </p>
-        <p className="text-lg text-gray-600">
-          대신 아래 페이지를 확인해 보세요.
+        <p className="text-lg text-yellow-800">
+          대신 아래 페이지들을 구경해보시는 건 어때요? 😊
         </p>
 
         <div className="button-group">
@@ -31,9 +31,9 @@ export default function NotFound() {
           </button>
           <button
             className="button"
-            onClick={() => (window.location.href = '/details')}
+            onClick={() => (window.location.href = '/')}
           >
-            상세 페이지
+            메인 페이지
           </button>
         </div>
       </div>

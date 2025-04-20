@@ -1,6 +1,7 @@
 import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
 import { useState, useEffect } from 'react';
+import Alert from './Alert';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -21,6 +22,19 @@ export default function Health({
     hospital_log: '',
     vaccination_log: false,
   });
+
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+
+  const openAlert = msg => {
+    setAlertMessage(msg);
+    setShowAlert(true);
+  };
+
+  const closeAlert = () => {
+    setShowAlert(false);
+    setAlertMessage('');
+  };
 
   useEffect(() => {
     if (editLog) {
@@ -64,13 +78,13 @@ export default function Health({
           hospital: form.hospital,
           hospitalLog: formattedHospitalLog,
         });
-        alert('✅ 건강 기록이 수정되었습니다!');
+        openAlert('건강 기록이 수정되었습니다!');
         const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
         setHealthLogs(logsRes.data.data);
         onClose();
       } catch (err) {
         console.error('[건강 기록 수정 실패]', err);
-        alert(err.response?.data?.message || '서버 오류');
+        openAlert(err.response?.data?.message || '서버 오류');
       }
       return;
     }
@@ -91,13 +105,13 @@ export default function Health({
 
     try {
       await axios.post(`${API}/logs/health`, body);
-      alert('✅ 건강 기록이 저장되었습니다!');
+      openAlert(' 건강 기록이 저장되었습니다!');
       const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
       setHealthLogs(logsRes.data.data);
       onClose();
     } catch (err) {
       console.error('[건강 기록 등록 실패]', err);
-      alert(err.response?.data?.message || '서버 오류');
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
@@ -109,13 +123,13 @@ export default function Health({
       await axios.delete(`${API}/logs/health/${pet.petName}`, {
         data: { log_id: editLog.log_id },
       });
-      alert('🗑️ 삭제되었습니다!');
+      openAlert('🗑️ 삭제되었습니다!');
       const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
       setHealthLogs(logsRes.data.data);
       onClose();
     } catch (err) {
       console.error('[건강 기록 삭제 실패]', err);
-      alert(err.response?.data?.message || '서버 오류');
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
@@ -204,14 +218,15 @@ export default function Health({
                 )}
                 <button
                   onClick={handleSubmit}
-                  className="bg-plog-main4 text-white font-bold py-2 px-6 rounded-xl hover:bg-plog-main3 transition duration-200 ml-auto"
+                  className="bg-plog-main5 text-white py-2 px-4 rounded hover:bg-plog-main4 transition duration-200 ml-auto"
                 >
-                  {isEditMode ? '수정하기' : '기록 저장'}
+                  {isEditMode ? '수정하기' : '기록 등록'}
                 </button>
               </div>
             </div>
           </div>
         </div>
+        {showAlert && <Alert message={alertMessage} onClose={closeAlert} />}
       </div>
     </div>
   );

@@ -111,8 +111,8 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
           <br />
           <span className="font-bold">{requestInfo.petName}</span>
           {requestInfo.isRequesterOwner
-            ? ' 가족이 되고 싶어해요!'
-            : '의 가족으로 초대했어요!'}
+            ? '의 가족으로 초대했어요!'
+            : ' 가족이 되고 싶어해요!'}
         </h2>
         <div className="flex justify-center gap-4 mt-4">
           <button
