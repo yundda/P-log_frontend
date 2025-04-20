@@ -5,8 +5,10 @@ import InviteModal from '../components/Modal/InviteModal';
 import { useState, useEffect } from 'react';
 import axios from '../api/axiosInterceptor';
 import '../style/petSetting.scss';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import Developing from '../components/Modal/Developing';
+import LoginRequired from '../components/Modal/LoginRequired';
+import PetBreeds from '../components/API/PetBreeds';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -16,9 +18,20 @@ export default function PetSetting() {
   const [inviteResult, setInviteResult] = useState(null);
 
   const petProfile = useRecoilValue(selectedPetProfileState);
-  const location = useLocation();
-  const { petName } = location.state || {};
+  // const location = useLocation();
+  // const { petName } = location.state || {};
   const [showDeveloping, setShowDeveloping] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 로그인 상태 확인
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    }
+  }, []);
 
   // 협업자 목록 불러오기
   useEffect(() => {
@@ -64,6 +77,11 @@ export default function PetSetting() {
     setIsModalOpen(false);
   };
 
+  // 로그인 안 되어 있으면 모달만 렌더링
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
+
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-2xl font-bold text-plog-main5">
@@ -75,49 +93,56 @@ export default function PetSetting() {
         <div className="pet-card w-full lg:w-[360px]">
           <Pet mode="edit" pet={petProfile} />
         </div>
-
-        {/* 협업자 카드 */}
-        <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-4xl">
-          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-            <button className="btn-invite" onClick={() => setIsModalOpen(true)}>
-              초대하기
-            </button>
-            <h2 className="text-3xl lg:text-5xl font-bold text-plog-main4 text-center">
-              협업자 목록
-            </h2>
-            <button
-              onClick={() => setShowDeveloping(true)}
-              className="btn-delete"
-            >
-              삭제하기
-            </button>
+        <div className=" rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-[90rem]">
+          <div className="w-full order-1 lg:order-2">
+            <PetBreeds />
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 collaborator-grid w-full">
-            {collaborators.map(c => (
-              <label
-                key={c.id}
-                className="group flex flex-col items-center p-6 bg-[#fefaf6] rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+          {/* 협업자 카드 */}
+          <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full order-2 lg:order-1">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
+              <button
+                className="btn-invite"
+                onClick={() => setIsModalOpen(true)}
               >
-                <input
-                  type="checkbox"
-                  checked={c.checked}
-                  onChange={() => toggleCheck(c.id)}
-                  className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
-                />
-                <img
-                  src={
-                    localStorage.getItem('profileIcon') ||
-                    '/images/default-user.png'
-                  }
-                  alt="협업자"
-                  className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
-                />
-                <span className="text-gray-700 mt-3 font-semibold text-base">
-                  {c.nickName}
-                </span>
-              </label>
-            ))}
+                초대하기
+              </button>
+              <h2 className="text-4xl  font-bold text-plog-main4 text-center">
+                협업자 목록
+              </h2>
+              <button
+                onClick={() => setShowDeveloping(true)}
+                className="btn-delete"
+              >
+                삭제하기
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 collaborator-grid w-full">
+              {collaborators.map(c => (
+                <label
+                  key={c.id}
+                  className="group flex flex-col items-center p-6 bg-[#fefaf6] rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={c.checked}
+                    onChange={() => toggleCheck(c.id)}
+                    className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
+                  />
+                  <img
+                    src={
+                      localStorage.getItem('profileIcon') ||
+                      '/images/default-user.png'
+                    }
+                    alt="협업자"
+                    className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
+                  />
+                  <span className="text-gray-700 mt-3 font-semibold text-base">
+                    {c.nickName}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </div>

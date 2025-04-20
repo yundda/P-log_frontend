@@ -1,99 +1,94 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../../style/breedsInfo.scss'; // CSS 파일 경로를 확인하세요
+import '../../style/petBreeds.scss';
 
 const PetBreeds = () => {
   const [dogBreeds, setDogBreeds] = useState([]);
-  const [loadingDogs, setLoadingDogs] = useState(true);
-  const [errorDogs, setErrorDogs] = useState(null);
-
   const [catBreeds, setCatBreeds] = useState([]);
+  const [loadingDogs, setLoadingDogs] = useState(true);
   const [loadingCats, setLoadingCats] = useState(true);
+  const [errorDogs, setErrorDogs] = useState(null);
   const [errorCats, setErrorCats] = useState(null);
 
-  // 개 품종 API 호출 (The Dog API)
   useEffect(() => {
     axios
       .get('https://api.thedogapi.com/v1/breeds')
-      .then(response => {
-        // 응답 데이터는 배열이며, 각 객체의 name 속성을 사용합니다.
-        const breeds = response.data.map(breed => breed.name);
-        setDogBreeds(breeds);
+      .then(res => {
+        setDogBreeds(res.data.map(b => b.name));
         setLoadingDogs(false);
       })
       .catch(err => {
-        console.error('개 품종 API 호출 중 에러 발생:', err);
         setErrorDogs(err);
         setLoadingDogs(false);
       });
-  }, []);
 
-  // 고양이 품종 API 호출 (The Cat API)
-  useEffect(() => {
     axios
       .get('https://api.thecatapi.com/v1/breeds')
-      .then(response => {
-        // 응답 데이터는 각 품종에 대한 객체 배열이며, name 속성을 사용합니다.
-        const breeds = response.data.map(breed => breed.name);
-        setCatBreeds(breeds);
+      .then(res => {
+        setCatBreeds(res.data.map(b => b.name));
         setLoadingCats(false);
       })
       .catch(err => {
-        console.error('고양이 품종 API 호출 중 에러 발생:', err);
         setErrorCats(err);
         setLoadingCats(false);
       });
   }, []);
 
   return (
-    <div className="breeds-info container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-plog-main4 mb-8 text-center">
-        반려동물 품종 정보
-      </h1>
-      <div className="breeds-container flex justify-between gap-8">
-        <section className="dog-section p-4 bg-plog-main2 rounded shadow-md flex-1">
-          <h2 className="text-2xl font-semibold text-plog-main5 mb-4">
-            개 품종 리스트
-          </h2>
+    <>
+      <h2 className="text-center">아직 반려동물의 품종을 모르시나요?</h2>
+      <div className="pet-breeds-wrapper flex flex-col gap-2">
+        {/* 개 품종 */}
+        <div className="breed-card">
+          <h3 className="text-xl font-bold text-plog-main5 mb-2">
+            🐶 개 품종 리스트
+          </h3>
           {loadingDogs ? (
-            <p>개 품종 정보 로딩 중...</p>
+            <p className="text-sm text-gray-500 italic">
+              🐾 냄새 맡는 중... 잠시만 기다려주세요!
+            </p>
           ) : errorDogs ? (
-            <p>개 품종 정보를 불러오는 중 오류 발생: {errorDogs.message}</p>
+            <p className="text-red-500">❌ 멍! 품종 정보를 못 가져왔어요...</p>
+          ) : dogBreeds.length === 0 ? (
+            <p className="text-sm text-gray-500 italic">
+              아직 어떤 품종인지 모르는 멍멍이에요 🐶
+            </p>
           ) : (
-            <div className="scroll-container">
-              <ul>
-                {dogBreeds.map((breed, index) => (
-                  <li key={index} className="breed-item">
-                    {breed}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ul className="breed-list">
+              {dogBreeds.map((breed, i) => (
+                <li key={i}>{breed}</li>
+              ))}
+            </ul>
           )}
-        </section>
+        </div>
 
-        <section className="cat-section p-4 bg-plog-main2 rounded shadow-md flex-1">
-          <h2 className="text-2xl font-semibold text-plog-main5 mb-4">
-            고양이 품종 리스트
-          </h2>
+        {/* 고양이 품종 */}
+        <div className="breed-card">
+          <h3 className="text-xl font-bold text-plog-main5 mb-2">
+            🐱 고양이 품종 리스트
+          </h3>
           {loadingCats ? (
-            <p>고양이 품종 정보 로딩 중...</p>
+            <p className="text-sm text-gray-500 italic">
+              🐾 살금살금 찾아보고 있어요...!
+            </p>
           ) : errorCats ? (
-            <p>고양이 품종 정보를 불러오는 중 오류 발생: {errorCats.message}</p>
+            <p className="text-red-500">
+              ❌ 야옹! 품종 정보를 불러오지 못했어요...
+            </p>
+          ) : catBreeds.length === 0 ? (
+            <p className="text-sm text-gray-500 italic">
+              아직 어떤 품종인지 모르는 야옹이에요 🐱
+            </p>
           ) : (
-            <div className="scroll-container">
-              <ul>
-                {catBreeds.map((breed, index) => (
-                  <li key={index} className="breed-item">
-                    {breed}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ul className="breed-list">
+              {catBreeds.map((breed, i) => (
+                <li key={i}>{breed}</li>
+              ))}
+            </ul>
           )}
-        </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

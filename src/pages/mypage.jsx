@@ -1,24 +1,15 @@
+// MyPage.jsx
 import { useEffect, useState } from 'react';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import '../style/mypage.scss';
+import LoginRequired from '../components/Modal/LoginRequired';
 
-const PROFILE_ICONS = [
-  '/images/profile1.png',
-  '/images/profile2.png',
-  '/images/profile3.png',
-  '/images/profile4.png',
-  '/images/profile5.png',
-  '/images/profile6.png',
-  '/images/profile7.png',
-  '/images/profile8.png',
-  '/images/profile9.png',
-  '/images/profile10.png',
-  '/images/profile11.png',
-  '/images/profile12.png',
-  '/images/profile13.png',
-];
+const PROFILE_ICONS = Array.from(
+  { length: 13 },
+  (_, i) => `/images/profile${i + 1}.png`,
+);
 
 export default function MyPage() {
   const [userData, setUserData] = useState({ nickname: '', email: '' });
@@ -32,6 +23,16 @@ export default function MyPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,50 +55,44 @@ export default function MyPage() {
         else setMessage('유저 정보를 불러오는 데 실패했습니다.');
       }
     };
-    fetchUserData();
-  }, []);
+
+    if (isLogin) fetchUserData();
+  }, [isLogin]);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleIconSelect = icon => {
-    setSelectedIcon(icon);
-  };
+  const handleIconSelect = icon => setSelectedIcon(icon);
 
   const handleIconUpdate = async () => {
-    const iconFileName = selectedIcon.split('/').pop(); // profile12.png
-    const profileName = iconFileName.split('.')[0]; // profile12
+    const iconFileName = selectedIcon.split('/').pop();
+    const profileName = iconFileName?.split('.')[0];
 
     try {
       const res = await api.patch(`/user/updateProfile/${profileName}`);
       if (res.data.code === 'SU') {
         localStorage.setItem('profileIcon', selectedIcon);
-        alert('프로필 아이콘이 수정되었습니다!');
-      } else {
-        setMessage(res.data.message || '프로필 이미지 저장에 실패했습니다.');
+        setMessage('프로필 아이콘이 수정되었습니다!');
       }
     } catch (err) {
       const res = err.response;
-      if (res?.status === 403) {
-        setMessage('접근 권한이 없습니다. 로그인 상태를 확인해주세요.');
-      } else if (res?.status === 404) {
-        setMessage('사용자 정보를 찾을 수 없습니다.');
-      } else if (res?.status === 500) {
-        setMessage('서버 오류로 프로필 이미지 변경에 실패했습니다.');
-      } else {
-        setMessage(res?.data?.message || '알 수 없는 오류가 발생했습니다.');
-      }
+      const code = res?.data?.code;
+      const msg = res?.data?.message;
+
+      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') setMessage('프로필 이미지 변경 실패 (DB 오류)');
+      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
     }
   };
 
-  const validate = () => {
+  const handleSubmit = async () => {
     const { beforePassword, afterPassword, nickname } = form;
 
     if (!beforePassword) {
       setMessage('현재 비밀번호를 입력해주세요.');
-      return false;
+      return;
     }
 
     if (
@@ -108,39 +103,39 @@ export default function MyPage() {
       setMessage(
         '새 비밀번호는 영문/숫자/특수문자 중 2가지 이상 조합, 8자 이상이어야 합니다.',
       );
-      return false;
-    }
-
-    if (beforePassword === afterPassword) {
-      setMessage('현재 비밀번호와 새 비밀번호가 같습니다.');
-      return false;
+      return;
     }
 
     if (!afterPassword && nickname === userData.nickname) {
       setMessage('변경할 정보가 없습니다.');
-      return false;
+      return;
     }
 
-    return true;
-  };
+    if (afterPassword && beforePassword === afterPassword) {
+      setMessage('현재 비밀번호와 새 비밀번호가 같습니다.');
+      return;
+    }
 
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    const payload = { beforePassword: form.beforePassword };
-    if (form.nickname !== userData.nickname) payload.nickname = form.nickname;
-    if (form.afterPassword) payload.afterPassword = form.afterPassword;
+    const payload = { beforePassword };
+    if (nickname !== userData.nickname) payload.nickname = nickname;
+    if (afterPassword) payload.afterPassword = afterPassword;
 
     try {
       const res = await api.patch('/user/update', payload);
       if (res.data.code === 'SU') {
         setMessage('수정이 완료되었습니다.');
-        setUserData(prev => ({ ...prev, nickname: form.nickname }));
+        setUserData(prev => ({ ...prev, nickname }));
         setForm(prev => ({ ...prev, beforePassword: '', afterPassword: '' }));
       }
     } catch (err) {
       const res = err.response;
-      setMessage(res?.data?.message || '요청 처리 중 오류가 발생했습니다.');
+      const code = res?.data?.code;
+      const msg = res?.data?.message;
+
+      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') setMessage('DB 업데이트에 실패했습니다.');
+      else if (code === 'BR') setMessage(msg || '유효성 검사에 실패했습니다.');
+      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
     }
   };
 
@@ -150,6 +145,10 @@ export default function MyPage() {
     window.location.href = '/login';
   };
   const cancelLogout = () => setIsLogoutModalOpen(false);
+
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
 
   return (
     <div className="mypage-wrapper">
@@ -190,7 +189,6 @@ export default function MyPage() {
             </button>
           </div>
 
-          {/* 이메일 */}
           <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
             <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
               이메일
@@ -206,7 +204,6 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 닉네임 */}
           <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
             <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
               닉네임
@@ -221,7 +218,6 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 현재 비밀번호 */}
           <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
             <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
               현재 비밀번호
@@ -245,7 +241,6 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 새 비밀번호 */}
           <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
             <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
               새 비밀번호
@@ -286,8 +281,7 @@ export default function MyPage() {
         로그아웃
       </button>
 
-      {/* 로그아웃 모달 */}
-      {/* {isLogoutModalOpen && (
+      {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
             <p className="mb-4 text-lg font-medium">
@@ -309,7 +303,7 @@ export default function MyPage() {
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }

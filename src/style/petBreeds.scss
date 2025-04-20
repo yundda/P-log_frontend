@@ -1,0 +1,72 @@
+@import './util.scss';
+
+h2 {
+  width: 100%;
+  font-size: 24px;
+  font-weight: bold;
+  color: $color-4;
+  margin-bottom: 0.5rem;
+}
+
+.pet-breeds-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+
+  .breed-card {
+    flex: 1 1 45%;
+    min-width: 200px;
+    max-width: 100%;
+    background-color: white;
+    border: 1px solid $color-2;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba($color-1, 0.1);
+    max-height: 240px;
+    overflow-y: auto;
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $color-5;
+      margin-bottom: 0.75rem;
+    }
+
+    .breed-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.875rem;
+      color: $color-4;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      li {
+        padding: 0.25rem 0;
+        border-bottom: 1px dashed #eee;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .breed-card {
+      min-width: 240px;
+      padding: 0.75rem;
+      max-height: 200px;
+
+      h3 {
+        font-size: 1rem;
+      }
+
+      .breed-list {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
