@@ -1,64 +1,80 @@
 import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const API = process.env.REACT_APP_API_SERVER;
 
-// export default function Health({ selectedDate, pet, onClose }) {
-//   const [form, setForm] = useState({
-//     vaccination: '',
-//     hospital: '',
-//     price: '',
-//   });
+export default function Health({
+  selectedDate,
+  pet,
+  onClose,
+  setHealthLogs,
+  mode = 'create',
+  editLog,
+}) {
+  const isReadMode = mode === 'read';
+  const isEditMode = !!editLog;
 
-//   const handleChange = e => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = async () => {
-//     const body = {
-//       petLog: {
-//         name: pet.petName,
-//         type: 'HEALTH',
-//       },
-//       healthLog: {
-//         vaccination: form.vaccination,
-//         vaccination_log: true,
-//         hospital: form.hospital,
-//         hospital_log: new Date(selectedDate).toISOString(),
-//         price: parseInt(form.price),
-//       },
-//     };
-
-//     console.log('[건강 기록 전송 데이터]', body);
-
-//     try {
-//       const res = await axios.post(`${API}/logs/health`, body);
-//       console.log('[건강 기록 등록 성공]', res.data);
-//       alert('건강 기록이 저장되었습니다!');
-//       onClose();
-//     } catch (err) {
-//       console.error('[건강 기록 등록 실패]', err);
-//       if (err.response) {
-//         console.error('[서버 응답]', err.response.data);
-//         alert('건강 기록 저장에 실패했습니다: ' + err.response.data.message);
-//       } else {
-//         alert('서버에 연결할 수 없습니다.');
-//       }
-//     }
-//   };
-export default function Health({ selectedDate, pet, onClose, setHealthLogs }) {
   const [form, setForm] = useState({
     vaccination: '',
     hospital: '',
-    price: '',
+    hospital_log: '',
+    vaccination_log: false,
   });
 
+  useEffect(() => {
+    if (editLog) {
+      setForm({
+        vaccination: editLog.vaccination || '',
+        hospital: editLog.hospital || '',
+        hospital_log: formatEditDate(editLog.hospital_log) || '',
+        vaccination_log:
+          editLog.vaccination_log === true ||
+          editLog.vaccination_log === 'true',
+      });
+    }
+  }, [editLog]);
+
+  const formatEditDate = dateString => {
+    const date = new Date(dateString);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().slice(0, 16);
+  };
+
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'radio' ? value === 'true' : value,
+    }));
   };
 
   const handleSubmit = async () => {
+    const formattedHospitalLog =
+      form.hospital_log.length === 16
+        ? form.hospital_log + ':00'
+        : form.hospital_log;
+
+    if (isEditMode) {
+      try {
+        await axios.patch(`${API}/logs/health/update`, {
+          log_id: editLog.log_id,
+          vaccination: form.vaccination,
+          vaccinationLog: form.vaccination_log,
+          hospital: form.hospital,
+          hospitalLog: formattedHospitalLog,
+        });
+        alert('✅ 건강 기록이 수정되었습니다!');
+        const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
+        setHealthLogs(logsRes.data.data);
+        onClose();
+      } catch (err) {
+        console.error('[건강 기록 수정 실패]', err);
+        alert(err.response?.data?.message || '서버 오류');
+      }
+      return;
+    }
+
     const body = {
       petLog: {
         name: pet.petName,
@@ -66,72 +82,133 @@ export default function Health({ selectedDate, pet, onClose, setHealthLogs }) {
       },
       healthLog: {
         vaccination: form.vaccination,
-        vaccination_log: true,
+        vaccination_log:
+          form.vaccination_log === true || form.vaccination_log === 'true',
         hospital: form.hospital,
-        hospital_log: new Date(selectedDate).toISOString(),
-        price: parseInt(form.price),
+        hospital_log: formattedHospitalLog,
       },
     };
 
     try {
-      const res = await axios.post(`${API}/logs/health`, body);
-      alert('건강 기록이 저장되었습니다!');
-
-      const logsRes = await axios.get(`${API}/logs/health/${pet.petId}`);
-      setHealthLogs(logsRes.data);
-
+      await axios.post(`${API}/logs/health`, body);
+      alert('✅ 건강 기록이 저장되었습니다!');
+      const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
+      setHealthLogs(logsRes.data.data);
       onClose();
     } catch (err) {
       console.error('[건강 기록 등록 실패]', err);
-      if (err.response) {
-        alert('저장 실패: ' + err.response.data.message);
-      } else {
-        alert('서버 연결 오류');
-      }
+      alert(err.response?.data?.message || '서버 오류');
     }
   };
+
+  const handleDelete = async () => {
+    if (!editLog) return;
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      await axios.delete(`${API}/logs/health/${pet.petName}`, {
+        data: { log_id: editLog.log_id },
+      });
+      alert('🗑️ 삭제되었습니다!');
+      const logsRes = await axios.get(`${API}/logs/health/${pet.petName}`);
+      setHealthLogs(logsRes.data.data);
+      onClose();
+    } catch (err) {
+      console.error('[건강 기록 삭제 실패]', err);
+      alert(err.response?.data?.message || '서버 오류');
+    }
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content relative">
-        <button
-          className="close-button absolute top-2 right-2 text-2xl"
-          onClick={onClose}
-        >
+        <button className="close-button" onClick={onClose}>
           &times;
         </button>
-        <div className="add-container bg-plog-main2/40 flex-container">
-          <h1 className="text-plog-main4 font-bold text-4xl mb-6">건강 기록</h1>
+        <div className="add-container bg-plog-main2/40 flex-container p-6 rounded-xl shadow-lg">
+          <h1 className="text-plog-main4 font-bold text-4xl mb-6 text-center">
+            {isEditMode ? '🏥 건강 기록 보기' : '✏️ 건강 기록'}
+          </h1>
           <div className="content-wrapper">
-            <div className="form-section flex flex-col gap-4 w-full max-w-xl">
+            <div className="form-section flex flex-col gap-5 w-full max-w-xl mx-auto">
               <input
                 name="vaccination"
-                placeholder="예방 접종 내용"
+                placeholder="예방 접종 내용 ex) 광견병, 디스템퍼 💉"
                 value={form.vaccination}
                 onChange={handleChange}
                 className="border rounded px-4 py-2"
+                readOnly={isReadMode}
               />
+
+              <div className="flex flex-col gap-2">
+                <span className="font-semibold text-plog-main4 text-lg">
+                  💉 예방 접종을 했나요?
+                </span>
+                <div className="flex gap-6 items-center text-base">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="vaccination_log"
+                      value="true"
+                      checked={form.vaccination_log === true}
+                      onChange={handleChange}
+                      disabled={isReadMode}
+                    />
+                    ✅ 예
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="vaccination_log"
+                      value="false"
+                      checked={form.vaccination_log === false}
+                      onChange={handleChange}
+                      disabled={isReadMode}
+                    />
+                    ❌ 아니요
+                  </label>
+                </div>
+              </div>
+
               <input
                 name="hospital"
-                placeholder="병원 이름"
+                placeholder="병원 이름 ex) 서울동물병원 🏥"
                 value={form.hospital}
                 onChange={handleChange}
                 className="border rounded px-4 py-2"
-              />
-              <input
-                name="price"
-                type="number"
-                placeholder="비용"
-                value={form.price}
-                onChange={handleChange}
-                className="border rounded px-4 py-2"
+                readOnly={isReadMode}
               />
 
-              <button
-                onClick={handleSubmit}
-                className="send-button self-end mt-4"
-              >
-                기록 저장
-              </button>
+              <div className="flex flex-col gap-1">
+                <label className="text-plog-main4 font-semibold">
+                  📅 병원 방문 일시
+                </label>
+                <input
+                  name="hospital_log"
+                  type="datetime-local"
+                  value={form.hospital_log}
+                  onChange={handleChange}
+                  className="border rounded px-4 py-2"
+                  readOnly={isReadMode}
+                />
+              </div>
+
+              <div className="flex justify-between mt-4">
+                {isEditMode && (
+                  <button
+                    className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-50"
+                    onClick={handleDelete}
+                  >
+                    🗑️ 삭제
+                  </button>
+                )}
+                <button
+                  onClick={handleSubmit}
+                  className="bg-plog-main4 text-white font-bold py-2 px-6 rounded-xl hover:bg-plog-main3 transition duration-200 ml-auto"
+                >
+                  {isEditMode ? '수정하기' : '기록 저장'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

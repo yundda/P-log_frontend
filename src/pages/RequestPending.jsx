@@ -1,18 +1,31 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import AcceptModal from '../components/Modal/Accept';
 import { useState } from 'react';
 
 export default function RequestPending() {
   const { requestId } = useParams();
-  const [isOpen, setIsOpen] = useState(true); // 자동으로 열림
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(true); // 자동
+
+  const handleResult = result => {
+    setIsOpen(false);
+    if (result === 'accepted') {
+      navigate('/petsetting');
+    } else {
+      navigate('/detail');
+    }
+  };
 
   return (
     <>
       {isOpen && (
         <AcceptModal
           requestId={requestId}
-          onClose={() => setIsOpen(false)}
-          onResult={() => {}}
+          onClose={() => {
+            setIsOpen(false);
+            navigate('/detail');
+          }}
+          onResult={handleResult}
         />
       )}
       {!isOpen && (

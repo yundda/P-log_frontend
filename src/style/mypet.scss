@@ -1,0 +1,12 @@
+.mypet-container {
+  .pet-card {
+    transition: all 0.3s ease;
+    @media (max-width: 923px) {
+      padding: 1.5rem;
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+  }
+}

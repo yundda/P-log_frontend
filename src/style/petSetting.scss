@@ -21,7 +21,8 @@
   border-radius: 12px;
   @include box-shadow;
   background-color: $color-white;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
 
   .btn-invite,
   .btn-delete {

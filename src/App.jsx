@@ -12,10 +12,10 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import './api/axiosInterceptor';
 import Home from './pages/Index';
-// import RequestList from './pages/RequestList';
 import MyPage from './pages/mypage';
 import Layout from './components/Layout';
 import RequestPending from './pages/RequestPending';
+import MyPet from './pages/Mypet';
 
 function App() {
   useEffect(() => {
@@ -42,6 +42,7 @@ function App() {
             element={<RequestPending />}
           />
           {/* 반려동물 관련 */}
+          <Route path="/mypet" element={<MyPet />} />
           <Route path="/chooseProfile" element={<ChooseProfile />} />
           <Route path="/petSetting" element={<PetSetting />} />
           <Route path="/detail" element={<Detail />} />

@@ -8,31 +8,22 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
   const [requestInfo, setRequestInfo] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false); // 중복 방지
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const fetchRequestInfo = async () => {
       setIsLoading(true);
       try {
-        console.log('[요청 정보 조회 시작]', requestId);
         const response = await axios.get(`${API}/request/pending/${requestId}`);
-        console.log('[요청 정보 조회 응답]', response.data);
-
         if (response.data.code === 'SU') {
           setRequestInfo(response.data.data);
         }
       } catch (err) {
-        console.error('[요청 정보 조회 오류]', err);
-        if (err.response) {
-          const { code, message } = err.response.data;
-          console.error('[에러 응답]', { code, message });
-
-          if (code === 'NF') setError('요청 정보를 찾을 수 없습니다.');
-          else if (code === 'FB') setError('요청에 대한 접근 권한이 없습니다.');
-          else setError(message || '알 수 없는 오류입니다.');
-        } else {
-          setError('요청 정보를 불러오는 중 문제가 발생했습니다.');
-        }
+        const { code, message } = err.response?.data || {};
+        if (code === 'NF') setError('요청 정보를 찾을 수 없습니다.');
+        else if (code === 'FB') setError('요청에 대한 접근 권한이 없습니다.');
+        else
+          setError(message || '요청 정보를 불러오는 중 오류가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -45,17 +36,13 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
     if (isProcessing) return;
     setIsProcessing(true);
     try {
-      console.log('[요청 수락 시도]', requestId);
       const response = await axios.get(`${API}/request/accept/${requestId}`);
-      console.log('[요청 수락 응답]', response.data);
-
       if (response.data.code === 'SU') {
         alert('요청을 수락했습니다.');
         onResult?.('accepted');
         onClose();
       }
     } catch (err) {
-      console.error('[수락 오류]', err);
       handleError(err);
     } finally {
       setIsProcessing(false);
@@ -66,17 +53,13 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
     if (isProcessing) return;
     setIsProcessing(true);
     try {
-      console.log('[요청 거절 시도]', requestId);
       const response = await axios.get(`${API}/request/reject/${requestId}`);
-      console.log('[요청 거절 응답]', response.data);
-
       if (response.data.code === 'SU') {
         alert('요청을 거절했습니다.');
         onResult?.('rejected');
         onClose();
       }
     } catch (err) {
-      console.error('[거절 오류]', err);
       handleError(err);
     } finally {
       setIsProcessing(false);
@@ -84,24 +67,12 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
   };
 
   const handleError = err => {
-    if (err.response) {
-      const { code, message } = err.response.data;
-      console.error('[처리 중 에러 응답]', { code, message });
-
-      if (code === 'NF') alert('요청을 찾을 수 없습니다.');
-      else if (code === 'FB') alert('접근 권한이 없습니다.');
-      else if (code === 'BR') alert('이미 처리된 요청입니다.');
-      else alert('요청 처리 중 오류가 발생했습니다.');
-    } else {
-      console.error('[서버 응답 없음 또는 네트워크 오류]', err);
-      alert('요청 처리에 실패했습니다.');
-    }
+    const { code, message } = err.response?.data || {};
+    if (code === 'NF') alert('요청을 찾을 수 없습니다.');
+    else if (code === 'FB') alert('접근 권한이 없습니다.');
+    else if (code === 'BR') alert('이미 처리된 요청입니다.');
+    else alert(message || '요청 처리 중 오류가 발생했습니다.');
   };
-
-  axios.interceptors.request.use(config => {
-    console.log('[요청 헤더]', config.headers); // 여기에 Authorization 헤더 출력됨
-    return config;
-  });
 
   if (isLoading) {
     return (
@@ -135,11 +106,13 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
           className="w-24 h-24 rounded-full mx-auto mb-4"
         />
         <h2 className="text-xl font-bold mb-2">
-          <span className="text-plog-main4">{requestInfo.requesterNick}</span>
+          <span className="text-plog-main4">{requestInfo.requesterNick}</span>{' '}
           님이
           <br />
-          <span className="font-bold">{requestInfo.petName}</span>의 가족으로
-          초대했습니다.
+          <span className="font-bold">{requestInfo.petName}</span>
+          {requestInfo.isRequesterOwner
+            ? ' 가족이 되고 싶어해요!'
+            : '의 가족으로 초대했어요!'}
         </h2>
         <div className="flex justify-center gap-4 mt-4">
           <button

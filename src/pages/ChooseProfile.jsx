@@ -79,15 +79,24 @@ export default function ChooseProfile() {
       if (response.data.code === 'SU') {
         const petData = response.data.data;
 
+        // const formattedPetData = {
+        //   id: petData.id || petData.petId,
+        //   petName: petData.petName,
+        //   petSpecies: petData.petSpecies,
+        //   petBreed: petData.petBreed,
+        //   petGender: petData.petGender,
+        //   petBirthday: petData.petBirthday,
+        //   petImageUrl: petData.petImageUrl,
+        // };
         const formattedPetData = {
-          id: petData.id || petData.petId, // ✅ id 또는 petId 포함
+          id: petData.id || petData.petId, // :white_check_mark: id 또는 petId 포함
           petName: petData.petName,
           petSpecies: petData.petSpecies,
           petBreed: petData.petBreed,
           petGender: petData.petGender,
           petBirthday: petData.petBirthday,
           petImageUrl: petData.petImageUrl,
-          // 필요시 더 추가 가능
+          petWeight: petData.petWeight,
         };
 
         setSelectedPetProfile(formattedPetData);
