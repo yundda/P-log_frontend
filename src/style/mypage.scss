@@ -14,8 +14,81 @@
   padding: 2rem;
   flex-wrap: wrap;
 
-  @media (max-width: 768px) {
+  @media (max-width: 923px) {
     padding: 2rem 1rem 6rem;
+  }
+}
+
+.profile-card {
+  background: $color-white;
+  padding: 20px 32px;
+  border-radius: 12px;
+  @include box-shadow;
+  width: 800px;
+  max-width: 100%;
+  flex-shrink: 0;
+
+  @media (max-width: 923px) {
+    width: 90%;
+    max-width: 90%;
+  }
+}
+
+.input-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  label {
+    width: 120px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  input {
+    // width: 50%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 923px) {
+    align-items: flex-start;
+
+    label {
+      text-align: left;
+      margin-bottom: 0.25rem;
+    }
+
+    input {
+      width: 100% !important;
+    }
+  }
+}
+
+.input-with-icon {
+  position: relative;
+  width: 50%;
+
+  input {
+    width: 100%;
+    padding-right: 2.5rem;
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: $color-gray;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 923px) {
+    width: 100%;
   }
 }
 
@@ -34,100 +107,19 @@
   }
 }
 
-.profile-card {
-  background: $color-white;
-  padding: 20px;
-  border-radius: 12px;
-  @include box-shadow;
-  width: 320px;
-  // text-align: center;
-  flex-shrink: 0;
-
-  .profile-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: $color-gray;
-    margin-bottom: 10px;
-  }
-
-  button {
-    // background: $color-5;
-    // color: $color-white;
-    // padding: 10px 1px;
-    // border-radius: 6px;
-    cursor: pointer;
-    &:hover {
-      background: $color-4;
-    }
-  }
-
-  // input {
-  //   // width: 100%;
-  //   // padding: 8px;
-  //   // border: 1px solid $color-gray;
-  //   border-radius: 6px;
-  //   margin-bottom: 10px;
-  // }
-
-  @media (max-width: 768px) {
-    width: 80%;
-    max-width: 80%;
-  }
+.icon-save-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
 }
 
-.pet-card {
-  background: $color-white;
-  padding: 20px;
-  border-radius: 12px;
-  @include box-shadow;
-  width: 600px;
+.submit-button {
+  width: 40%;
+  max-width: 280px;
+  margin: 0 auto;
+  display: block;
 
-  h3 {
-    color: $color-4;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-
-  .pet-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .pet-item {
-    text-align: center;
-
-    .pet-image {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      background: $color-gray;
-      margin-bottom: 8px;
-    }
-
-    .pet-name {
-      background: $color-1;
-      padding: 4px 8px;
-      border-radius: 6px;
-      display: inline-block;
-      color: $color-gray;
-    }
-
-    button {
-      background: $color-5;
-      color: $color-white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      margin-top: 5px;
-      &:hover {
-        background: $color-4;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    width: 80%;
+  @media (max-width: 923px) {
+    include: button1-small;
   }
 }

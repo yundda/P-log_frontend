@@ -1,29 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import '../style/mypage.scss';
+import LoginRequired from '../components/Modal/LoginRequired';
 
-const PROFILE_ICONS = [
-  '/images/profile1.png',
-  '/images/profile2.png',
-  '/images/profile3.png',
-  '/images/profile4.png',
-  '/images/profile5.png',
-  '/images/profile6.png',
-  '/images/profile7.png',
-  '/images/profile8.png',
-  '/images/profile9.png',
-  '/images/profile10.png',
-  '/images/profile11.png',
-  '/images/profile12.png',
-  '/images/profile13.png',
-];
+const PROFILE_ICONS = Array.from(
+  { length: 13 },
+  (_, i) => `/images/profile${i + 1}.png`,
+);
 
 export default function MyPage() {
-  const navigate = useNavigate();
-
   const [userData, setUserData] = useState({ nickname: '', email: '' });
   const [form, setForm] = useState({
     nickname: '',
@@ -31,28 +18,35 @@ export default function MyPage() {
     afterPassword: '',
   });
   const [message, setMessage] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState(
-    localStorage.getItem('profileIcon') || PROFILE_ICONS[0],
-  );
-  const [petList, setPetList] = useState([]);
+  const [selectedIcon, setSelectedIcon] = useState('');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(null);
-  const [selectedPetName, setSelectedPetName] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const res = await api.get('/user/mypage');
-        console.log('[유저 정보 응답]', res.data);
         if (res.data.code === 'SU') {
-          const { nickname, email } = res.data.data;
+          const { nickname, email, profileImage } = res.data.data;
           setUserData({ nickname, email });
           setForm(prev => ({ ...prev, nickname }));
+
+          const iconUrl = `/images/${profileImage}.png`;
+          setSelectedIcon(iconUrl);
+          localStorage.setItem('profileIcon', iconUrl);
         }
       } catch (err) {
-        console.error('[유저 정보 요청 실패]', err);
         const res = err.response;
         if (res?.status === 401) setMessage('인증이 필요합니다.');
         else if (res?.status === 404)
@@ -61,47 +55,43 @@ export default function MyPage() {
       }
     };
 
-    fetchUserData();
-  }, []);
-
-  useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        const res = await api.get('/pets');
-        console.log('[반려동물 목록 응답]', res.data);
-        if (res.data.code === 'SU') {
-          setPetList(res.data.data);
-        }
-      } catch (error) {
-        console.error('[반려동물 목록 요청 실패]', error);
-      }
-    };
-
-    fetchPets();
-  }, []);
+    if (isLogin) fetchUserData();
+  }, [isLogin]);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleIconSelect = icon => {
-    console.log('[아이콘 선택]', icon);
-    setSelectedIcon(icon);
+  const handleIconSelect = icon => setSelectedIcon(icon);
+
+  const handleIconUpdate = async () => {
+    const iconFileName = selectedIcon.split('/').pop();
+    const profileName = iconFileName?.split('.')[0];
+
+    try {
+      const res = await api.patch(`/user/update/${profileName}`);
+      if (res.data.code === 'SU') {
+        localStorage.setItem('profileIcon', selectedIcon);
+        setMessage('프로필 아이콘이 수정되었습니다!');
+      }
+    } catch (err) {
+      const res = err.response;
+      const code = res?.data?.code;
+      const msg = res?.data?.message;
+
+      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') setMessage('프로필 이미지 변경 실패 (DB 오류)');
+      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
+    }
   };
 
-  const handleIconSave = () => {
-    localStorage.setItem('profileIcon', selectedIcon);
-    console.log('[아이콘 저장됨]', selectedIcon);
-    alert('프로필 아이콘이 저장되었습니다!');
-  };
-
-  const validate = () => {
+  const handleSubmit = async () => {
     const { beforePassword, afterPassword, nickname } = form;
 
     if (!beforePassword) {
       setMessage('현재 비밀번호를 입력해주세요.');
-      return false;
+      return;
     }
 
     if (
@@ -112,135 +102,75 @@ export default function MyPage() {
       setMessage(
         '새 비밀번호는 영문/숫자/특수문자 중 2가지 이상 조합, 8자 이상이어야 합니다.',
       );
-      return false;
-    }
-
-    if (beforePassword === afterPassword) {
-      setMessage('현재 비밀번호와 새 비밀번호가 같습니다.');
-      return false;
+      return;
     }
 
     if (!afterPassword && nickname === userData.nickname) {
       setMessage('변경할 정보가 없습니다.');
-      return false;
+      return;
     }
 
-    return true;
-  };
+    if (afterPassword && beforePassword === afterPassword) {
+      setMessage('현재 비밀번호와 새 비밀번호가 같습니다.');
+      return;
+    }
 
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    const payload = { beforePassword: form.beforePassword };
-    if (form.nickname !== userData.nickname) payload.nickname = form.nickname;
-    if (form.afterPassword) payload.afterPassword = form.afterPassword;
-
-    console.log('[수정 요청 payload]', payload);
+    const payload = { beforePassword };
+    if (nickname !== userData.nickname) payload.nickname = nickname;
+    if (afterPassword) payload.afterPassword = afterPassword;
 
     try {
       const res = await api.patch('/user/update', payload);
-      console.log('[수정 성공 응답]', res.data);
       if (res.data.code === 'SU') {
         setMessage('수정이 완료되었습니다.');
-        setUserData(prev => ({ ...prev, nickname: form.nickname }));
+        setUserData(prev => ({ ...prev, nickname }));
         setForm(prev => ({ ...prev, beforePassword: '', afterPassword: '' }));
       }
     } catch (err) {
-      console.error('[수정 실패]', err.response);
       const res = err.response;
-      setMessage(res?.data?.message || '요청 처리 중 오류가 발생했습니다.');
+      const code = res?.data?.code;
+      const msg = res?.data?.message;
+
+      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') setMessage('DB 업데이트에 실패했습니다.');
+      else if (code === 'BR') setMessage(msg || '유효성 검사에 실패했습니다.');
+      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
     }
   };
 
-  const handleLeavePet = async petName => {
-    console.log('[가족에서 빠지기 요청]', petName);
-    try {
-      const res = await api.get(`/user/leave/${encodeURIComponent(petName)}`);
-      console.log('[가족 해제 응답]', res.data);
-      if (res.data.code === 'SU') {
-        alert(`"${petName}"에서 가족 관계가 해제되었습니다.`);
-        setPetList(prev => prev.filter(pet => pet.petName !== petName));
-      }
-    } catch (err) {
-      console.error('[가족 해제 실패]', err.response);
-      const res = err.response;
-      alert(res?.data?.message || '가족에서 빠지기에 실패했습니다.');
-    }
-  };
-
-  const handleDeletePet = async petName => {
-    console.log('[삭제 요청]', petName);
-    try {
-      const res = await api.delete(
-        `/pets/delete/${encodeURIComponent(petName)}`,
-      );
-      console.log('[삭제 응답]', res.data);
-      if (res.data.code === 'SU') {
-        alert('반려동물이 삭제되었습니다.');
-        setPetList(prev => prev.filter(pet => pet.petName !== petName));
-      }
-    } catch (err) {
-      console.error('[삭제 실패]', err.response);
-      const res = err.response;
-      alert(res?.data?.message || '삭제에 실패했습니다.');
-    }
-  };
-
-  const openModal = (type, petName) => {
-    console.log('[모달 열기]', type, petName);
-    setModalType(type);
-    setSelectedPetName(petName);
-  };
-
-  const handleConfirm = async () => {
-    console.log('[모달 확인]', modalType, selectedPetName);
-    if (modalType === 'leave') {
-      await handleLeavePet(selectedPetName);
-    } else if (modalType === 'delete') {
-      await handleDeletePet(selectedPetName);
-    }
-    setModalType(null);
-    setSelectedPetName('');
-  };
-
-  const handleCancel = () => {
-    console.log('[모달 취소]');
-    setModalType(null);
-    setSelectedPetName('');
-  };
-
-  const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
+  const handleLogoutClick = () => setIsLogoutModalOpen(true);
   const confirmLogout = () => {
-    console.log('[로그아웃 수행]');
     localStorage.removeItem('auth');
     window.location.href = '/login';
   };
+  const cancelLogout = () => setIsLogoutModalOpen(false);
 
-  const cancelLogout = () => {
-    setIsLogoutModalOpen(false);
-  };
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
 
   return (
     <div className="mypage-wrapper">
       <div className="mypage-container">
-        {/* 유저 정보 카드 */}
         <div className="profile-card">
-          <img
-            src={selectedIcon}
-            alt="Profile Icon"
-            className="w-40 h-40 rounded-full mb-4 object-cover border-4 border-gray-300"
-          />
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 mb-2">
+          <div className="flex justify-center mb-4">
+            {selectedIcon && (
+              <img
+                src={selectedIcon}
+                alt="Profile Icon"
+                className="w-40 h-40 rounded-full object-cover border-4 border-gray-300"
+              />
+            )}
+          </div>
+
+          <div className="icon-scroll flex overflow-x-auto gap-2 mb-4 px-2">
             {PROFILE_ICONS.map(icon => (
               <img
                 key={icon}
                 src={icon}
                 alt="선택 아이콘"
                 onClick={() => handleIconSelect(icon)}
-                className={`w-12 h-12 rounded-full cursor-pointer border-2 transition-all duration-200 ${
+                className={`w-12 h-12 rounded-full cursor-pointer border-2 transition-transform duration-200 ${
                   selectedIcon === icon
                     ? 'border-plog-main5 scale-110'
                     : 'border-gray-300'
@@ -248,64 +178,87 @@ export default function MyPage() {
               />
             ))}
           </div>
-          <button
-            onClick={handleIconSave}
-            className="bg-plog-main5 text-white py-1 px-3 rounded-md mb-4"
-          >
-            아이콘 저장
-          </button>
-          <br />
-          <label>이메일</label>
-          <input
-            name="email"
-            type="email"
-            value={userData.email}
-            readOnly
-            className="w-full border p-2 rounded-md mb-2 bg-gray-100 text-gray-500 cursor-not-allowed"
-          />
 
-          <label>닉네임</label>
-          <input
-            name="nickname"
-            value={form.nickname}
-            onChange={handleChange}
-            className="w-full border p-2 rounded-md mb-2"
-          />
-
-          <label>현재 비밀번호</label>
-          <div className="relative w-full mb-2">
-            <input
-              name="beforePassword"
-              type={showCurrentPassword ? 'text' : 'password'}
-              value={form.beforePassword}
-              onChange={handleChange}
-              className="w-full border p-2 rounded-md pr-10"
-            />
-            <span
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
-              onClick={() => setShowCurrentPassword(prev => !prev)}
+          <div className="icon-save-button-wrapper">
+            <button
+              onClick={handleIconUpdate}
+              className="bg-plog-main5 text-white py-1 px-3 rounded-md"
             >
-              <FontAwesomeIcon
-                icon={showCurrentPassword ? faEyeSlash : faEye}
-              />
-            </span>
+              아이콘 수정
+            </button>
           </div>
 
-          <label>새 비밀번호</label>
-          <div className="relative w-full mb-2">
-            <input
-              name="afterPassword"
-              type={showNewPassword ? 'text' : 'password'}
-              value={form.afterPassword}
-              onChange={handleChange}
-              className="w-full border p-2 rounded-md pr-10"
-            />
-            <span
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
-              onClick={() => setShowNewPassword(prev => !prev)}
-            >
-              <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
-            </span>
+          <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
+            <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
+              이메일
+            </label>
+            <div className="w-full sm:w-1/2">
+              <input
+                name="email"
+                type="email"
+                value={userData.email}
+                readOnly
+                className="w-full border p-2 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+            </div>
+          </div>
+
+          <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
+            <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
+              닉네임
+            </label>
+            <div className="w-full sm:w-1/2">
+              <input
+                name="nickname"
+                value={form.nickname}
+                onChange={handleChange}
+                className="w-full border p-2 rounded-md"
+              />
+            </div>
+          </div>
+
+          <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
+            <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
+              현재 비밀번호
+            </label>
+            <div className="relative w-full sm:w-1/2">
+              <input
+                name="beforePassword"
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={form.beforePassword}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 pr-10"
+              />
+              <span
+                onClick={() => setShowCurrentPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+              >
+                <FontAwesomeIcon
+                  icon={showCurrentPassword ? faEyeSlash : faEye}
+                />
+              </span>
+            </div>
+          </div>
+
+          <div className="input-row flex flex-col sm:flex-row sm:items-center mb-2">
+            <label className="w-full sm:w-24 text-sm font-medium mb-1 sm:mb-0 sm:text-right">
+              새 비밀번호
+            </label>
+            <div className="relative w-full sm:w-1/2">
+              <input
+                name="afterPassword"
+                type={showNewPassword ? 'text' : 'password'}
+                value={form.afterPassword}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 pr-10"
+              />
+              <span
+                onClick={() => setShowNewPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+              >
+                <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
+              </span>
+            </div>
           </div>
 
           {message && (
@@ -316,58 +269,10 @@ export default function MyPage() {
 
           <button
             onClick={handleSubmit}
-            className="bg-plog-main5 text-white py-2 px-4 rounded-md mt-4"
+            className="submit-button bg-plog-main5 text-white py-2 px-4 rounded-md mt-4"
           >
             수정하기
           </button>
-        </div>
-
-        {/* 반려동물 카드 */}
-        <div className="pet-card">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-plog-main4 text-3xl font-bold">
-              나의 반려동물
-            </h3>
-            <button
-              className="bg-plog-main5 text-white py-1 px-3 rounded-md"
-              onClick={() => navigate('/chooseProfile')}
-            >
-              추가하기
-            </button>
-          </div>
-
-          {petList.length === 0 ? (
-            <p className="text-gray-500">등록된 반려동물이 없습니다.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {petList.map(pet => (
-                <div key={pet.petId} className="flex flex-col items-center">
-                  <img
-                    src={pet.petImageUrl || '/images/default-pet.png'}
-                    alt={pet.petName || '반려동물'}
-                    className="w-24 h-24 rounded-full object-cover mb-2"
-                  />
-                  <span className="bg-plog-main1 text-gray-700 px-2 py-1 rounded mb-1">
-                    {pet.petName || '이름 없음'}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openModal('leave', pet.petName)}
-                      className="bg-yellow-500 text-white py-1 px-2 rounded-md text-sm hover:bg-yellow-600"
-                    >
-                      가족에서 빠지기
-                    </button>
-                    <button
-                      onClick={() => openModal('delete', pet.petName)}
-                      className="bg-red-500 text-white py-1 px-2 rounded-md text-sm hover:bg-red-600"
-                    >
-                      삭제하기
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -375,7 +280,6 @@ export default function MyPage() {
         로그아웃
       </button>
 
-      {/* 로그아웃 모달 */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
@@ -391,33 +295,6 @@ export default function MyPage() {
               </button>
               <button
                 onClick={cancelLogout}
-                className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
-              >
-                취소
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🆕 가족/삭제 모달 */}
-      {modalType && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
-            <p className="mb-4 text-lg font-medium">
-              {modalType === 'leave'
-                ? `"${selectedPetName}"에서 가족 관계를 해제하시겠습니까?`
-                : `"${selectedPetName}"을(를) 정말 삭제하시겠습니까?`}
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleConfirm}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-              >
-                확인
-              </button>
-              <button
-                onClick={handleCancel}
                 className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
               >
                 취소

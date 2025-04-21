@@ -7,6 +7,7 @@ import '../style/login.scss';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import Developing from '../components/Modal/Developing';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -17,17 +18,18 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const [serverError, setServerError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [loggedInNickname, setLoggedInNickname] = useState('');
+  const [redirectRequestId, setRedirectRequestId] = useState(null);
+  const [showDeveloping, setShowDeveloping] = useState(false);
 
   const onSubmit = async data => {
     setServerError('');
-    console.log('[로그인 요청 데이터]', data);
-
     try {
       const response = await api.post(`${API}/auth/login`, data);
-      console.log('[로그인 응답]', response.data);
-
       if (response.data.code === 'SU') {
         const { nickname, token, requestId } = response.data.data;
         const newAuth = {
@@ -35,31 +37,15 @@ export default function Login() {
           nickname,
           token,
         };
-
         localStorage.setItem('auth', JSON.stringify(newAuth));
-        console.log('[로컬스토리지 저장된 auth]', newAuth);
-
         setAuthState(newAuth);
-        alert(`${nickname}님, 환영합니다!`);
-
-        if (requestId !== undefined && requestId !== null) {
-          console.log('[요청 ID 있음] → 초대 요청 대기 화면 이동:', requestId);
-          window.location.href = `/request/pending/${requestId}`;
-        } else {
-          console.log('[요청 ID 없음] → ChooseProfile로 이동');
-          window.location.href = '/ChooseProfile';
-        }
-      } else {
-        console.warn('[로그인 실패 응답]', response.data);
+        setLoggedInNickname(nickname);
+        setRedirectRequestId(requestId ?? null);
+        setShowModal(true);
       }
     } catch (error) {
-      console.error('[로그인 에러]', error);
-
       if (error.response) {
         const { code, message } = error.response.data;
-        console.error('[에러 응답 코드]', code);
-        console.error('[에러 응답 메시지]', message);
-
         if (code === 'NF' || code === 'BR' || code === 'DBE') {
           setServerError(message);
         }
@@ -69,13 +55,21 @@ export default function Login() {
     }
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    if (redirectRequestId !== null) {
+      window.location.href = `/request/pending/${redirectRequestId}`;
+    } else {
+      window.location.href = '/ChooseProfile';
+    }
+  };
+
   return (
     <div className="login-container">
       <h3 className="title">로그인</h3>
       <div className="login-card">
         <img src="/images/img1.png" alt="사진" className="img" />
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-          {/* 이메일 */}
           <label htmlFor="email">이메일:</label>
           <input
             type="email"
@@ -84,7 +78,6 @@ export default function Login() {
           />
           {errors.email && <p className="error-msg">{errors.email.message}</p>}
 
-          {/* 비밀번호 */}
           <div className="password-wrapper">
             <label htmlFor="password">비밀번호:</label>
             <div className="password-field">
@@ -107,11 +100,15 @@ export default function Login() {
             )}
           </div>
 
-          {/* 서버 에러 메시지 */}
           {serverError && <p className="error-msg">{serverError}</p>}
 
           <div className="find-pw">
-            <a href="/find-password">비밀번호 찾기</a>
+            <span
+              className="text-blue-500 cursor-pointer"
+              onClick={() => setShowDeveloping(true)}
+            >
+              비밀번호 찾기
+            </span>
           </div>
 
           <button type="submit">로그인</button>
@@ -126,6 +123,32 @@ export default function Login() {
             </a>
           </div>
         </form>
+      </div>
+
+      {showModal && (
+        <WelcomeModal nickname={loggedInNickname} onClose={handleCloseModal} />
+      )}
+
+      {showDeveloping && (
+        <Developing onClose={() => setShowDeveloping(false)} />
+      )}
+    </div>
+  );
+}
+
+function WelcomeModal({ nickname, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-xs p-6 text-center">
+        <p className="text-lg mb-4">
+          <strong>{nickname}</strong>님, 환영합니다!
+        </p>
+        <button
+          onClick={onClose}
+          className="bg-plog-main4 text-white px-4 py-2 rounded-md hover:bg-plog-main3 transition"
+        >
+          확인
+        </button>
       </div>
     </div>
   );

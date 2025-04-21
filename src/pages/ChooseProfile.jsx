@@ -7,6 +7,7 @@ import {
   selectedpetNameState,
   selectedPetProfileState,
 } from '../recoil/petAtom';
+import LoginRequired from '../components/Modal/LoginRequired';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -17,6 +18,27 @@ export default function ChooseProfile() {
 
   const setSelectedpetName = useSetRecoilState(selectedpetNameState);
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 로그인 여부 확인
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsLogin(false);
+      setShowLoginModal(true);
+    } else {
+      setIsLogin(true);
+      setShowLoginModal(false);
+    }
+  }, []);
+
+  // 로그인 상태일 때만 fetchPets 호출
+  useEffect(() => {
+    if (isLogin) {
+      fetchPets();
+    }
+  }, [isLogin]);
 
   const openModal = () => {
     console.log('[모달 열기]');
@@ -60,44 +82,54 @@ export default function ChooseProfile() {
       const storedAuth = localStorage.getItem('auth');
       const token = storedAuth ? JSON.parse(storedAuth).token : '';
 
-      console.log('[프로필 요청 시작]', petName);
+      const encodedPetName = encodeURIComponent(petName);
+      const requestUrl = `${API}/pets/profile/${encodedPetName}`;
 
-      const response = await axios.get(
-        `${API}/pets/profile/${encodeURIComponent(petName)}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      console.log('[프로필 요청 시작]', petName);
+      console.log('[요청 URL]', requestUrl);
+      console.log('[요청 헤더]', { Authorization: `Bearer ${token}` });
+
+      const response = await axios.get(requestUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       console.log('[반려동물 프로필 응답]', response.data);
 
-      // if (response.data.code === 'SU') {
-      //   const petData = response.data.data;
-      //   setSelectedPetProfile(petData);
-      //   localStorage.setItem('selectedPet', JSON.stringify(petData));
-      //   navigate('/detail');
       if (response.data.code === 'SU') {
         const petData = response.data.data;
 
         const formattedPetData = {
-          id: petData.id || petData.petId, // ✅ id 또는 petId 포함
+          id: petData.id || petData.petId,
           petName: petData.petName,
           petSpecies: petData.petSpecies,
           petBreed: petData.petBreed,
           petGender: petData.petGender,
           petBirthday: petData.petBirthday,
           petImageUrl: petData.petImageUrl,
-          // 필요시 더 추가 가능
+          petWeight: petData.petWeight,
         };
+
+        console.log('[포맷된 반려동물 데이터]', formattedPetData);
 
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
-        navigate('/detail');
+        navigate('/');
       } else {
         console.warn('[프로필 응답 실패]', response.data);
       }
     } catch (error) {
       console.error('[반려동물 정보 불러오기 실패]', error);
+
+      if (error.response) {
+        console.error('[에러 응답 데이터]', error.response.data);
+        console.error('[에러 상태 코드]', error.response.status);
+        console.error('[에러 헤더]', error.response.headers);
+      } else if (error.request) {
+        console.error('[요청은 되었지만 응답이 없음]', error.request);
+      } else {
+        console.error('[요청 설정 중 에러 발생]', error.message);
+      }
+
       alert(
         error.response?.data?.message ||
           '반려동물 정보를 불러오는 데 실패했습니다.',
@@ -105,10 +137,10 @@ export default function ChooseProfile() {
     }
   };
 
-  useEffect(() => {
-    console.log('[컴포넌트 마운트] 반려동물 목록 요청');
-    fetchPets();
-  }, []);
+  // 로그인하지 않은 경우 로그인 필요 모달
+  if (!isLogin && showLoginModal) {
+    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
