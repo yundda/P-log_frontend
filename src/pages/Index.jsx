@@ -222,7 +222,7 @@ export default function Index() {
 
         <div className="health-wrapper border border-plog-main2 p-4 rounded-xl w-full">
           <h3 className="text-4xl font-semibold text-plog-main4 mb-4">
-            건강 정보 기록 ({selectedYear}년)
+            예방 접종 기록 ({selectedYear}년)
           </h3>
           <div className="mb-4">
             <label className="mr-2 font-semibold text-plog-main4">
@@ -243,7 +243,9 @@ export default function Index() {
 
           <div className="health-content flex flex-row gap-6 flex-nowrap mb-4">
             <div className="flex-1 health-card bg-white text-plog-main4 p-3 rounded">
-              <div className="text-lg font-semibold mb-2">예방 접종</div>
+              <div className="text-lg font-semibold mb-2">
+                예방 접종 / 예방접종 예정
+              </div>
               {filteredHealthLogs.length > 0 ? (
                 filteredHealthLogs.map(log => (
                   <div
