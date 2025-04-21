@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../style/header.scss';
 import axios from '../api/axiosInterceptor';
@@ -7,6 +7,7 @@ import {
   selectedPetProfileState,
   selectedpetNameState,
 } from '../recoil/petAtom';
+import AddPet from '../components/Modal/AddPet';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -18,6 +19,7 @@ export default function Header() {
   const [showPetMenu, setShowPetMenu] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [petList, setPetList] = useState([]);
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
 
@@ -100,6 +102,15 @@ export default function Header() {
     }
   };
 
+  const openAddPetModal = () => {
+    setIsAddPetModalOpen(true);
+  };
+
+  const closeAddPetModal = () => {
+    setIsAddPetModalOpen(false);
+    fetchPetList();
+  };
+
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
   };
@@ -114,7 +125,6 @@ export default function Header() {
     localStorage.removeItem('profileIcon');
     localStorage.removeItem('recoil-persist');
 
-    // Recoil 상태 초기화
     resetSelectedPetProfile();
     resetSelectedPetName();
 
@@ -130,7 +140,6 @@ export default function Header() {
 
   return (
     <>
-      {/* PC Header */}
       <header className="hidden md:flex justify-between items-center px-6 py-3 w-[90%] h-20 mx-auto">
         <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-14" />
@@ -181,6 +190,12 @@ export default function Header() {
                       <span className="text-sm">{pet.petName}</span>
                     </div>
                   ))}
+                  <div
+                    className="px-4 py-2 text-center text-sm text-plog-main4 cursor-pointer hover:underline border-t border-gray-100"
+                    onClick={openAddPetModal}
+                  >
+                    + 반려동물 추가하기
+                  </div>
                 </div>
               )}
             </div>
@@ -200,6 +215,9 @@ export default function Header() {
           )}
         </div>
       </header>
+
+      {/* AddPet 모달 */}
+      {isAddPetModalOpen && <AddPet onClose={closeAddPetModal} />}
 
       {/* Mobile Header */}
       <div className="md:hidden flex justify-between items-center px-6 py-3 shadow-md mobile-header">

@@ -228,8 +228,8 @@ export default function MyPet() {
           <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
             <p className="mb-4 text-lg font-medium">
               {modalType === 'leave'
-                ? `"${selectedPetName}"에서 가족 관계를 해제하시겠습니까?`
-                : `"${selectedPetName}"을(를) 정말 삭제하시겠습니까?`}
+                ? `"${selectedPetName}"을(를) 정말 삭제하시겠습니까?`
+                : `"${selectedPetName}"에서 가족 관계를 해제하시겠습니까?`}
             </p>
             <div className="flex justify-center gap-4">
               <button
