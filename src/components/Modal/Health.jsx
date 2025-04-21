@@ -12,6 +12,7 @@ export default function Health({
   setHealthLogs,
   mode = 'create',
   editLog,
+  onSuccess,
 }) {
   const [currentMode, setCurrentMode] = useState(mode);
   const isReadMode = currentMode === 'read';
@@ -25,11 +26,11 @@ export default function Health({
 
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
-  const [afterSuccess, setAfterSuccess] = useState(null); // ✅ Alert 닫고 나서 실행할 작업
+  const [afterSuccess, setAfterSuccess] = useState(null);
 
   const openAlert = (msg, callback) => {
     setAlertMessage(msg);
-    setAfterSuccess(() => callback); // ✅ 콜백 저장
+    setAfterSuccess(() => callback);
     setShowAlert(true);
   };
 
@@ -37,7 +38,7 @@ export default function Health({
     setShowAlert(false);
     setAlertMessage('');
     if (afterSuccess) {
-      afterSuccess(); // ✅ 등록/수정/삭제 후 동작 실행
+      afterSuccess();
     }
   };
 
@@ -68,15 +69,6 @@ export default function Health({
     }));
   };
 
-  const fetchHealthLogs = async () => {
-    try {
-      const res = await axios.get(`${API}/logs/health/${pet.petName}`);
-      setHealthLogs(res.data.data || []);
-    } catch (err) {
-      console.error('[건강 기록 재조회 실패]', err.response?.data || err);
-    }
-  };
-
   const handleSubmit = async () => {
     const formattedHospitalLog =
       form.hospital_log.length === 16
@@ -92,10 +84,7 @@ export default function Health({
           hospital: form.hospital,
           hospitalLog: formattedHospitalLog,
         });
-        openAlert('건강 기록이 수정되었습니다!', () => {
-          fetchHealthLogs();
-          onClose();
-        });
+        openAlert('건강 기록이 수정되었습니다!', onSuccess);
       } catch (err) {
         console.error('[건강 기록 수정 실패]', err.response?.data || err);
         openAlert(err.response?.data?.message || '서버 오류');
@@ -120,10 +109,7 @@ export default function Health({
 
     try {
       await axios.post(`${API}/logs/health`, body);
-      openAlert('건강 기록이 저장되었습니다!', () => {
-        fetchHealthLogs();
-        onClose();
-      });
+      openAlert('건강 기록이 저장되었습니다!', onSuccess);
     } catch (err) {
       console.error('[건강 기록 등록 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');
@@ -136,10 +122,7 @@ export default function Health({
 
     try {
       await axios.delete(`${API}/logs/health/${editLog.log_id}`);
-      openAlert('🗑️ 삭제되었습니다!', () => {
-        fetchHealthLogs();
-        onClose();
-      });
+      openAlert('🗑️ 삭제되었습니다!', onSuccess);
     } catch (err) {
       console.error('[건강 기록 삭제 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');

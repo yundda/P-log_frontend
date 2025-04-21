@@ -1,6 +1,6 @@
 import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Alert from './Alert';
 
 const API = process.env.REACT_APP_API_SERVER;
@@ -35,19 +35,22 @@ export default function Daily({
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
 
+  const isReadOnly = currentMode === 'read';
+
   const openAlert = msg => {
     setAlertMessage(msg);
     setShowAlert(true);
   };
 
-  const closeAlert = () => {
+  const handleAlertClose = () => {
     setAlertMessage('');
     setShowAlert(false);
-    onClose();
-    onSuccess?.();
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      onClose();
+    }
   };
-
-  const isReadOnly = currentMode === 'read';
 
   const handleChange = e => {
     if (isReadOnly) return;
@@ -70,10 +73,15 @@ export default function Daily({
         logTime: formatLocalDateTime(selectedDate),
         ...(logType === 'MEAL' && { mealType: form.meal_type }),
         ...(logType !== 'ETC' && logType !== 'MEAL' && { place: form.place }),
+        // ...((logType === 'HOSPITAL' ||
+        //   logType === 'GROOMING' ||
+        //   logType === 'BATH') && {
         ...(['HOSPITAL', 'GROOMING', 'BATH'].includes(logType) && {
           price: parseInt(form.price) || 0,
         }),
-        ...(['WALK', 'GROOMING', 'BATH'].includes(logType) && {
+        ...((logType === 'WALK' ||
+          logType === 'GROOMING' ||
+          logType === 'BATH') && {
           takeTime: parseInt(form.take_time) || 0,
         }),
         memo: form.memo,
@@ -92,18 +100,16 @@ export default function Daily({
           takeTime: body.detailLog.takeTime ?? null,
           memo: body.detailLog.memo ?? null,
         };
-
-        const res = await axios.patch(`${API}/logs/update`, patchData);
-        console.log('[기록 수정 응답]', res.data);
+        await axios.patch(`${API}/logs/update`, patchData);
         openAlert('기록이 수정되었습니다.');
       } else {
-        const res = await axios.post(`${API}/logs`, body);
-        console.log('[기록 등록 응답]', res.data);
+        await axios.post(`${API}/logs`, body);
         openAlert('일상 기록이 저장되었습니다!');
       }
     } catch (err) {
       console.error('[기록 저장 실패]', err.response?.data || err);
-      openAlert(err.response?.data?.message || '서버 오류');
+      setAlertMessage(err.response?.data?.message || '서버 오류');
+      setShowAlert(true);
     }
   };
 
@@ -113,7 +119,8 @@ export default function Daily({
       openAlert('기록이 삭제되었습니다.');
     } catch (err) {
       console.error('[기록 삭제 실패]', err.response?.data || err);
-      openAlert(err.response?.data?.message || '서버 오류');
+      setAlertMessage(err.response?.data?.message || '서버 오류');
+      setShowAlert(true);
     }
   };
 
@@ -196,24 +203,9 @@ export default function Daily({
             {['HOSPITAL', 'GROOMING', 'BATH'].includes(logType) && (
               <input
                 name="price"
-                value={
-                  isReadOnly
-                    ? Number(form.price).toLocaleString()
-                    : form.price
-                        .toString()
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                }
+                value={form.price}
                 placeholder="비용 (원)"
-                onChange={e => {
-                  if (isReadOnly) return;
-
-                  const rawValue = e.target.value.replace(/,/g, '');
-                  const numeric = parseInt(rawValue);
-                  setForm({
-                    ...form,
-                    price: isNaN(numeric) ? '' : numeric,
-                  });
-                }}
+                onChange={handleChange}
                 readOnly={isReadOnly}
                 className="border rounded px-4 py-2"
               />
@@ -224,12 +216,6 @@ export default function Daily({
         return null;
     }
   };
-
-  useEffect(() => {
-    if (editLog) {
-      console.log('[editLog 전체]', editLog);
-    }
-  }, [editLog]);
 
   return (
     <div className="modal-overlay">
@@ -242,94 +228,92 @@ export default function Daily({
         </button>
         <div className="add-container bg-plog-main2/40 flex-container">
           <h1 className="text-plog-main4 font-bold text-4xl mb-6">일상 기록</h1>
-
-          <div className="form-section flex flex-col gap-4 w-full max-w-xl">
-            <div className="flex gap-2 flex-wrap mb-4">
-              {LOG_TYPES.map(({ type, label, icon }) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => !isReadOnly && setLogType(type)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition ${
-                    logType === type
-                      ? 'bg-plog-main4 text-white'
-                      : 'bg-white text-plog-main4'
-                  } ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isReadOnly}
-                >
-                  <img src={icon} alt={label} className="w-5 h-5" />
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
-
-            {renderInputsByType()}
-
-            <textarea
-              name="memo"
-              placeholder="메모"
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              value={form.memo}
-              rows={4}
-              className="border rounded px-4 py-2 resize-none"
-            />
-
-            <div className="flex gap-2 justify-end mt-4">
-              {currentMode === 'create' && (
-                <>
+          <div className="content-wrapper">
+            <div className="form-section flex flex-col gap-4 w-full max-w-xl">
+              <div className="flex gap-2 flex-wrap mb-4">
+                {LOG_TYPES.map(({ type, label, icon }) => (
                   <button
-                    onClick={handleSubmit}
-                    className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    key={type}
+                    type="button"
+                    onClick={() => !isReadOnly && setLogType(type)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded border transition ${
+                      logType === type
+                        ? 'bg-plog-main4 text-white'
+                        : 'bg-white text-plog-main4'
+                    } ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isReadOnly}
                   >
-                    등록
+                    <img src={icon} alt={label} className="w-5 h-5" />
+                    <span>{label}</span>
                   </button>
-                  <button
-                    onClick={onClose}
-                    className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
-                  >
-                    취소
-                  </button>
-                </>
-              )}
-
-              {currentMode === 'read' && (
-                <>
-                  <button
-                    onClick={handleEdit}
-                    className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
-                  >
-                    수정하기
-                  </button>
-                  <button
-                    className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-100"
-                    onClick={handleDelete}
-                  >
-                    🗑️ 삭제
-                  </button>
-                </>
-              )}
-
-              {currentMode === 'edit' && (
-                <>
-                  <button
-                    onClick={handleSubmit}
-                    className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
-                  >
-                    수정
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
-                  >
-                    취소
-                  </button>
-                </>
-              )}
+                ))}
+              </div>
+              {renderInputsByType()}
+              <textarea
+                name="memo"
+                placeholder="메모"
+                onChange={handleChange}
+                readOnly={isReadOnly}
+                value={form.memo}
+                rows={4}
+                className="border rounded px-4 py-2 resize-none"
+              />
+              <div className="flex gap-2 justify-end mt-4">
+                {currentMode === 'create' && (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      등록
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+                    >
+                      취소
+                    </button>
+                  </>
+                )}
+                {currentMode === 'read' && (
+                  <>
+                    <button
+                      onClick={handleEdit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      수정하기
+                    </button>
+                    <button
+                      className="text-red-600 border border-red-400 px-4 py-2 rounded hover:bg-red-100"
+                      onClick={handleDelete}
+                    >
+                      🗑 삭제
+                    </button>
+                  </>
+                )}
+                {currentMode === 'edit' && (
+                  <>
+                    <button
+                      onClick={handleSubmit}
+                      className="px-4 py-2 rounded bg-plog-main5 text-white hover:bg-plog-main4 transition"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 rounded border border-gray-400 text-gray-600 hover:bg-gray-100 transition"
+                    >
+                      취소
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
-        {showAlert && <Alert message={alertMessage} onClose={closeAlert} />}
+        {showAlert && (
+          <Alert message={alertMessage} onClose={handleAlertClose} />
+        )}
       </div>
     </div>
   );
