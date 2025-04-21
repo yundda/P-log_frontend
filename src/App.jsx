@@ -14,7 +14,7 @@ import Index from './pages/Index';
 import Layout from './components/Layout';
 import RequestPending from './pages/RequestPending';
 import MyPet from './pages/Mypet';
-import MyPage from './pages/Mypage';
+import MyPage from './pages/mypage';
 
 function App() {
   useEffect(() => {
