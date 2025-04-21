@@ -5,7 +5,6 @@ import InviteModal from '../components/Modal/InviteModal';
 import { useState, useEffect } from 'react';
 import axios from '../api/axiosInterceptor';
 import '../style/petSetting.scss';
-// import { useLocation } from 'react-router-dom';
 import Developing from '../components/Modal/Developing';
 import LoginRequired from '../components/Modal/LoginRequired';
 import PetBreeds from '../components/API/PetBreeds';
@@ -16,13 +15,11 @@ export default function PetSetting() {
   const [collaborators, setCollaborators] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inviteResult, setInviteResult] = useState(null);
-
-  const petProfile = useRecoilValue(selectedPetProfileState);
-  // const location = useLocation();
-  // const { petName } = location.state || {};
   const [showDeveloping, setShowDeveloping] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const petProfile = useRecoilValue(selectedPetProfileState);
 
   // 로그인 상태 확인
   useEffect(() => {
@@ -43,11 +40,18 @@ export default function PetSetting() {
         if (res.data.code === 'SU') {
           const familyList = res.data.data.familyList;
 
-          const formattedList = familyList.map((nickName, idx) => ({
-            id: idx + 1,
-            nickName,
-            checked: false,
-          }));
+          const formattedList = familyList.map((member, idx) => {
+            const iconPath = member.profileImage
+              ? `/images/${member.profileImage}.png`
+              : '/images/profile1.png';
+
+            return {
+              id: idx + 1,
+              nickName: member.nickName,
+              profileImage: iconPath,
+              checked: false,
+            };
+          });
 
           console.log('[가져온 협업자 목록]', formattedList);
           setCollaborators(formattedList);
@@ -66,18 +70,11 @@ export default function PetSetting() {
     );
   };
 
-  // const deleteSelected = () => {
-  //   const deleted = collaborators.filter(c => c.checked);
-  //   console.log('[삭제할 협업자]', deleted);
-  //   setCollaborators(prev => prev.filter(c => !c.checked));
-  // };
-
   const handleInviteSuccess = result => {
     setInviteResult(result);
     setIsModalOpen(false);
   };
 
-  // 로그인 안 되어 있으면 모달만 렌더링
   if (!isLogin && showLoginModal) {
     return <LoginRequired onClose={() => setShowLoginModal(false)} />;
   }
@@ -93,10 +90,12 @@ export default function PetSetting() {
         <div className="pet-card w-full lg:w-[360px]">
           <Pet mode="edit" pet={petProfile} />
         </div>
-        <div className=" rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-[90rem]">
+
+        <div className="rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-[90rem]">
           <div className="w-full order-1 lg:order-2">
             <PetBreeds />
           </div>
+
           {/* 협업자 카드 */}
           <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full order-2 lg:order-1">
             <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -106,7 +105,7 @@ export default function PetSetting() {
               >
                 초대하기
               </button>
-              <h2 className="text-4xl  font-bold text-plog-main4 text-center">
+              <h2 className="text-4xl font-bold text-plog-main4 text-center">
                 협업자 목록
               </h2>
               <button
@@ -130,10 +129,7 @@ export default function PetSetting() {
                     className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
                   />
                   <img
-                    src={
-                      localStorage.getItem('profileIcon') ||
-                      '/images/default-user.png'
-                    }
+                    src={c.profileImage}
                     alt="협업자"
                     className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
                   />
@@ -179,6 +175,7 @@ export default function PetSetting() {
           )}
         </div>
       )}
+
       {showDeveloping && (
         <Developing onClose={() => setShowDeveloping(false)} />
       )}
