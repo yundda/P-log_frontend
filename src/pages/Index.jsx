@@ -28,6 +28,23 @@ export default function Index() {
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const fetchDailyLogs = async () => {
+    if (!petProfile?.petName) return;
+    try {
+      const res = await axios.get(
+        `${API}/logs/${encodeURIComponent(petProfile.petName)}`,
+      );
+      const allLogs = res.data.data || [];
+      const filteredLogs = allLogs.filter(log => {
+        const logDate = new Date(log.log_time).toDateString();
+        return logDate === date.toDateString();
+      });
+      setDailyLogs(filteredLogs);
+    } catch (err) {
+      console.error('[일상기록 조회 실패]', err.response?.data || err.message);
+    }
+  };
+
   // 로그인 상태 확인
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -293,6 +310,12 @@ export default function Index() {
           }}
           mode={modalMode}
           editLog={selectedLog}
+          onSuccess={() => {
+            fetchDailyLogs();
+            setShowDailyModal(false);
+            setSelectedLog(null);
+            setModalMode('create');
+          }}
         />
       )}
 
