@@ -331,6 +331,29 @@ export default function Index() {
           mode={modalMode}
           editLog={selectedLog}
           setHealthLogs={setHealthLogs}
+          onSuccess={() => {
+            const fetchHealthLogs = async () => {
+              if (!petProfile?.petName) return;
+              try {
+                const res = await axios.get(
+                  `${API}/logs/health/${encodeURIComponent(
+                    petProfile.petName,
+                  )}`,
+                );
+                setHealthLogs(res.data.data || []);
+              } catch (err) {
+                console.error(
+                  '[건강 기록 조회 실패]',
+                  err.response?.data || err.message,
+                );
+              }
+            };
+
+            fetchHealthLogs();
+            setShowHealthModal(false);
+            setSelectedLog(null);
+            setModalMode('create');
+          }}
         />
       )}
     </div>

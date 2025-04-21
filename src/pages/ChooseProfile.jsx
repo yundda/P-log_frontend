@@ -82,14 +82,16 @@ export default function ChooseProfile() {
       const storedAuth = localStorage.getItem('auth');
       const token = storedAuth ? JSON.parse(storedAuth).token : '';
 
-      console.log('[프로필 요청 시작]', petName);
+      const encodedPetName = encodeURIComponent(petName);
+      const requestUrl = `${API}/pets/profile/${encodedPetName}`;
 
-      const response = await axios.get(
-        `${API}/pets/profile/${encodeURIComponent(petName)}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      console.log('[프로필 요청 시작]', petName);
+      console.log('[요청 URL]', requestUrl);
+      console.log('[요청 헤더]', { Authorization: `Bearer ${token}` });
+
+      const response = await axios.get(requestUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       console.log('[반려동물 프로필 응답]', response.data);
 
@@ -107,6 +109,8 @@ export default function ChooseProfile() {
           petWeight: petData.petWeight,
         };
 
+        console.log('[포맷된 반려동물 데이터]', formattedPetData);
+
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
         navigate('/');
@@ -115,6 +119,17 @@ export default function ChooseProfile() {
       }
     } catch (error) {
       console.error('[반려동물 정보 불러오기 실패]', error);
+
+      if (error.response) {
+        console.error('[에러 응답 데이터]', error.response.data);
+        console.error('[에러 상태 코드]', error.response.status);
+        console.error('[에러 헤더]', error.response.headers);
+      } else if (error.request) {
+        console.error('[요청은 되었지만 응답이 없음]', error.request);
+      } else {
+        console.error('[요청 설정 중 에러 발생]', error.message);
+      }
+
       alert(
         error.response?.data?.message ||
           '반려동물 정보를 불러오는 데 실패했습니다.',
