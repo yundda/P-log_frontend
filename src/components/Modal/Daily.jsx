@@ -1,6 +1,6 @@
 import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Alert from './Alert';
 
 const API = process.env.REACT_APP_API_SERVER;
@@ -19,11 +19,12 @@ export default function Daily({
   pet,
   onClose,
   mode = 'create',
-  editLog,
+  editLog = {},
   onSuccess,
 }) {
   const [logType, setLogType] = useState(editLog?.type || 'MEAL');
   const [currentMode, setCurrentMode] = useState(mode);
+
   const [form, setForm] = useState({
     meal_type: editLog?.mealType || 'FEED',
     place: editLog?.place || '',
@@ -37,6 +38,18 @@ export default function Daily({
 
   const isReadOnly = currentMode === 'read';
 
+  useEffect(() => {
+    console.log(' [useEffect] editLog:', editLog);
+    setLogType(editLog?.type || 'MEAL');
+    setForm({
+      meal_type: editLog?.mealType || 'FEED',
+      place: editLog?.place || '',
+      price: editLog?.price?.toString() || '',
+      take_time: editLog?.take_time != null ? editLog.take_time.toString() : '',
+      memo: editLog?.memo || '',
+    });
+  }, [editLog]);
+
   const openAlert = msg => {
     setAlertMessage(msg);
     setShowAlert(true);
@@ -45,11 +58,7 @@ export default function Daily({
   const handleAlertClose = () => {
     setAlertMessage('');
     setShowAlert(false);
-    if (onSuccess) {
-      onSuccess();
-    } else {
-      onClose();
-    }
+    onSuccess ? onSuccess() : onClose();
   };
 
   const handleChange = e => {
@@ -73,20 +82,16 @@ export default function Daily({
         logTime: formatLocalDateTime(selectedDate),
         ...(logType === 'MEAL' && { mealType: form.meal_type }),
         ...(logType !== 'ETC' && logType !== 'MEAL' && { place: form.place }),
-        // ...((logType === 'HOSPITAL' ||
-        //   logType === 'GROOMING' ||
-        //   logType === 'BATH') && {
         ...(['HOSPITAL', 'GROOMING', 'BATH'].includes(logType) && {
           price: parseInt(form.price) || 0,
         }),
-        ...((logType === 'WALK' ||
-          logType === 'GROOMING' ||
-          logType === 'BATH') && {
+        ...(['WALK', 'GROOMING', 'BATH'].includes(logType) && {
           takeTime: parseInt(form.take_time) || 0,
         }),
         memo: form.memo,
       },
     };
+    console.log(' [handleSubmit] 요청 바디:', body); // 요청 확인
 
     try {
       if (currentMode === 'edit') {
@@ -100,6 +105,8 @@ export default function Daily({
           takeTime: body.detailLog.takeTime ?? null,
           memo: body.detailLog.memo ?? null,
         };
+        console.log(' [handleSubmit-edit] PATCH 요청 바디:', patchData); // 수정 확인
+
         await axios.patch(`${API}/logs/update`, patchData);
         openAlert('기록이 수정되었습니다.');
       } else {
@@ -114,6 +121,7 @@ export default function Daily({
   };
 
   const handleDelete = async () => {
+    console.log('[handleDelete] log_id:', editLog?.log_id);
     try {
       await axios.delete(`${API}/logs/${editLog.log_id}`);
       openAlert('기록이 삭제되었습니다.');
@@ -248,7 +256,9 @@ export default function Daily({
                   </button>
                 ))}
               </div>
+
               {renderInputsByType()}
+
               <textarea
                 name="memo"
                 placeholder="메모"
@@ -258,6 +268,7 @@ export default function Daily({
                 rows={4}
                 className="border rounded px-4 py-2 resize-none"
               />
+
               <div className="flex gap-2 justify-end mt-4">
                 {currentMode === 'create' && (
                   <>
