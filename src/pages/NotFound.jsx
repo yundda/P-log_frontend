@@ -1,6 +1,6 @@
 import Lottie from 'react-lottie-player';
 import lottieJson from '../assets/NotFound404.json';
-import '../style/notFound.scss';
+import '../style/NotFound.scss';
 
 export default function NotFound() {
   return (
