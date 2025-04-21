@@ -43,7 +43,7 @@ export default function PetSetting() {
           const formattedList = familyList.map((member, idx) => {
             const iconPath = member.profileImage
               ? `/images/${member.profileImage}.png`
-              : '/images/default-user.png';
+              : '/images/profile1.png';
 
             return {
               id: idx + 1,
