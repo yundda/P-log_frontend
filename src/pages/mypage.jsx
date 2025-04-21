@@ -1,4 +1,3 @@
-// MyPage.jsx
 import { useEffect, useState } from 'react';
 import api from '../api/axiosInterceptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -71,7 +70,7 @@ export default function MyPage() {
     const profileName = iconFileName?.split('.')[0];
 
     try {
-      const res = await api.patch(`/user/updateProfile/${profileName}`);
+      const res = await api.patch(`/user/update/${profileName}`);
       if (res.data.code === 'SU') {
         localStorage.setItem('profileIcon', selectedIcon);
         setMessage('프로필 아이콘이 수정되었습니다!');
