@@ -191,12 +191,9 @@ export default function Header() {
                       onClick={() => handlePetSelect(pet.petName)}
                     >
                       <img
-                        key={selectedPet?.petName}
-                        src={
-                          selectedPet?.petImageUrl || '/images/default-pet.png'
-                        }
-                        alt="pet"
-                        className="w-10 h-10 rounded-full object-cover"
+                        src={pet.petImageUrl || '/images/default-pet.png'}
+                        alt={pet.petName}
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                       <span className="text-sm">{pet.petName}</span>
                     </div>
