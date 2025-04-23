@@ -76,6 +76,12 @@ export default function Pet({ mode, pet, onSuccess }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // 사진 크기 제한
+    if (file.size > 5 * 1024 * 1024) {
+      alert('5MB 이하 파일만 업로드 가능합니다.');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => setPreviewImage(reader.result);
     reader.readAsDataURL(file);
