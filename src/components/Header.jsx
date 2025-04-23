@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../style/Header.scss';
 import axios from '../api/axiosInterceptor';
-import { useSetRecoilState, useResetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState, useResetRecoilState } from 'recoil';
 import {
   selectedPetProfileState,
   selectedpetNameState,
+  selectedPetState,
 } from '../recoil/petAtom';
 import AddPet from '../components/Modal/AddPet';
 
@@ -17,12 +18,12 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showPetMenu, setShowPetMenu] = useState(false);
-  const [selectedPet, setSelectedPet] = useState(null);
+  // const [selectedPet, setSelectedPet] = useState(null);
+  const [selectedPet, setSelectedPet] = useRecoilState(selectedPetState);
+
   const [petList, setPetList] = useState([]);
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
-
-  const toggleMenu = () => setMenuOpen((prev) => !prev);
-
+  const toggleMenu = () => setMenuOpen(prev => !prev);
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
   const resetSelectedPetProfile = useResetRecoilState(selectedPetProfileState);
   const resetSelectedPetName = useResetRecoilState(selectedpetNameState);
@@ -138,6 +139,13 @@ export default function Header() {
     setIsLogoutModalOpen(false);
   };
 
+  useEffect(() => {
+    const storedPet = localStorage.getItem('selectedPet');
+    if (storedPet) {
+      const parsed = JSON.parse(storedPet);
+      setSelectedPet(parsed);
+    }
+  }, []);
   return (
     <>
       <header className="hidden md:flex justify-between items-center px-6 py-3 w-[90%] h-20 mx-auto">
