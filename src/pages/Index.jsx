@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
 import Daily from '../components/Modal/Daily';
 import Health from '../components/Modal/Health';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { selectedPetProfileState } from '../recoil/petAtom';
+import { dailyLogsState, healthLogsState } from '../recoil/petLogAtom';
 import axios from '../api/axiosInterceptor';
 import '../style/index.scss';
 import '../style/addPet.scss';
 import Weather from '../components/API/Weather';
 import LoginRequired from '../components/Modal/LoginRequired';
+// import { useRecoilState, useRecoilValue } from 'recoil';
 
 const API = process.env.REACT_APP_API_SERVER;
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
-  const [dailyLogs, setDailyLogs] = useState([]);
-  const [healthLogs, setHealthLogs] = useState([]);
   const [showDailyModal, setShowDailyModal] = useState(false);
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -25,10 +25,12 @@ export default function Index() {
   const [modalMode, setModalMode] = useState('create');
 
   const petProfile = useRecoilValue(selectedPetProfileState);
+  const [dailyLogs, setDailyLogs] = useRecoilState(dailyLogsState);
+  const [healthLogs, setHealthLogs] = useRecoilState(healthLogsState);
+
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // 로그인 상태 확인
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
@@ -46,10 +48,9 @@ export default function Index() {
           `${API}/logs/${encodeURIComponent(petProfile.petName)}`,
         );
         const allLogs = res.data.data || [];
-        const filteredLogs = allLogs.filter(log => {
-          const logDate = new Date(log.log_time).toDateString();
-          return logDate === date.toDateString();
-        });
+        const filteredLogs = allLogs.filter(
+          log => new Date(log.log_time).toDateString() === date.toDateString(),
+        );
         setDailyLogs(filteredLogs);
       } catch (err) {
         console.error(

@@ -2,6 +2,8 @@ import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
 import { useState, useEffect } from 'react';
 import Alert from './Alert';
+import { useRecoilState } from 'recoil';
+import { dailyLogsState } from '../../recoil/petLogAtom';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -20,10 +22,10 @@ export default function Daily({
   onClose,
   mode = 'create',
   editLog = {},
-  onSuccess,
 }) {
   const [logType, setLogType] = useState(editLog?.type || 'MEAL');
   const [currentMode, setCurrentMode] = useState(mode);
+  const [dailyLogs, setDailyLogs] = useRecoilState(dailyLogsState);
 
   const [form, setForm] = useState({
     meal_type: editLog?.mealType || 'FEED',
@@ -35,17 +37,15 @@ export default function Daily({
 
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
-
   const isReadOnly = currentMode === 'read';
 
   useEffect(() => {
-    console.log(' [useEffect] editLog:', editLog);
     setLogType(editLog?.type || 'MEAL');
     setForm({
       meal_type: editLog?.mealType || 'FEED',
       place: editLog?.place || '',
       price: editLog?.price?.toString() || '',
-      take_time: editLog?.take_time != null ? editLog.take_time.toString() : '',
+      take_time: editLog?.takeTime?.toString() || '',
       memo: editLog?.memo || '',
     });
   }, [editLog]);
@@ -58,7 +58,7 @@ export default function Daily({
   const handleAlertClose = () => {
     setAlertMessage('');
     setShowAlert(false);
-    onSuccess ? onSuccess() : onClose();
+    onClose();
   };
 
   const handleChange = e => {
@@ -91,7 +91,6 @@ export default function Daily({
         memo: form.memo,
       },
     };
-    console.log(' [handleSubmit] 요청 바디:', body); // 요청 확인
 
     try {
       if (currentMode === 'edit') {
@@ -105,30 +104,32 @@ export default function Daily({
           takeTime: body.detailLog.takeTime ?? null,
           memo: body.detailLog.memo ?? null,
         };
-        console.log(' [handleSubmit-edit] PATCH 요청 바디:', patchData); // 수정 확인
-
         await axios.patch(`${API}/logs/update`, patchData);
+        setDailyLogs(prev =>
+          prev.map(log =>
+            log.log_id === patchData.log_id ? { ...log, ...patchData } : log,
+          ),
+        );
         openAlert('기록이 수정되었습니다.');
       } else {
-        await axios.post(`${API}/logs`, body);
+        const res = await axios.post(`${API}/logs`, body);
+        setDailyLogs(prev => [...prev, res.data.data]);
         openAlert('일상 기록이 저장되었습니다!');
       }
     } catch (err) {
       console.error('[기록 저장 실패]', err.response?.data || err);
-      setAlertMessage(err.response?.data?.message || '서버 오류');
-      setShowAlert(true);
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
   const handleDelete = async () => {
-    console.log('[handleDelete] log_id:', editLog?.log_id);
     try {
       await axios.delete(`${API}/logs/${editLog.log_id}`);
+      setDailyLogs(prev => prev.filter(log => log.log_id !== editLog.log_id));
       openAlert('기록이 삭제되었습니다.');
     } catch (err) {
       console.error('[기록 삭제 실패]', err.response?.data || err);
-      setAlertMessage(err.response?.data?.message || '서버 오류');
-      setShowAlert(true);
+      openAlert(err.response?.data?.message || '서버 오류');
     }
   };
 
