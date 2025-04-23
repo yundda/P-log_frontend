@@ -154,7 +154,7 @@ function WelcomeModal({ nickname, onClose }) {
 
     const timer = setTimeout(() => {
       setVisible(false); // 트리거: 페이드아웃
-    }, 3000);
+    }, 1000);
 
     return () => {
       clearTimeout(timer);

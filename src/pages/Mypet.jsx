@@ -133,7 +133,7 @@ export default function MyPet() {
         };
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
-        navigate('/petsetting');
+        navigate('/');
       } else {
         openAlert(res.data.message || '프로필 정보를 가져오지 못했습니다.');
       }
