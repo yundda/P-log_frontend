@@ -146,8 +146,23 @@ export default function Pet({ mode, pet, onSuccess }) {
         petPhoto: imageUrl,
       };
 
+      const form = new FormData();
+      form.append(
+        'info',
+        new Blob([JSON.stringify(updateRequest)], { type: 'application/json' }),
+      );
+
+      // 이미지만 선택된 경우
+      if (fileInputRef.current?.files[0]) {
+        form.append('image', fileInputRef.current.files[0]);
+      }
+
       try {
-        await axios.patch(`${API}/pets/update`, updateRequest);
+        await axios.patch(`${API}/pets/update`, form, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         setShowSuccessModal(true);
         if (typeof onSuccess === 'function') onSuccess();
       } catch (error) {
@@ -189,7 +204,11 @@ export default function Pet({ mode, pet, onSuccess }) {
               className="add-button self-start"
               onClick={handleImageClick}
             >
-              사진 추가하기
+              {isCreateMode
+                ? '사진 추가하기'
+                : isEditMode
+                ? ' 사진 수정하기'
+                : ''}
             </button>
             <input
               type="file"
