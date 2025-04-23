@@ -9,13 +9,11 @@ const API = process.env.REACT_APP_API_SERVER;
 const S3_URL = process.env.REACT_APP_S3;
 
 export default function Pet({ mode, pet, onSuccess }) {
-  // 상태 및 리코일
   const isCreateMode = mode === 'create';
   const isEditMode = mode === 'edit';
   const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-
   const setSelectedPet = useSetRecoilState(selectedPetState);
 
   const [previewImage, setPreviewImage] = useState('');
@@ -30,7 +28,6 @@ export default function Pet({ mode, pet, onSuccess }) {
     weight: '',
   });
 
-  // useEffect - 초기값 세팅
   useEffect(() => {
     if (isCreateMode) {
       setFormData({
@@ -63,7 +60,6 @@ export default function Pet({ mode, pet, onSuccess }) {
     }
   }, [pet, isEditMode, isReadMode]);
 
-  //  이벤트 핸들러
   const handleImageClick = () => {
     if (isReadMode) {
       navigate('/petSetting', { state: { petName: pet?.petName } });
@@ -76,7 +72,6 @@ export default function Pet({ mode, pet, onSuccess }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 사진 크기 제한
     if (file.size > 5 * 1024 * 1024) {
       alert('5MB 이하 파일만 업로드 가능합니다.');
       return;
@@ -109,7 +104,7 @@ export default function Pet({ mode, pet, onSuccess }) {
       petBirthday: formData.birthday,
       petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
       petWeight: parseFloat(formData.weight),
-      petPhoto: '',
+      petPhoto: formData.petImageUrl,
     };
 
     const form = new FormData();
@@ -137,11 +132,13 @@ export default function Pet({ mode, pet, onSuccess }) {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
-        // 수정한 정보 상태로
-        setSelectedPet({
+        const updatedPet = {
           ...petRequest,
           petImageUrl: imageUrl,
-        });
+        };
+
+        setSelectedPet(updatedPet);
+        localStorage.setItem('selectedPet', JSON.stringify(updatedPet));
       }
 
       setShowSuccessModal(true);

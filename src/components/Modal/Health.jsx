@@ -2,6 +2,8 @@ import axios from '../../api/axiosInterceptor';
 import '../../style/addPet.scss';
 import { useState, useEffect } from 'react';
 import Alert from './Alert';
+import { useRecoilState } from 'recoil';
+import { healthLogsState } from '../../recoil/petLogAtom';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -9,12 +11,11 @@ export default function Health({
   selectedDate,
   pet,
   onClose,
-  setHealthLogs,
   mode = 'create',
   editLog,
-  onSuccess,
 }) {
   const [currentMode, setCurrentMode] = useState(mode);
+  const [healthLogs, setHealthLogs] = useRecoilState(healthLogsState);
   const isReadMode = currentMode === 'read';
 
   const [form, setForm] = useState({
@@ -26,20 +27,15 @@ export default function Health({
 
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert, setShowAlert] = useState(false);
-  const [afterSuccess, setAfterSuccess] = useState(null);
 
-  const openAlert = (msg, callback) => {
+  const openAlert = msg => {
     setAlertMessage(msg);
-    setAfterSuccess(() => callback);
     setShowAlert(true);
   };
-
   const closeAlert = () => {
     setShowAlert(false);
     setAlertMessage('');
-    if (afterSuccess) {
-      afterSuccess();
-    }
+    onClose();
   };
 
   useEffect(() => {
@@ -74,7 +70,6 @@ export default function Health({
       form.hospital_log.length === 16
         ? form.hospital_log + ':00'
         : form.hospital_log;
-
     if (currentMode === 'edit') {
       try {
         await axios.patch(`${API}/logs/health/update`, {
@@ -84,7 +79,20 @@ export default function Health({
           hospital: form.hospital,
           hospitalLog: formattedHospitalLog,
         });
-        openAlert('건강 기록이 수정되었습니다!', onSuccess);
+        setHealthLogs(prev =>
+          prev.map(log =>
+            log.log_id === editLog.log_id
+              ? {
+                  ...log,
+                  vaccination: form.vaccination,
+                  vaccination_log: form.vaccination_log,
+                  hospital: form.hospital,
+                  hospital_log: formattedHospitalLog,
+                }
+              : log,
+          ),
+        );
+        openAlert('건강 기록이 수정되었습니다!');
       } catch (err) {
         console.error('[건강 기록 수정 실패]', err.response?.data || err);
         openAlert(err.response?.data?.message || '서버 오류');
@@ -108,8 +116,9 @@ export default function Health({
     };
 
     try {
-      await axios.post(`${API}/logs/health`, body);
-      openAlert('건강 기록이 저장되었습니다!', onSuccess);
+      const res = await axios.post(`${API}/logs/health`, body);
+      setHealthLogs(prev => [...prev, res.data.data]);
+      openAlert('건강 기록이 저장되었습니다!');
     } catch (err) {
       console.error('[건강 기록 등록 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');
@@ -117,12 +126,10 @@ export default function Health({
   };
 
   const handleDelete = async () => {
-    if (!editLog) return;
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
-
     try {
       await axios.delete(`${API}/logs/health/${editLog.log_id}`);
-      openAlert('🗑️ 삭제되었습니다!', onSuccess);
+      setHealthLogs(prev => prev.filter(log => log.log_id !== editLog.log_id));
+      openAlert('🗑️ 삭제되었습니다!');
     } catch (err) {
       console.error('[건강 기록 삭제 실패]', err.response?.data || err);
       openAlert(err.response?.data?.message || '서버 오류');

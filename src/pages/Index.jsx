@@ -4,20 +4,20 @@ import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
 import Daily from '../components/Modal/Daily';
 import Health from '../components/Modal/Health';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { selectedPetProfileState } from '../recoil/petAtom';
+import { dailyLogsState, healthLogsState } from '../recoil/petLogAtom';
 import axios from '../api/axiosInterceptor';
 import '../style/index.scss';
 import '../style/addPet.scss';
 import Weather from '../components/API/Weather';
 import LoginRequired from '../components/Modal/LoginRequired';
+// import { useRecoilState, useRecoilValue } from 'recoil';
 
 const API = process.env.REACT_APP_API_SERVER;
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
-  const [dailyLogs, setDailyLogs] = useState([]);
-  const [healthLogs, setHealthLogs] = useState([]);
   const [showDailyModal, setShowDailyModal] = useState(false);
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -25,27 +25,12 @@ export default function Index() {
   const [modalMode, setModalMode] = useState('create');
 
   const petProfile = useRecoilValue(selectedPetProfileState);
+  const [dailyLogs, setDailyLogs] = useRecoilState(dailyLogsState);
+  const [healthLogs, setHealthLogs] = useRecoilState(healthLogsState);
+
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const fetchDailyLogs = async () => {
-    if (!petProfile?.petName) return;
-    try {
-      const res = await axios.get(
-        `${API}/logs/${encodeURIComponent(petProfile.petName)}`,
-      );
-      const allLogs = res.data.data || [];
-      const filteredLogs = allLogs.filter(log => {
-        const logDate = new Date(log.log_time).toDateString();
-        return logDate === date.toDateString();
-      });
-      setDailyLogs(filteredLogs);
-    } catch (err) {
-      console.error('[일상기록 조회 실패]', err.response?.data || err.message);
-    }
-  };
-
-  // 로그인 상태 확인
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
@@ -55,17 +40,17 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
+    if (!petProfile?.petName) return;
+
     const fetchDailyLogs = async () => {
-      if (!petProfile?.petName) return;
       try {
         const res = await axios.get(
           `${API}/logs/${encodeURIComponent(petProfile.petName)}`,
         );
         const allLogs = res.data.data || [];
-        const filteredLogs = allLogs.filter(log => {
-          const logDate = new Date(log.log_time).toDateString();
-          return logDate === date.toDateString();
-        });
+        const filteredLogs = allLogs.filter(
+          log => new Date(log.log_time).toDateString() === date.toDateString(),
+        );
         setDailyLogs(filteredLogs);
       } catch (err) {
         console.error(
@@ -74,12 +59,8 @@ export default function Index() {
         );
       }
     };
-    fetchDailyLogs();
-  }, [date, petProfile]);
 
-  useEffect(() => {
     const fetchHealthLogs = async () => {
-      if (!petProfile?.petName) return;
       try {
         const res = await axios.get(
           `${API}/logs/health/${encodeURIComponent(petProfile.petName)}`,
@@ -92,8 +73,23 @@ export default function Index() {
         );
       }
     };
+
+    fetchDailyLogs();
     fetchHealthLogs();
-  }, [petProfile]);
+  }, [petProfile, date]);
+
+  useEffect(() => {
+    if (healthLogs.length > 0) {
+      const years = Array.from(
+        new Set(
+          healthLogs.map(log => new Date(log.hospital_log).getFullYear()),
+        ),
+      );
+      if (years.length > 0) {
+        setSelectedYear(Math.max(...years));
+      }
+    }
+  }, [healthLogs]);
 
   const getLogTitle = (type, mealType) => {
     if (type === 'MEAL') {
@@ -117,10 +113,6 @@ export default function Index() {
     }
   };
 
-  const uniqueYears = Array.from(
-    new Set(healthLogs.map(log => new Date(log.hospital_log).getFullYear())),
-  ).sort((a, b) => b - a);
-
   const filteredHealthLogs = healthLogs.filter(
     log => new Date(log.hospital_log).getFullYear() === selectedYear,
   );
@@ -137,7 +129,6 @@ export default function Index() {
     setShowHealthModal(true);
   };
 
-  // 로그인 안 되어 있으면 모달만 렌더링
   if (!isLogin && showLoginModal) {
     return <LoginRequired onClose={() => setShowLoginModal(false)} />;
   }
@@ -233,11 +224,19 @@ export default function Index() {
               onChange={e => setSelectedYear(parseInt(e.target.value))}
               className="border border-plog-main4 rounded px-3 py-1"
             >
-              {uniqueYears.map(year => (
-                <option key={year} value={year}>
-                  {year}년
-                </option>
-              ))}
+              {Array.from(
+                new Set(
+                  healthLogs.map(log =>
+                    new Date(log.hospital_log).getFullYear(),
+                  ),
+                ),
+              )
+                .sort((a, b) => b - a)
+                .map(year => (
+                  <option key={year} value={year}>
+                    {year}년
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -313,7 +312,6 @@ export default function Index() {
           mode={modalMode}
           editLog={selectedLog}
           onSuccess={() => {
-            fetchDailyLogs();
             setShowDailyModal(false);
             setSelectedLog(null);
             setModalMode('create');
@@ -332,26 +330,7 @@ export default function Index() {
           }}
           mode={modalMode}
           editLog={selectedLog}
-          setHealthLogs={setHealthLogs}
           onSuccess={() => {
-            const fetchHealthLogs = async () => {
-              if (!petProfile?.petName) return;
-              try {
-                const res = await axios.get(
-                  `${API}/logs/health/${encodeURIComponent(
-                    petProfile.petName,
-                  )}`,
-                );
-                setHealthLogs(res.data.data || []);
-              } catch (err) {
-                console.error(
-                  '[건강 기록 조회 실패]',
-                  err.response?.data || err.message,
-                );
-              }
-            };
-
-            fetchHealthLogs();
             setShowHealthModal(false);
             setSelectedLog(null);
             setModalMode('create');
