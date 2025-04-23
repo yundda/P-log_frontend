@@ -14,3 +14,9 @@ export const selectedPetProfileState = atom({
   default: null,
   effects_UNSTABLE: [persistAtom],
 });
+
+export const selectedPetState = atom({
+  key: 'selectedPetState',
+  default: null,
+  effects_UNSTABLE: [persistAtom], // localStorage에 저장
+});

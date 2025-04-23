@@ -4,6 +4,7 @@ import axios from '../api/axiosInterceptor';
 import {
   selectedpetNameState,
   selectedPetProfileState,
+  selectedPetState,
 } from '../recoil/petAtom';
 import { useSetRecoilState } from 'recoil';
 import LoginRequired from '../components/Modal/LoginRequired';
@@ -36,6 +37,7 @@ export default function MyPet() {
   const setSelectedpetName = useSetRecoilState(selectedpetNameState);
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const setSelectedPet = useSetRecoilState(selectedPetState);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -130,6 +132,7 @@ export default function MyPet() {
           petGender: petData.petGender,
           petBirthday: petData.petBirthday,
           petImageUrl: petData.petImageUrl,
+          petWeight: petData.petWeight,
         };
         setSelectedPetProfile(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));

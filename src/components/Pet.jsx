@@ -1,20 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import axios from '../api/axiosInterceptor';
+import { selectedPetState } from '../recoil/petAtom';
 import '../style/pet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 const S3_URL = process.env.REACT_APP_S3;
 
 export default function Pet({ mode, pet, onSuccess }) {
+  // 상태 및 리코일
   const isCreateMode = mode === 'create';
   const isEditMode = mode === 'edit';
   const isReadMode = mode === 'read';
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  const setSelectedPet = useSetRecoilState(selectedPetState);
+
   const [previewImage, setPreviewImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     petName: '',
     species: '',
@@ -24,8 +30,7 @@ export default function Pet({ mode, pet, onSuccess }) {
     weight: '',
   });
 
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-
+  // useEffect - 초기값 세팅
   useEffect(() => {
     if (isCreateMode) {
       setFormData({
@@ -58,11 +63,10 @@ export default function Pet({ mode, pet, onSuccess }) {
     }
   }, [pet, isEditMode, isReadMode]);
 
+  //  이벤트 핸들러
   const handleImageClick = () => {
     if (isReadMode) {
-      navigate('/petSetting', {
-        state: { petName: pet?.petName },
-      });
+      navigate('/petSetting', { state: { petName: pet?.petName } });
       return;
     }
     fileInputRef.current?.click();
@@ -73,9 +77,7 @@ export default function Pet({ mode, pet, onSuccess }) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewImage(reader.result);
-    };
+    reader.onloadend = () => setPreviewImage(reader.result);
     reader.readAsDataURL(file);
 
     const s3ImageUrl = `${S3_URL}/${file.name}`;
@@ -84,91 +86,63 @@ export default function Pet({ mode, pet, onSuccess }) {
 
   const handleChange = e => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
-
     if (!formData.birthday) {
       alert('생일을 입력해주세요.');
       return;
     }
 
-    if (isCreateMode) {
-      const petRequest = {
-        petName: formData.petName,
-        petSpecies: formData.species,
-        petBreed: formData.breed,
-        petBirthday: formData.birthday,
-        petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
-        petWeight: parseFloat(formData.weight),
-        petPhoto: '',
-      };
+    const petRequest = {
+      petName: formData.petName,
+      petSpecies: formData.species,
+      petBreed: formData.breed,
+      petBirthday: formData.birthday,
+      petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
+      petWeight: parseFloat(formData.weight),
+      petPhoto: '',
+    };
 
-      const form = new FormData();
-      form.append(
-        'info',
-        new Blob([JSON.stringify(petRequest)], { type: 'application/json' }),
-      );
+    const form = new FormData();
+    form.append(
+      'info',
+      new Blob([JSON.stringify(petRequest)], { type: 'application/json' }),
+    );
 
-      if (fileInputRef.current?.files[0]) {
-        form.append('image', fileInputRef.current.files[0]);
-      } else {
-        alert('이미지를 선택해주세요.');
-        return;
-      }
-
-      try {
-        await axios.post(`${API}/pets`, form, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        if (typeof onSuccess === 'function') onSuccess();
-      } catch (error) {
-        console.error('[요청 실패]', error);
-        alert(error.response?.data?.message || '에러가 발생했습니다.');
-      }
+    if (fileInputRef.current?.files[0]) {
+      form.append('image', fileInputRef.current.files[0]);
+    } else if (isCreateMode) {
+      alert('이미지를 선택해주세요.');
+      return;
     }
 
-    if (isEditMode) {
-      const updateRequest = {
-        petName: formData.petName,
-        petSpecies: formData.species,
-        petBreed: formData.breed,
-        petBirthday: formData.birthday,
-        petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
-        petWeight: parseFloat(formData.weight),
-        petPhoto: imageUrl,
-      };
-
-      const form = new FormData();
-      form.append(
-        'info',
-        new Blob([JSON.stringify(updateRequest)], { type: 'application/json' }),
-      );
-
-      // 이미지만 선택된 경우
-      if (fileInputRef.current?.files[0]) {
-        form.append('image', fileInputRef.current.files[0]);
-      }
-
-      try {
-        await axios.patch(`${API}/pets/update`, form, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+    try {
+      if (isCreateMode) {
+        await axios.post(`${API}/pets`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
-        setShowSuccessModal(true);
-        if (typeof onSuccess === 'function') onSuccess();
-      } catch (error) {
-        console.error('[수정 실패]', error);
-        alert(error.response?.data?.message || '수정 중 오류가 발생했습니다.');
       }
+
+      if (isEditMode) {
+        await axios.patch(`${API}/pets/update`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        // 수정한 정보 상태로
+        setSelectedPet({
+          ...petRequest,
+          petImageUrl: imageUrl,
+        });
+      }
+
+      setShowSuccessModal(true);
+      if (typeof onSuccess === 'function') onSuccess();
+    } catch (error) {
+      console.error('[요청 실패]', error);
+      alert(error.response?.data?.message || '에러가 발생했습니다.');
     }
   };
 
