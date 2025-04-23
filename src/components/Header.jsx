@@ -220,12 +220,12 @@ export default function Header() {
       {isAddPetModalOpen && <AddPet onClose={closeAddPetModal} />}
 
       {/* Mobile Header */}
-      <div className="md:hidden flex justify-between items-center px-6 py-3 shadow-md mobile-header">
+      <div className="md:hidden flex justify-between items-center px-6 py-3  mobile-header">
         <Link to="/">
-          <img src="/images/Logo.png" alt="logo" className="w-16" />
+          <img src="/images/Logo.png" alt="logo" className="w-[40px]" />
         </Link>
         <button className="menu-button" onClick={toggleMenu}>
-          <img src="/images/bonebar.png" alt="nav" className="w-14" />
+          <img src="/images/bonebar.png" alt="nav" className="w-[30px]" />
         </button>
       </div>
 

@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/authAtom';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api/axiosInterceptor'; // axios interceptor
 import '../style/login.scss';
 
@@ -66,7 +67,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <h3 className="title">로그인</h3>
+      <h3 className="title text-plog-main4">로그인</h3>
       <div className="login-card">
         <img src="/images/img1.png" alt="사진" className="img" />
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
@@ -137,19 +138,58 @@ export default function Login() {
 }
 
 function WelcomeModal({ nickname, onClose }) {
+  const [progress, setProgress] = useState(100);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 5);
+
+    const timer = setTimeout(() => {
+      setVisible(false); // 트리거: 페이드아웃
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-xs p-6 text-center">
-        <p className="text-lg mb-4">
-          <strong>{nickname}</strong>님, 환영합니다!
-        </p>
-        <button
-          onClick={onClose}
-          className="bg-plog-main4 text-white px-4 py-2 rounded-md hover:bg-plog-main3 transition"
+    <AnimatePresence onExitComplete={onClose}>
+      {visible && (
+        <motion.div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          확인
-        </button>
-      </div>
-    </div>
+          <motion.div
+            className="bg-white rounded-xl shadow-lg w-[90%] max-w-xs p-6 text-center"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="text-lg mb-4">
+              <strong>{nickname}</strong>님, 환영합니다!
+            </p>
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-plog-main4 transition-all duration-30 ease-linear"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

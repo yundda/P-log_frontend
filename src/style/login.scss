@@ -1,4 +1,4 @@
-@import './util.scss';
+@use './util.scss' as *;
 
 .login-container {
   display: flex;
@@ -9,6 +9,7 @@
   min-height: 100vh;
   // padding-top: 80px;
   background-color: $color-white;
+  justify-content: flex-start;
 
   .title {
     font-size: 32px;
@@ -152,31 +153,125 @@
 
   @media (max-width: 768px) {
     .login-container {
-      padding-top: 200px;
-      height: auto;
+      padding: 30px 20px 60px;
       min-height: 100vh;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
     }
+
     .login-card {
+      margin-top: 10px;
       flex-direction: column;
-      width: 80%;
+      width: 100%;
+      max-width: 420px;
       height: auto;
-      padding: 20px;
+      padding: 30px 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      background-color: #fff;
 
       .img {
-        // display: none;
-        margin-right: 0;
-        margin-bottom: 2rem;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 24px auto;
+        border-radius: 20px;
+        object-fit: cover;
+        // box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
       }
 
       .login-form {
         width: 100%;
+        label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 4px;
+        }
+
+        input {
+          padding: 14px;
+          font-size: 15px;
+          border: 1px solid #ccc;
+          border-radius: 12px;
+          margin-bottom: 16px;
+          background-color: #fafafa;
+
+          // &:focus {
+          //   outline: none;
+          //   border-color: #9c6644;
+          //   background-color: #fff;
+          // }
+        }
+
+        .password-wrapper {
+          margin-bottom: 16px;
+
+          .password-field {
+            input {
+              padding-right: 44px;
+              padding: 14px;
+              font-size: 15px;
+              border: 1px solid #ccc;
+              border-radius: 12px;
+              margin-bottom: 16px;
+              background-color: #fafafa;
+            }
+
+            .toggle-visibility {
+              right: 10px;
+            }
+          }
+        }
+
+        .error-msg {
+          font-size: 13px;
+          color: #ff5e57;
+          margin-top: -10px;
+          margin-bottom: 10px;
+        }
+
+        .find-pw {
+          font-size: 13px;
+
+          a {
+            color: #666;
+          }
+        }
+
+        button {
+          font-size: 16px;
+          padding: 14px;
+          border-radius: 12px;
+          background-color: #9c6644;
+          color: white;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #7f5539;
+          }
+        }
+
+        .register-link {
+          font-size: 14px;
+          color: #444;
+          margin-top: 20px;
+
+          a {
+            font-weight: 600;
+            color: #7f5539;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
       }
     }
 
     .title {
-      font-size: 40px;
-      font-weight: bold;
-      margin-bottom: 15px;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #333;
     }
   }
 }
