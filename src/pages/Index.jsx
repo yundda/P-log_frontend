@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
@@ -11,7 +11,7 @@ import axios from '../api/axiosInterceptor';
 import '../style/index.scss';
 import '../style/addPet.scss';
 import Weather from '../components/API/Weather';
-import LoginRequired from '../components/Modal/LoginRequired';
+import { motion } from 'framer-motion';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -50,6 +50,8 @@ export default function Index() {
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const sectionRefs = useRef([]);
+
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
@@ -61,8 +63,8 @@ export default function Index() {
   useEffect(() => {
     if (!petProfile?.petName) return;
 
-    setDailyLogs([]); // 초기화 추가
-    setHealthLogs([]); // 초기화 추가
+    setDailyLogs([]);
+    setHealthLogs([]);
 
     fetchDailyLogs(petProfile.petName, setDailyLogs);
     fetchHealthLogs(petProfile.petName, setHealthLogs);
@@ -76,13 +78,29 @@ export default function Index() {
         ),
       ).filter(year => !isNaN(year));
 
-      if (years.length > 0) {
-        setSelectedYear(Math.max(...years));
-      } else {
-        setSelectedYear(new Date().getFullYear());
-      }
+      setSelectedYear(
+        years.length > 0 ? Math.max(...years) : new Date().getFullYear(),
+      );
     }
   }, [healthLogs]);
+
+  useEffect(() => {
+    if (!isLogin) {
+      let currentIndex = 0;
+
+      const interval = setInterval(() => {
+        if (sectionRefs.current[currentIndex]) {
+          sectionRefs.current[currentIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+          currentIndex = (currentIndex + 1) % sectionRefs.current.length;
+        }
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isLogin]);
 
   const getLogTitle = (type, mealType) => {
     if (type === 'MEAL') {
@@ -126,12 +144,167 @@ export default function Index() {
     setShowHealthModal(true);
   };
 
-  if (!isLogin && showLoginModal) {
-    return <LoginRequired onClose={() => setShowLoginModal(false)} />;
+  const handleLogin = () => {
+    window.location.href = '/login';
+  };
+  const handleSignup = () => {
+    window.location.href = '/register';
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+  };
+
+  // 로그인 안 했을 때
+  if (!isLogin) {
+    return (
+      <div className="w-full min-h-screen text-gray-800 flex flex-col scroll-smooth relative">
+        {/* Navigation Dots */}
+        <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center gap-2">
+          {[0, 1, 2].map((_, index) => (
+            <div
+              key={index}
+              className="w-3 h-3 rounded-full bg-gray-300 hover:bg-plog-main4 transition-all cursor-pointer"
+              onClick={() =>
+                sectionRefs.current[index]?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }
+            />
+          ))}
+        </div>
+
+        {/* Section 0 */}
+        <motion.section
+          ref={el => (sectionRefs.current[0] = el)}
+          className="w-full max-w-7xl px-6 py-20 flex flex-col lg:flex-row-reverse items-center gap-10 text-center lg:text-left mx-auto"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <div className="w-full lg:w-2/3">
+            <img
+              src="/images/main2.jpg"
+              alt="반려동물 메인 이미지"
+              className="rounded-3xl shadow-xl w-full object-cover max-h-[400px]"
+            />
+          </div>
+
+          <div className="w-full lg:w-1/3 flex flex-col items-center gap-6">
+            <img
+              src="/images/main1.gif"
+              alt="반려동물 캐릭터"
+              className="w-28 h-28 rounded-full shadow-lg"
+            />
+            <div className="bg-white px-6 py-4 rounded-xl shadow-md text-lg relative max-w-md">
+              <p>
+                요기요~ 🪽{' '}
+                <span className="font-bold text-plog-main4">
+                  일상 기록 요정
+                </span>{' '}
+                등장!
+                <br />
+                오늘 있었던 일들, 다~ 기록해줄게요!
+                <br />
+                같이 해볼까요? 😎
+              </p>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white" />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleLogin}
+                className="bg-plog-main5 hover:bg-plog-main4 text-white font-semibold px-6 py-3 rounded-full shadow transition-all"
+              >
+                로그인하러 가기 🚀
+              </button>
+              <button
+                onClick={handleSignup}
+                className="bg-white border border-plog-main5 text-plog-main5 font-semibold px-6 py-3 rounded-full shadow hover:bg-plog-main5 hover:text-white transition-all"
+              >
+                회원가입
+              </button>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Section 1 */}
+        <motion.section
+          ref={el => (sectionRefs.current[1] = el)}
+          className="flex flex-col lg:flex-row items-center justify-center gap-10 px-6 py-20 max-w-7xl w-full relative"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <div className="relative w-full lg:w-2/3 h-[400px]">
+            <img
+              src="/images/main3-1.gif"
+              alt="세계 반려동물의 날"
+              className="absolute top-0 left-0 w-1/2 h-auto rounded-3xl shadow-xl object-contain"
+            />
+            <img
+              src="/images/main3-2.gif"
+              alt="세계 반려동물의 날"
+              className="absolute bottom-0 right-0 w-1/2 h-auto rounded-3xl shadow-xl object-contain"
+            />
+          </div>
+          <div className="w-full lg:w-1/3 flex flex-col gap-6">
+            <h2 className="text-3xl lg:text-4xl font-bold text-plog-main4 leading-snug">
+              4월 11일은 세계 반려동물의 날! 🐾
+            </h2>
+            <p className="text-gray-600">
+              사람과 동물이 함께 살아가는 아름다운 세상을 위한 날이에요.
+              <br />
+              오늘도 우리 가족 같은 반려동물과의 하루를 소중하게 남겨볼까요?
+            </p>
+          </div>
+        </motion.section>
+
+        {/* Section 2 */}
+        <motion.section
+          ref={el => (sectionRefs.current[2] = el)}
+          className="flex flex-col items-center justify-between gap-10 px-6 py-20 max-w-7xl w-full border-t border-gray-200"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          <div className="w-full flex flex-col gap-6">
+            <h2 className="text-3xl lg:text-4xl font-bold text-plog-main4 leading-snug text-center">
+              반려동물의 일상부터 건강까지
+              <br />
+              하나도 놓치지 마세요 🐶💉
+            </h2>
+            <p className="text-gray-600 text-center">
+              산책, 식사, 목욕부터 병원 방문과 예방접종까지!
+              <br />
+              다양한 활동과 건강 기록을 쉽게 남기고,
+              <br />
+              연도별로 정리해 한눈에 확인할 수 있어요.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-6 w-full">
+            {['main4-1.gif', 'main4-2.gif', 'main4-3.gif', 'main4-4.gif'].map(
+              (img, idx) => (
+                <img
+                  key={idx}
+                  src={`/images/${img}`}
+                  alt="기록 통합 이미지"
+                  className="rounded-3xl shadow-xl object-contain max-h-[240px] w-full"
+                />
+              ),
+            )}
+          </div>
+        </motion.section>
+      </div>
+    );
   }
 
   return (
     <div className="detail-container flex gap-4 p-4 flex-wrap w-full lg:flex-nowrap justify-center items-start max-w-screen-xl mx-auto">
+      {/* 좌측: 날씨 + 펫 정보 */}
       <div className="w-full lg:w-1/4 flex flex-col items-center">
         <div className="weather-wrapper w-[280px] h-[170px] aspect-square">
           <Weather />
@@ -153,6 +326,7 @@ export default function Index() {
         </div>
       </div>
 
+      {/* 우측: 일상 및 건강 기록 */}
       <div className="flex flex-col gap-4 w-full max-w-[800px]">
         {/* 일상 기록 */}
         <div className="daily-wrapper border border-plog-main2 p-4 rounded-xl w-full">
@@ -222,11 +396,7 @@ export default function Index() {
               연도 선택:
             </label>
             <select
-              value={
-                Number.isNaN(selectedYear)
-                  ? new Date().getFullYear()
-                  : selectedYear
-              }
+              value={selectedYear}
               onChange={e => setSelectedYear(parseInt(e.target.value))}
               className="border border-plog-main4 rounded px-3 py-1"
             >
@@ -292,6 +462,7 @@ export default function Index() {
               )}
             </div>
           </div>
+
           <div className="flex justify-end">
             <button
               className="text-white bg-plog-main5 hover:bg-plog-main4 py-2 px-4 rounded"
@@ -307,7 +478,7 @@ export default function Index() {
         </div>
       </div>
 
-      {/* 모달 렌더 */}
+      {/* 모달 */}
       {showDailyModal && (
         <Daily
           selectedDate={date}
