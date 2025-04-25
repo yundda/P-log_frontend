@@ -26,7 +26,7 @@
     <tr>
     <td> 프로필 </td>
     	<td>
-        <img width="120" alt="프로필 이미지" src="https://github.com/user-attachments/assets/06059340-9c12-4519-88ad-e1e3548c9df2" />
+        <img width="120" alt="프로필 이미지" src="" />
       </td>
        <td>
         <img width="120" alt="프로필 이미지" src="https://github.com/user-attachments/assets/078db9aa-9782-4857-8edd-4d0735dbd0c9" />
@@ -61,13 +61,13 @@
 
   <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
 	  <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"> 
-<img src="https://img.shields.io/badge/recoil-764ABC?style=for-the-badge&logo=redux&logoColor=white">
-<img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
-<img src="https://img.shields.io/badge/Sass-CC6699?style=flat-square&logo=Sass&logoColor=white">
+<img src="https://img.shields.io/badge/recoil-276DC2?style=for-the-badge&logo=recoil&logoColor=white">
+<img src="https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white">
+<img src="https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=Sass&logoColor=white">
 
 ### Backend
 
-<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white">
+<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=Spring&logoColor=white">
 <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
 <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
 <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=nmysql&logoColor=white">
@@ -75,8 +75,8 @@
 ### Infra
 
 <img src="https://img.shields.io/badge/postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white">
-<img src="https://img.shields.io/badge/amazonec2-FF6C37?style=for-the-badge&logo=amazonec2&logoColor=white">
-<img src="https://img.shields.io/badge/nginx-FF6C37?style=for-the-badge&logo=nginx&logoColor=white">
+<img src="https://img.shields.io/badge/amazonec2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+<img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
 <img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
 <img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
 
