@@ -245,7 +245,7 @@ export default function Header() {
       {isAddPetModalOpen && <AddPet onClose={closeAddPetModal} />}
 
       {/* Mobile Header */}
-      <div className="md:hidden flex justify-between items-center px-6 py-3  mobile-header">
+      <div className="md:hidden flex justify-between items-center px-6 py-3  mobile-header ">
         <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-[40px]" />
         </Link>
@@ -255,7 +255,10 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="mobile-overlay fixed inset-0 bg-black bg-opacity-40 z-50"
+          onClick={() => setMenuOpen(false)}
+        />
       )}
 
       {/* Mobile Side Nav */}
@@ -298,7 +301,9 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <Link to="/petsetting">펫 수정</Link>
+                <Link to="/petsetting" onClick={() => setMenuOpen(false)}>
+                  펫 수정
+                </Link>
               </li>
             </ul>
           </div>
