@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Pet from '../components/Pet';
@@ -51,6 +51,7 @@ export default function Index() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const sectionRefs = useRef([]);
+  const [currentSection, setCurrentSection] = useState(0);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -156,21 +157,45 @@ export default function Index() {
     show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
   };
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setCurrentSection(index);
+          }
+        });
+      },
+      { threshold: 0.8 },
+    );
+
+    sectionRefs.current.forEach((section, idx) => {
+      if (section) {
+        section.setAttribute('data-index', idx);
+        observer.observe(section);
+      }
+    });
+
+    return () => {
+      sectionRefs.current.forEach(section => {
+        if (section) observer.unobserve(section);
+      });
+    };
+  }, []);
+
   // 로그인 안 했을 때
   if (!isLogin) {
     return (
-      <div className="w-full min-h-screen text-gray-800 flex flex-col scroll-smooth relative">
+      <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth scrollbar-hide relative">
         {/* Navigation Dots */}
-        <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center gap-2">
+        <div className="fixed right-4 sm:right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center gap-2">
           {[0, 1, 2].map((_, index) => (
             <div
               key={index}
-              className="w-3 h-3 rounded-full bg-gray-300 hover:bg-plog-main4 transition-all cursor-pointer"
-              onClick={() =>
-                sectionRefs.current[index]?.scrollIntoView({
-                  behavior: 'smooth',
-                })
-              }
+              className={`w-3 h-3 rounded-full transition-all ${
+                currentSection === index ? 'bg-plog-main4' : 'bg-gray-300'
+              }`}
             />
           ))}
         </div>
@@ -178,27 +203,27 @@ export default function Index() {
         {/* Section 0 */}
         <motion.section
           ref={el => (sectionRefs.current[0] = el)}
-          className="w-full max-w-7xl px-6 py-20 flex flex-col lg:flex-row-reverse items-center gap-10 text-center lg:text-left mx-auto"
+          className="snap-start w-full max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-center justify-center px-6 py-20 sm:py-32 lg:py-48 min-h-screen gap-10 lg:gap-14 text-center lg:text-left"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <div className="w-full lg:w-2/3">
+          <div className="w-full lg:w-2/3 flex justify-center">
             <img
               src="/images/main2.jpg"
-              alt="반려동물 메인 이미지"
-              className="rounded-3xl shadow-xl w-full object-cover max-h-[400px]"
+              alt="반려동물 메인"
+              className="rounded-3xl shadow-xl w-full max-w-md sm:max-w-lg lg:max-w-[800px] h-auto object-cover"
             />
           </div>
 
-          <div className="w-full lg:w-1/3 flex flex-col items-center gap-6">
+          <div className="w-full lg:w-1/3 flex flex-col items-center lg:items-start gap-6 sm:gap-8">
             <img
               src="/images/main1.gif"
               alt="반려동물 캐릭터"
-              className="w-28 h-28 rounded-full shadow-lg"
+              className="w-20 h-20 sm:w-28 sm:h-28 rounded-full shadow-lg"
             />
-            <div className="bg-white px-6 py-4 rounded-xl shadow-md text-lg relative max-w-md">
+            <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-xl shadow-md text-base sm:text-lg relative max-w-md">
               <p>
                 요기요~ 🪽{' '}
                 <span className="font-bold text-plog-main4">
@@ -212,7 +237,7 @@ export default function Index() {
               </p>
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white" />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-col sm:flex-row">
               <button
                 onClick={handleLogin}
                 className="bg-plog-main5 hover:bg-plog-main4 text-white font-semibold px-6 py-3 rounded-full shadow transition-all"
@@ -232,32 +257,70 @@ export default function Index() {
         {/* Section 1 */}
         <motion.section
           ref={el => (sectionRefs.current[1] = el)}
-          className="flex flex-col lg:flex-row items-center justify-center gap-10 px-6 py-20 max-w-7xl w-full relative"
+          className="snap-start relative flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-24 sm:py-32 lg:py-40 min-h-screen"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <div className="relative w-full lg:w-2/3 h-[400px]">
-            <img
-              src="/images/main3-1.gif"
-              alt="세계 반려동물의 날"
-              className="absolute top-0 left-0 w-1/2 h-auto rounded-3xl shadow-xl object-contain"
-            />
-            <img
-              src="/images/main3-2.gif"
-              alt="세계 반려동물의 날"
-              className="absolute bottom-0 right-0 w-1/2 h-auto rounded-3xl shadow-xl object-contain"
-            />
-          </div>
-          <div className="w-full lg:w-1/3 flex flex-col gap-6">
-            <h2 className="text-3xl lg:text-4xl font-bold text-plog-main4 leading-snug">
-              4월 11일은 세계 반려동물의 날! 🐾
-            </h2>
-            <p className="text-gray-600">
-              사람과 동물이 함께 살아가는 아름다운 세상을 위한 날이에요.
+          {/* 이미지: 왼쪽 위 */}
+          <img
+            src="/images/main3-1.gif"
+            className="hidden sm:block absolute top-10 left-0 w-28 sm:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
+            alt="동물1"
+          />
+          {/* 이미지: 오른쪽 아래 */}
+          <img
+            src="/images/main3-2.gif"
+            className="hidden sm:block absolute bottom-10 right-0 w-28 sm:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
+            alt="동물2"
+          />
+
+          <div className="relative z-10 w-full lg:w-2/3 text-center flex flex-col gap-8">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-plog-main4 leading-snug">
+              알고 계셨나요?
               <br />
-              오늘도 우리 가족 같은 반려동물과의 하루를 소중하게 남겨볼까요?
+              반려동물과 관련된 특별한 이야기 🐕🐈
+            </h2>
+            <ul className="text-gray-700 text-base sm:text-lg leading-relaxed space-y-4 px-2 sm:px-4">
+              <li>
+                📅 <strong>4월 11일</strong>은{' '}
+                <span className="text-plog-main5 font-semibold">
+                  세계 반려동물의 날
+                </span>
+                이에요. <br className="block sm:hidden" /> 사람과 동물이
+                공존하는 가치를 <br className="block sm:hidden" /> 기념하는
+                날입니다.
+              </li>
+              <li>
+                🧠 반려견은 평균 <strong>165개의 단어</strong>를{' '}
+                <br className="block sm:hidden" /> 인식할 수 있고, 훈련을 통해
+                최대 <br className="block sm:hidden" />
+                250개 이상도 가능해요!
+              </li>
+              <li>
+                🇯🇵 일본에는 ‘고양이역장’으로 <br className="block sm:hidden" />{' '}
+                유명한 <strong>타마 역장</strong>
+                이라는 고양이가 있어요.
+                <br className="block sm:hidden" /> 실제로 지역 경제를 살리고
+                <br className="block sm:hidden" />
+                현재는 신사에 모셔졌습니다.
+              </li>
+              <li>
+                🌎 세계에서 <br className="block sm:hidden" />
+                가장 많이 키우는 반려동물은 <strong>물고기</strong>
+                입니다. <br className="block sm:hidden" />
+                유지비 저렴 + 공간 절약이 이유죠!
+              </li>
+              <li>
+                🇰🇷 한국 반려동물 가구 비율은 <strong>약 31%</strong>,{' '}
+                <br className="block sm:hidden" />
+                관련 산업 규모는 <strong>4조 원</strong> 이상입니다.
+              </li>
+            </ul>
+            <p className="text-sm text-gray-500 mt-2">
+              ✨ 오늘도 우리 반려동물과의 일상을{' '}
+              <br className="block sm:hidden" /> 더 특별하게 만들어보세요!
             </p>
           </div>
         </motion.section>
@@ -265,34 +328,32 @@ export default function Index() {
         {/* Section 2 */}
         <motion.section
           ref={el => (sectionRefs.current[2] = el)}
-          className="flex flex-col items-center justify-between gap-10 px-6 py-20 max-w-7xl w-full border-t border-gray-200"
+          className="snap-start flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-20 sm:py-24 lg:py-32 min-h-screen border-t border-gray-200 text-center"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <div className="w-full flex flex-col gap-6">
-            <h2 className="text-3xl lg:text-4xl font-bold text-plog-main4 leading-snug text-center">
-              반려동물의 일상부터 건강까지
-              <br />
-              하나도 놓치지 마세요 🐶💉
-            </h2>
-            <p className="text-gray-600 text-center">
-              산책, 식사, 목욕부터 병원 방문과 예방접종까지!
-              <br />
-              다양한 활동과 건강 기록을 쉽게 남기고,
-              <br />
-              연도별로 정리해 한눈에 확인할 수 있어요.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-6 w-full">
+          <h2 className="text-3xl sm:text-4xl font-bold text-plog-main4 leading-snug">
+            반려동물의 일상부터 건강까지
+            <br />
+            하나도 놓치지 마세요 🐶💉
+          </h2>
+          <p className="text-gray-600 text-base sm:text-lg mt-6">
+            산책, 식사, 목욕부터 병원 방문과 예방접종까지!
+            <br />
+            다양한 활동과 건강 기록을 남기고,
+            <br />
+            연도별로 쉽게 확인할 수 있어요.
+          </p>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full mt-10">
             {['main4-1.gif', 'main4-2.gif', 'main4-3.gif', 'main4-4.gif'].map(
               (img, idx) => (
                 <img
                   key={idx}
                   src={`/images/${img}`}
-                  alt="기록 통합 이미지"
-                  className="rounded-3xl shadow-xl object-contain max-h-[240px] w-full"
+                  alt={`기록${idx}`}
+                  className="rounded-3xl shadow-xl object-contain max-h-[160px] sm:max-h-[220px] lg:max-h-[240px] w-full"
                 />
               ),
             )}

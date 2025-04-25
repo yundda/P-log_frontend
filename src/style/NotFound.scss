@@ -11,14 +11,13 @@
   }
 }
 
-.container {
+.not-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
+  height: 100vh;
   background-color: $color-white;
-  // color: #374151;
 }
 
 .content-box {
@@ -62,11 +61,17 @@
   }
 }
 
-@media (max-width: 923px) {
+@media (max-width: 768px) {
+  .not-container {
+    align-items: center;
+    justify-content: center;
+  }
+
   .content-box {
     width: 100%;
     text-align: center;
     align-items: center;
+    padding-top: 0.1em;
   }
 
   .button-group {
