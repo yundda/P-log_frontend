@@ -9,6 +9,7 @@ import {
 import { useSetRecoilState } from 'recoil';
 import LoginRequired from '../components/Modal/LoginRequired';
 import Alert from '../components/Modal/Alert';
+import '../style/mypet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -155,14 +156,14 @@ export default function MyPet() {
 
   return (
     <>
-      <div className="mypet-container w-full min-h-[80vh] flex justify-center items-start p-4">
+      <div className="mypet-container w-full min-h-[80vh] flex justify-center items-start ">
         <div className="pet-card w-full max-w-screen-xl bg-white p-8 rounded-2xl shadow-2xl">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-plog-main4 text-4xl font-bold">
+            <h3 className="text text-plog-main4 text-4xl font-bold ">
               나의 반려동물
             </h3>
             <button
-              className="bg-plog-main5 text-white py-2 px-4 rounded-lg hover:bg-plog-main4 transition text-base"
+              className=" btn bg-plog-main5 text-white py-2 px-4 rounded-lg hover:bg-plog-main4 transition text-base"
               onClick={() => navigate('/chooseProfile')}
             >
               추가하기
@@ -178,7 +179,7 @@ export default function MyPet() {
               {petList.map(pet => (
                 <div
                   key={pet.petId}
-                  className="flex flex-col items-center text-center bg-gray-50 p-4 rounded-xl shadow-sm w-full"
+                  className="pet-item flex flex-col items-center text-center bg-gray-50 p-4 rounded-xl shadow-sm w-full"
                 >
                   <img
                     src={pet.petImageUrl || '/images/default-pet.png'}
@@ -197,10 +198,10 @@ export default function MyPet() {
                           : 'bg-green-100 text-green-700'
                       }`}
                     >
-                      {pet.role === 'OWNER' ? '주인' : '가족'}
+                      {pet.role === 'OWNER' ? '가족 대표' : '가족'}
                     </span>
                   </div>
-                  <div className="flex gap-2 flex-wrap justify-center">
+                  <div className="action-buttons flex gap-2 flex-wrap justify-center">
                     {pet.role !== 'OWNER' && (
                       <button
                         onClick={() => openModal('leave', pet.petName)}

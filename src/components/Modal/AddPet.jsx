@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Pet from '../Pet';
 import axios from '../../api/axiosInterceptor';
 import { useNavigate } from 'react-router-dom';
+import Alert from '../Modal/Alert';
 import '../../style/addPet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
@@ -13,7 +14,7 @@ export default function AddPet({ onClose }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [requestLink, setRequestLink] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -81,13 +82,7 @@ export default function AddPet({ onClose }) {
 
   const handlePetCreateSuccess = () => {
     console.log('[Pet 등록 성공]');
-    setShowSuccessModal(true);
-  };
-
-  const handleSuccessModalClose = () => {
-    console.log('[Pet 등록 성공 모달 닫기]');
-    setShowSuccessModal(false);
-    onClose();
+    setShowAlert(true);
   };
 
   return (
@@ -204,22 +199,15 @@ export default function AddPet({ onClose }) {
         </div>
       </div>
 
-      {/* 등록 완료 모달 */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-            <h2 className="text-xl font-semibold mb-4">등록 완료!</h2>
-            <p className="text-gray-700 mb-6">
-              반려동물이 성공적으로 등록되었습니다.
-            </p>
-            <button
-              onClick={handleSuccessModalClose}
-              className="bg-plog-main5 text-white px-4 py-2 rounded hover:bg-plog-main4"
-            >
-              확인
-            </button>
-          </div>
-        </div>
+      {/* 등록 성공 모달 */}
+      {showAlert && (
+        <Alert
+          message="반려동물이 성공적으로 등록되었습니다."
+          onClose={() => {
+            setShowAlert(false);
+            onClose();
+          }}
+        />
       )}
     </div>
   );

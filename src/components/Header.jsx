@@ -95,7 +95,7 @@ export default function Header() {
         setSelectedPetProfile(formattedPet);
         setShowPetMenu(false);
         setMenuOpen(false);
-        navigate("/");
+        // navigate('/');
       }
     } catch (error) {
       console.error("[펫 선택 실패]", error);

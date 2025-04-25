@@ -18,7 +18,6 @@ export default function Pet({ mode, pet, onSuccess }) {
 
   const [previewImage, setPreviewImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     petName: '',
     species: '',
@@ -141,7 +140,6 @@ export default function Pet({ mode, pet, onSuccess }) {
         localStorage.setItem('selectedPet', JSON.stringify(updatedPet));
       }
 
-      setShowSuccessModal(true);
       if (typeof onSuccess === 'function') onSuccess();
     } catch (error) {
       console.error('[요청 실패]', error);
@@ -151,22 +149,6 @@ export default function Pet({ mode, pet, onSuccess }) {
 
   return (
     <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl relative">
-      {showSuccessModal && (
-        <div className="modal-overlay fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="modal-content bg-white rounded-xl p-6 shadow-xl w-80 text-center">
-            <p className="text-lg font-semibold text-plog-main4 mb-4">
-              수정이 완료되었습니다!
-            </p>
-            <button
-              className="px-4 py-2 bg-plog-main4 text-white rounded hover:bg-plog-main3"
-              onClick={() => setShowSuccessModal(false)}
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="img-card flex items-center gap-4 flex-wrap justify-center">
         <img
           src={previewImage || '/images/default-pet.png'}
@@ -229,6 +211,7 @@ export default function Pet({ mode, pet, onSuccess }) {
                 isReadMode && name === 'birthday' ? 'w-40' : 'w-full'
               }`}
               disabled={isReadMode}
+              readOnly={isEditMode && name === 'petName'}
             />
           </div>
         ))}

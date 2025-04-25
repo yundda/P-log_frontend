@@ -12,9 +12,28 @@ import '../style/index.scss';
 import '../style/addPet.scss';
 import Weather from '../components/API/Weather';
 import LoginRequired from '../components/Modal/LoginRequired';
-// import { useRecoilState, useRecoilValue } from 'recoil';
 
 const API = process.env.REACT_APP_API_SERVER;
+
+export const fetchDailyLogs = async (petName, setDailyLogs) => {
+  try {
+    const res = await axios.get(`${API}/logs/${encodeURIComponent(petName)}`);
+    setDailyLogs(res.data.data || []);
+  } catch (err) {
+    console.error('[일상기록 조회 실패]', err.response?.data || err.message);
+  }
+};
+
+export const fetchHealthLogs = async (petName, setHealthLogs) => {
+  try {
+    const res = await axios.get(
+      `${API}/logs/health/${encodeURIComponent(petName)}`,
+    );
+    setHealthLogs(res.data.data || []);
+  } catch (err) {
+    console.error('[건강 기록 조회 실패]', err.response?.data || err.message);
+  }
+};
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
@@ -42,41 +61,12 @@ export default function Index() {
   useEffect(() => {
     if (!petProfile?.petName) return;
 
-    const fetchDailyLogs = async () => {
-      try {
-        const res = await axios.get(
-          `${API}/logs/${encodeURIComponent(petProfile.petName)}`,
-        );
-        const allLogs = res.data.data || [];
-        const filteredLogs = allLogs.filter(
-          log => new Date(log.log_time).toDateString() === date.toDateString(),
-        );
-        setDailyLogs(filteredLogs);
-      } catch (err) {
-        console.error(
-          '[일상기록 조회 실패]',
-          err.response?.data || err.message,
-        );
-      }
-    };
+    setDailyLogs([]); // 초기화 추가
+    setHealthLogs([]); // 초기화 추가
 
-    const fetchHealthLogs = async () => {
-      try {
-        const res = await axios.get(
-          `${API}/logs/health/${encodeURIComponent(petProfile.petName)}`,
-        );
-        setHealthLogs(res.data.data || []);
-      } catch (err) {
-        console.error(
-          '[건강 기록 조회 실패]',
-          err.response?.data || err.message,
-        );
-      }
-    };
-
-    fetchDailyLogs();
-    fetchHealthLogs();
-  }, [petProfile, date]);
+    fetchDailyLogs(petProfile.petName, setDailyLogs);
+    fetchHealthLogs(petProfile.petName, setHealthLogs);
+  }, [petProfile]);
 
   useEffect(() => {
     if (healthLogs.length > 0) {
@@ -84,9 +74,12 @@ export default function Index() {
         new Set(
           healthLogs.map(log => new Date(log.hospital_log).getFullYear()),
         ),
-      );
+      ).filter(year => !isNaN(year));
+
       if (years.length > 0) {
         setSelectedYear(Math.max(...years));
+      } else {
+        setSelectedYear(new Date().getFullYear());
       }
     }
   }, [healthLogs]);
@@ -115,6 +108,10 @@ export default function Index() {
 
   const filteredHealthLogs = healthLogs.filter(
     log => new Date(log.hospital_log).getFullYear() === selectedYear,
+  );
+
+  const filteredDailyLogs = dailyLogs.filter(
+    log => new Date(log.log_time).toDateString() === date.toDateString(),
   );
 
   const handleDailyLogClick = log => {
@@ -157,19 +154,20 @@ export default function Index() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-[800px]">
+        {/* 일상 기록 */}
         <div className="daily-wrapper border border-plog-main2 p-4 rounded-xl w-full">
-          <h2 className="text-4xl font-semibold text-plog-main4 mb-4">
+          <h2 className="text text-4xl font-semibold text-plog-main4 mb-4">
             오늘의 일상
           </h2>
           <div className="daily-content flex flex-row gap-6 flex-nowrap">
             <div className="flex flex-col justify-between w-1/2 min-w-[300px]">
               <div className="daily-card bg-white rounded flex-1 overflow-y-auto max-h-60 text-sm">
-                {dailyLogs.length > 0 ? (
-                  dailyLogs.map(log => (
+                {filteredDailyLogs.length > 0 ? (
+                  filteredDailyLogs.map(log => (
                     <div
                       key={log.log_id}
                       onClick={() => handleDailyLogClick(log)}
-                      className="daily mb-4 p-3  bg-white rounded shadow-sm cursor-pointer"
+                      className="daily mb-4 p-3 bg-white rounded shadow-sm cursor-pointer"
                     >
                       <div className="font-semibold text-plog-main4 mb-1">
                         📌 {getLogTitle(log.type, log.mealType)}
@@ -185,7 +183,9 @@ export default function Index() {
                     </div>
                   ))
                 ) : (
-                  <div>기록이 없습니다.</div>
+                  <div className="text-gray-500">
+                    📭 아직 기록이 없습니다. 첫 기록을 추가해보세요!
+                  </div>
                 )}
               </div>
               <button
@@ -199,6 +199,7 @@ export default function Index() {
                 추가하기
               </button>
             </div>
+
             <div className="calendar-card border border-plog-main4 rounded shadow p-2 w-1/2 min-w-[300px]">
               <Calendar
                 onChange={setDate}
@@ -211,8 +212,9 @@ export default function Index() {
           </div>
         </div>
 
+        {/* 건강 기록 */}
         <div className="health-wrapper border border-plog-main2 p-4 rounded-xl w-full">
-          <h3 className="text-4xl font-semibold text-plog-main4 mb-4">
+          <h3 className="text text-4xl font-semibold text-plog-main4 mb-4">
             예방 접종 기록 ({selectedYear}년)
           </h3>
           <div className="mb-4">
@@ -220,7 +222,11 @@ export default function Index() {
               연도 선택:
             </label>
             <select
-              value={selectedYear}
+              value={
+                Number.isNaN(selectedYear)
+                  ? new Date().getFullYear()
+                  : selectedYear
+              }
               onChange={e => setSelectedYear(parseInt(e.target.value))}
               className="border border-plog-main4 rounded px-3 py-1"
             >
@@ -231,6 +237,7 @@ export default function Index() {
                   ),
                 ),
               )
+                .filter(year => !isNaN(year))
                 .sort((a, b) => b - a)
                 .map(year => (
                   <option key={year} value={year}>
@@ -300,22 +307,19 @@ export default function Index() {
         </div>
       </div>
 
+      {/* 모달 렌더 */}
       {showDailyModal && (
         <Daily
           selectedDate={date}
           pet={petProfile}
           onClose={() => {
+            fetchDailyLogs(petProfile.petName, setDailyLogs);
             setShowDailyModal(false);
             setSelectedLog(null);
             setModalMode('create');
           }}
           mode={modalMode}
           editLog={selectedLog}
-          onSuccess={() => {
-            setShowDailyModal(false);
-            setSelectedLog(null);
-            setModalMode('create');
-          }}
         />
       )}
 
@@ -324,17 +328,13 @@ export default function Index() {
           selectedDate={date}
           pet={petProfile}
           onClose={() => {
+            fetchHealthLogs(petProfile.petName, setHealthLogs);
             setShowHealthModal(false);
             setSelectedLog(null);
             setModalMode('create');
           }}
           mode={modalMode}
           editLog={selectedLog}
-          onSuccess={() => {
-            setShowHealthModal(false);
-            setSelectedLog(null);
-            setModalMode('create');
-          }}
         />
       )}
     </div>

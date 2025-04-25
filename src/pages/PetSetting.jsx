@@ -8,6 +8,7 @@ import '../style/petSetting.scss';
 import Developing from '../components/Modal/Developing';
 import LoginRequired from '../components/Modal/LoginRequired';
 import PetBreeds from '../components/API/PetBreeds';
+import Alert from '../components/Modal/Alert';
 
 const API = process.env.REACT_APP_API_SERVER;
 
@@ -18,10 +19,14 @@ export default function PetSetting() {
   const [showDeveloping, setShowDeveloping] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const petProfile = useRecoilValue(selectedPetProfileState);
 
-  // 로그인 상태 확인
+  const handlePetEditSuccess = () => {
+    setShowAlert(true);
+  };
+
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (!auth) {
@@ -30,7 +35,6 @@ export default function PetSetting() {
     }
   }, []);
 
-  // 협업자 목록 불러오기
   useEffect(() => {
     if (!petProfile || !petProfile.petName) return;
 
@@ -38,22 +42,14 @@ export default function PetSetting() {
       try {
         const res = await axios.get(`${API}/user/family/${petProfile.petName}`);
         if (res.data.code === 'SU') {
-          const familyList = res.data.data.familyList;
-
-          const formattedList = familyList.map((member, idx) => {
-            const iconPath = member.profileImage
+          const formattedList = res.data.data.familyList.map((member, idx) => ({
+            id: idx + 1,
+            nickName: member.nickName,
+            profileImage: member.profileImage
               ? `/images/${member.profileImage}.png`
-              : '/images/profile1.png';
-
-            return {
-              id: idx + 1,
-              nickName: member.nickName,
-              profileImage: iconPath,
-              checked: false,
-            };
-          });
-
-          console.log('[가져온 협업자 목록]', formattedList);
+              : '/images/profile1.png',
+            checked: false,
+          }));
           setCollaborators(formattedList);
         }
       } catch (err) {
@@ -81,69 +77,72 @@ export default function PetSetting() {
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold text-plog-main5">
-        {petProfile?.petName || '🐾'} 설정 페이지
-      </h1>
-
-      <div className="pet-setting-container flex flex-col lg:flex-row justify-center items-start min-h-screen gap-8 pt-20">
-        {/* 펫 정보 카드 */}
-        <div className="pet-card w-full lg:w-[360px]">
-          <Pet mode="edit" pet={petProfile} />
+      <div className="pet-setting-container">
+        <div className="pet-card">
+          <Pet mode="edit" pet={petProfile} onSuccess={handlePetEditSuccess} />
         </div>
 
-        <div className="rounded-lg p-6 flex flex-col items-center gap-10 w-full max-w-[90rem]">
-          <div className="w-full order-1 lg:order-2">
-            <PetBreeds />
+        <div className="right-section flex flex-col gap-8">
+          <div className="collab-card">
+            <div className="w-full flex justify-between items-center gap-4 mb-4">
+              <div className="flex-1 flex justify-start">
+                <button
+                  className="btn-invite"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  초대하기
+                </button>
+              </div>
+              <div className="flex-1 text-center">
+                <h2 className="text-2xl font-bold text-plog-main4">
+                  협업자 목록
+                </h2>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <button
+                  className="btn-delete"
+                  onClick={() => setShowDeveloping(true)}
+                >
+                  삭제하기
+                </button>
+              </div>
+            </div>
+
+            <div className="collaborator-grid">
+              {collaborators.length > 0 ? (
+                collaborators.map(c => (
+                  <label
+                    key={c.id}
+                    className="group flex flex-col items-center p-6 bg-[#fefaf6] rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={c.checked}
+                      onChange={() => toggleCheck(c.id)}
+                      className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
+                    />
+                    <img
+                      src={c.profileImage}
+                      alt="협업자"
+                      className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
+                    />
+                    <span className="text-gray-700 mt-3 font-semibold text-base">
+                      {c.nickName}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-400 ">협업자가 없습니다.</p>
+              )}
+            </div>
           </div>
 
-          {/* 협업자 카드 */}
-          <div className="collab-card border rounded-lg p-6 flex flex-col items-center gap-10 w-full order-2 lg:order-1">
-            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-              <button
-                className="btn-invite"
-                onClick={() => setIsModalOpen(true)}
-              >
-                초대하기
-              </button>
-              <h2 className="text-4xl font-bold text-plog-main4 text-center">
-                협업자 목록
-              </h2>
-              <button
-                onClick={() => setShowDeveloping(true)}
-                className="btn-delete"
-              >
-                삭제하기
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 collaborator-grid w-full">
-              {collaborators.map(c => (
-                <label
-                  key={c.id}
-                  className="group flex flex-col items-center p-6 bg-[#fefaf6] rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={c.checked}
-                    onChange={() => toggleCheck(c.id)}
-                    className="mb-3 accent-[#ddb892] w-5 h-5 group-hover:scale-110 transition-transform"
-                  />
-                  <img
-                    src={c.profileImage}
-                    alt="협업자"
-                    className="w-28 h-28 rounded-full border-2 border-[#f1c27d] shadow-sm"
-                  />
-                  <span className="text-gray-700 mt-3 font-semibold text-base">
-                    {c.nickName}
-                  </span>
-                </label>
-              ))}
-            </div>
+          <div className="pet-breed-card">
+            <PetBreeds />
           </div>
         </div>
       </div>
 
-      {/* 초대 모달 */}
       {isModalOpen && (
         <InviteModal
           petName={petProfile.petName}
@@ -152,7 +151,6 @@ export default function PetSetting() {
         />
       )}
 
-      {/* 초대 성공 결과 링크 출력 */}
       {inviteResult && (
         <div className="mt-6 p-4 bg-gray-100 rounded text-sm text-gray-800 shadow-md max-w-xl mx-auto">
           <p>
@@ -178,6 +176,13 @@ export default function PetSetting() {
 
       {showDeveloping && (
         <Developing onClose={() => setShowDeveloping(false)} />
+      )}
+
+      {showAlert && (
+        <Alert
+          message="반려동물 정보가 성공적으로 수정되었습니다."
+          onClose={() => setShowAlert(false)}
+        />
       )}
     </div>
   );
