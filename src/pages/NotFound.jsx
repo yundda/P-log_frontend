@@ -1,3 +1,4 @@
+
 import Lottie from 'react-lottie-player';
 import lottieJson from '../assets/NotFound404.json';
 import '../style/NotFound.scss';
@@ -19,19 +20,19 @@ export default function NotFound() {
           </button>
           <button
             className="button"
-            onClick={() => (window.location.href = '/login')}
+            onClick={() => (window.location.href = "/login")}
           >
             로그인하기
           </button>
           <button
             className="button"
-            onClick={() => (window.location.href = '/register')}
+            onClick={() => (window.location.href = "/register")}
           >
             회원가입하기
           </button>
           <button
             className="button"
-            onClick={() => (window.location.href = '/')}
+            onClick={() => (window.location.href = "/")}
           >
             메인 페이지
           </button>

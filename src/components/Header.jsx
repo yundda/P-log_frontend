@@ -31,7 +31,7 @@ export default function Header() {
   const toggleMenu = () => setMenuOpen(prev => !prev);
 
   useEffect(() => {
-    const storedAuth = localStorage.getItem('auth');
+    const storedAuth = localStorage.getItem("auth");
     if (storedAuth) {
       const { isLoggedIn } = JSON.parse(storedAuth);
       if (isLoggedIn) {
@@ -40,7 +40,7 @@ export default function Header() {
       }
     }
 
-    const storedPet = localStorage.getItem('selectedPet');
+    const storedPet = localStorage.getItem("selectedPet");
     if (storedPet) {
       const parsed = JSON.parse(storedPet);
       setSelectedPet(parsed);
@@ -55,7 +55,7 @@ export default function Header() {
         setShowPetMenu(false);
       }
     };
-
+    
     window.addEventListener('resize', handleResize);
     document.addEventListener('mousedown', handleClickOutside);
 
@@ -67,30 +67,30 @@ export default function Header() {
 
   const fetchPetList = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem('auth'))?.token;
+      const token = JSON.parse(localStorage.getItem("auth"))?.token;
       const response = await axios.get(`${API}/pets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.code === 'SU') {
+      if (response.data.code === "SU") {
         setPetList(response.data.data || []);
       }
     } catch (error) {
-      console.error('[펫 목록 불러오기 실패]', error);
+      console.error("[펫 목록 불러오기 실패]", error);
     }
   };
 
-  const handlePetSelect = async petName => {
+  const handlePetSelect = async (petName) => {
     try {
-      const token = JSON.parse(localStorage.getItem('auth'))?.token;
+      const token = JSON.parse(localStorage.getItem("auth"))?.token;
       const response = await axios.get(
         `${API}/pets/profile/${encodeURIComponent(petName)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
 
-      if (response.data.code === 'SU') {
+      if (response.data.code === "SU") {
         const petData = response.data.data;
         const formattedPet = {
           id: petData.id || petData.petId,
@@ -103,15 +103,15 @@ export default function Header() {
           petWeight: petData.petWeight,
         };
 
-        localStorage.setItem('selectedPet', JSON.stringify(formattedPet));
+        localStorage.setItem("selectedPet", JSON.stringify(formattedPet));
         setSelectedPet(formattedPet);
         setSelectedPetProfile(formattedPet);
         setShowPetMenu(false);
         setMenuOpen(false);
       }
     } catch (error) {
-      console.error('[펫 선택 실패]', error);
-      alert('펫 정보를 불러오는 데 실패했습니다.');
+      console.error("[펫 선택 실패]", error);
+      alert("펫 정보를 불러오는 데 실패했습니다.");
     }
   };
 
@@ -129,7 +129,7 @@ export default function Header() {
     setIsLoggedIn(false);
     setMenuOpen(false);
     setIsLogoutModalOpen(false);
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
   const cancelLogout = () => setIsLogoutModalOpen(false);
 
@@ -158,15 +158,15 @@ export default function Header() {
             <div className="relative" ref={petMenuRef}>
               <button
                 className="flex items-center gap-2 focus:outline-none"
-                onClick={() => setShowPetMenu(prev => !prev)}
+                onClick={() => setShowPetMenu((prev) => !prev)}
               >
                 <img
-                  src={selectedPet.petImageUrl || '/images/default-pet.png'}
+                  src={selectedPet.petImageUrl || "/images/default-pet.png"}
                   alt="pet"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <span className="text-sm font-medium text-gray-800">
-                  {selectedPet.petName || '펫 선택'}
+                  {selectedPet.petName || "펫 선택"}
                 </span>
               </button>
 
@@ -210,6 +210,84 @@ export default function Header() {
       {/* AddPet 모달 */}
       {isAddPetModalOpen && <AddPet onClose={closeAddPetModal} />}
 
+      {/* Mobile Header */}
+      <div className="md:hidden flex justify-between items-center px-6 py-3  mobile-header">
+        <Link to="/">
+          <img src="/images/Logo.png" alt="logo" className="w-[40px]" />
+        </Link>
+        <button className="menu-button" onClick={toggleMenu}>
+          <img src="/images/bonebar.png" alt="nav" className="w-[30px]" />
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />
+      )}
+
+      {/* Mobile Side Nav */}
+      <nav className={`mobile-nav ${menuOpen ? "open" : ""}`}>
+        <div className="mobile-nav-content flex flex-col justify-between h-full p-6">
+          <div>
+            {isLoggedIn && petList.length > 0 && (
+              <div className="mb-4 border-b pb-4 border-gray-200">
+                <p className="text-xl text-center text-plog-main4 font-bold mb-2">
+                  반려동물 선택
+                </p>
+                <div className="flex flex-wrap gap-6 justify-center">
+                  {petList.map((pet) => (
+                    <div
+                      key={pet.petName}
+                      onClick={() => handlePetSelect(pet.petName)}
+                      className="flex flex-col items-center cursor-pointer"
+                    >
+                      <img
+                        src={pet.petImageUrl || "/images/default-pet.png"}
+                        alt={pet.petName}
+                        className="w-14 h-14 rounded-full object-cover"
+                      />
+                      <span className="text-xs mt-1">{pet.petName}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <ul className="flex flex-col gap-4 text-plog-main4 font-semibold text-lg mt-6">
+              <li>
+                <Link to="/mypet" onClick={() => setMenuOpen(false)}>
+                  마이 펫
+                </Link>
+              </li>
+              <li>
+                <Link to="/mypage" onClick={() => setMenuOpen(false)}>
+                  회원정보 수정
+                </Link>
+              </li>
+              <li>
+                <Link to="/petsetting">펫 수정</Link>
+              </li>
+            </ul>
+          </div>
+
+          {isLoggedIn ? (
+            <button
+              className="logout-button text-red-500 border-t border-gray-200 pt-4 mt-4"
+              onClick={handleLogoutClick}
+            >
+              로그아웃
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="login-button"
+              onClick={() => setMenuOpen(false)}
+            >
+              로그인
+            </Link>
+          )}
+        </div>
+      </nav>
+      
       {/* 로그아웃 모달 */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
