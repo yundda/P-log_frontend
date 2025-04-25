@@ -103,7 +103,11 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
         <img
           src={
             requestInfo.profileImage
-              ? `/images/${requestInfo.profileImage}.png`
+              ? `/images/${
+                  requestInfo.profileImage.includes('.png')
+                    ? requestInfo.profileImage
+                    : requestInfo.profileImage + '.png'
+                }`
               : '/images/profile1.png'
           }
           alt="user-profile"
