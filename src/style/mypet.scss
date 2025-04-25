@@ -1,11 +1,129 @@
+@import './util.scss';
+
 .mypet-container {
   .pet-card {
-    transition: all 0.3s ease;
-    @media (max-width: 923px) {
-      padding: 1.5rem;
-      .grid {
+    width: 80%;
+    max-width: 1200px;
+    border: 1px solid $color-2;
+    border-radius: 16px;
+    padding: 2rem;
+    background-color: $color-white;
+    @include box-shadow;
+
+    .text {
+      @media (max-width: 768px) {
+        font-size: 26px;
+      }
+    }
+
+    .btn {
+      @media (max-width: 768px) {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+
+      .pet-item {
+        transition: all 0.3s ease;
+        background-color: #f9f9f9;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+        img {
+          width: 96px;
+          height: 96px;
+          object-fit: cover;
+          border-radius: 9999px;
+          margin-bottom: 1rem;
+        }
+
+        .name-tag {
+          background-color: $color-1;
+          color: #333;
+          font-size: 0.875rem;
+          font-weight: 500;
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+        }
+
+        .role-tag {
+          margin-left: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+
+          &.owner {
+            background-color: #e0f0ff;
+            color: #0074cc;
+          }
+
+          &.member {
+            background-color: #e8f7e0;
+            color: #2c7a4b;
+          }
+        }
+
+        .action-buttons {
+          margin-top: 1rem;
+          display: flex;
+          gap: 0.5rem;
+          justify-content: center;
+
+          button {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: #fff;
+            transition: background-color 0.2s;
+
+            &.leave {
+              background-color: #fbbf24;
+              &:hover {
+                background-color: #f59e0b;
+              }
+            }
+
+            &.delete {
+              background-color: #ef4444;
+              &:hover {
+                background-color: #dc2626;
+              }
+            }
+          }
+        }
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+
+        .pet-item {
+          padding: 1rem;
+          img {
+            width: 72px;
+            height: 72px;
+          }
+
+          .name-tag,
+          .role-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+          }
+
+          .action-buttons button {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.75rem;
+          }
+        }
+      }
+      @media (max-width: 500px) {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
       }
     }
   }

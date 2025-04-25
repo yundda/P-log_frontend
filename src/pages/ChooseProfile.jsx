@@ -143,8 +143,8 @@ export default function ChooseProfile() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <h1 className="text-3xl md:text-4xl font-bold text-brown-700 mb-8">
+    <div className="flex flex-col items-center justify-start min-h-[80vh] pt-10 bg-white">
+      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-brown-700 mb-8 text-center">
         관리를 해줄 동물을 선택하세요.
       </h1>
 
