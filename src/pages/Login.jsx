@@ -18,6 +18,7 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm();
 
   const [serverError, setServerError] = useState('');
@@ -54,6 +55,12 @@ export default function Login() {
         setServerError('네트워크 오류가 발생했습니다.');
       }
     }
+  };
+
+  const handleTestLogin = () => {
+    setValue('email', 'plog@gmail.com');
+    setValue('password', 'plog1234');
+    handleSubmit(onSubmit)();
   };
 
   const handleCloseModal = () => {
@@ -112,7 +119,17 @@ export default function Login() {
             </span>
           </div>
 
-          <button type="submit">로그인</button>
+          <button type="submit" className="login-button">
+            로그인
+          </button>
+          <br />
+          <button
+            type="button"
+            onClick={handleTestLogin}
+            className="test-login-button mt-2  border border-plog-main4 text-black py-2 px-4 rounded-md hover:bg-plog-main5 hover:text-white"
+          >
+            게스트 계정으로 접속하기
+          </button>
 
           <div className="register-link">
             아직 계정이 없나요?{' '}
