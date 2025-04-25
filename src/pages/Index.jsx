@@ -48,7 +48,7 @@ export default function Index() {
   const [healthLogs, setHealthLogs] = useRecoilState(healthLogsState);
 
   const [isLogin, setIsLogin] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  // const [showLoginModal, setShowLoginModal] = useState(false);
 
   const sectionRefs = useRef([]);
   const [currentSection, setCurrentSection] = useState(0);
@@ -57,7 +57,7 @@ export default function Index() {
     const auth = localStorage.getItem('auth');
     if (!auth) {
       setIsLogin(false);
-      setShowLoginModal(true);
+      // setShowLoginModal(true);
     }
   }, []);
 
@@ -69,7 +69,7 @@ export default function Index() {
 
     fetchDailyLogs(petProfile.petName, setDailyLogs);
     fetchHealthLogs(petProfile.petName, setHealthLogs);
-  }, [petProfile]);
+  }, [petProfile, setDailyLogs, setHealthLogs]);
 
   useEffect(() => {
     if (healthLogs.length > 0) {
@@ -157,6 +157,32 @@ export default function Index() {
     show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
   };
 
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver(
+  //     entries => {
+  //       entries.forEach(entry => {
+  //         if (entry.isIntersecting) {
+  //           const index = Number(entry.target.getAttribute('data-index'));
+  //           setCurrentSection(index);
+  //         }
+  //       });
+  //     },
+  //     { threshold: 0.8 },
+  //   );
+
+  //   sectionRefs.current.forEach((section, idx) => {
+  //     if (section) {
+  //       section.setAttribute('data-index', idx);
+  //       observer.observe(section);
+  //     }
+  //   });
+
+  //   return () => {
+  //     sectionRefs.current.forEach(section => {
+  //       if (section) observer.unobserve(section);
+  //     });
+  //   };
+  // }, []);
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
@@ -170,7 +196,8 @@ export default function Index() {
       { threshold: 0.8 },
     );
 
-    sectionRefs.current.forEach((section, idx) => {
+    const currentSections = [...sectionRefs.current];
+    currentSections.forEach((section, idx) => {
       if (section) {
         section.setAttribute('data-index', idx);
         observer.observe(section);
@@ -178,7 +205,7 @@ export default function Index() {
     });
 
     return () => {
-      sectionRefs.current.forEach(section => {
+      currentSections.forEach(section => {
         if (section) observer.unobserve(section);
       });
     };

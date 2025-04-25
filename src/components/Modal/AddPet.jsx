@@ -202,7 +202,7 @@ export default function AddPet({ onClose }) {
       {/* 등록 성공 모달 */}
       {showAlert && (
         <Alert
-          message="반려동물이 성공적으로 등록되었습니다."
+          message="반려동물이 등록되었습니다."
           onClose={() => {
             setShowAlert(false);
             onClose();

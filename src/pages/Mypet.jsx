@@ -9,6 +9,7 @@ import {
 import { useSetRecoilState } from 'recoil';
 import LoginRequired from '../components/Modal/LoginRequired';
 import Alert from '../components/Modal/Alert';
+import AddPet from '../components/Modal/AddPet';
 import '../style/mypet.scss';
 
 const API = process.env.REACT_APP_API_SERVER;
@@ -39,6 +40,7 @@ export default function MyPet() {
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const setSelectedPet = useSetRecoilState(selectedPetState);
+  const [showAddPetModal, setShowAddPetModal] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -136,6 +138,7 @@ export default function MyPet() {
           petWeight: petData.petWeight,
         };
         setSelectedPetProfile(formattedPetData);
+        setSelectedPet(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
         navigate('/');
       } else {
@@ -164,7 +167,7 @@ export default function MyPet() {
             </h3>
             <button
               className=" btn bg-plog-main5 text-white py-2 px-4 rounded-lg hover:bg-plog-main4 transition text-base"
-              onClick={() => navigate('/chooseProfile')}
+              onClick={() => setShowAddPetModal(true)}
             >
               추가하기
             </button>
@@ -255,6 +258,7 @@ export default function MyPet() {
 
       {/* Alert 모달 */}
       {showAlert && <Alert message={openAlertMessage} onClose={closeAlert} />}
+      {showAddPetModal && <AddPet onClose={() => setShowAddPetModal(false)} />}
     </>
   );
 }

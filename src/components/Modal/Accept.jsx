@@ -101,10 +101,15 @@ export default function AcceptModal({ requestId, onClose, onResult }) {
     <div className="accept-modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="accept-card bg-white p-6 rounded-lg shadow-md text-center max-w-md w-full">
         <img
-          src="/images/user.png"
+          src={
+            requestInfo.profileImage
+              ? `/images/${requestInfo.profileImage}.png`
+              : '/images/profile1.png'
+          }
           alt="user-profile"
-          className="w-24 h-24 rounded-full mx-auto mb-4"
+          className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-[#f1c27d] shadow-sm"
         />
+
         <h2 className="text-xl font-bold mb-2">
           <span className="text-plog-main4">{requestInfo.requesterNick}</span>{' '}
           님이
