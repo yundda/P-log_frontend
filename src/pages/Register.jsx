@@ -64,7 +64,7 @@ export default function Register() {
 
   return (
     <div className="register-container">
-      <h3 className="title">회원가입</h3>
+      <h3 className="title-rej text-plog-main4 ">회원가입</h3>
       <div className="register-card">
         <img src="/images/img1.png" alt="사진" className="img" />
 

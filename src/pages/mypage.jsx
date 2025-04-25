@@ -138,12 +138,12 @@ export default function MyPage() {
     }
   };
 
-  const handleLogoutClick = () => setIsLogoutModalOpen(true);
-  const confirmLogout = () => {
-    localStorage.removeItem('auth');
-    window.location.href = '/login';
-  };
-  const cancelLogout = () => setIsLogoutModalOpen(false);
+  // const handleLogoutClick = () => setIsLogoutModalOpen(true);
+  // const confirmLogout = () => {
+  //   localStorage.removeItem('auth');
+  //   window.location.href = '/login';
+  // };
+  // const cancelLogout = () => setIsLogoutModalOpen(false);
 
   if (!isLogin && showLoginModal) {
     return <LoginRequired onClose={() => setShowLoginModal(false)} />;
@@ -276,11 +276,11 @@ export default function MyPage() {
         </div>
       </div>
 
-      <button onClick={handleLogoutClick} className="logout-button mt-8">
+      {/* <button onClick={handleLogoutClick} className="logout-button mt-8">
         로그아웃
-      </button>
+      </button> */}
 
-      {isLogoutModalOpen && (
+      {/* {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl text-center w-80">
             <p className="mb-4 text-lg font-medium">
@@ -302,7 +302,7 @@ export default function MyPage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -7,11 +7,13 @@
   justify-content: center;
   // height: 100vh;
   min-height: 100vh;
-  // padding-top: 80px;
   background-color: $color-white;
-  justify-content: flex-start;
+  // justify-content: flex-center;
 
-  .title {
+  @media (max-width: 768px) {
+    min-height: 100vh;
+  }
+  .title-login {
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 20px;

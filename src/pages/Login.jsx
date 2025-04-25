@@ -67,7 +67,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <h3 className="title text-plog-main4">로그인</h3>
+      <h3 className="title-login text-plog-main4">로그인</h3>
       <div className="login-card">
         <img src="/images/img1.png" alt="사진" className="img" />
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>

@@ -76,9 +76,9 @@ export default function PetSetting() {
   }
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="petsetting-bigcontainer mx-auto px-40">
       <div className="pet-setting-container">
-        <div className="pet-card">
+        <div className="pet-card-read">
           <Pet mode="edit" pet={petProfile} onSuccess={handlePetEditSuccess} />
         </div>
 

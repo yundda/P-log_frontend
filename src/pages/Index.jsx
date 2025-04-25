@@ -189,7 +189,7 @@ export default function Index() {
     return (
       <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth scrollbar-hide relative">
         {/* Navigation Dots */}
-        <div className="fixed right-4 sm:right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center gap-2">
+        <div className="fixed right-4 md:right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center gap-2">
           {[0, 1, 2].map((_, index) => (
             <div
               key={index}
@@ -203,27 +203,27 @@ export default function Index() {
         {/* Section 0 */}
         <motion.section
           ref={el => (sectionRefs.current[0] = el)}
-          className="snap-start w-full max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-center justify-center px-6 py-20 sm:py-32 lg:py-48 min-h-screen gap-10 lg:gap-14 text-center lg:text-left"
+          className="snap-start w-full max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-center justify-center px-6 py-20 md:py-32 lg:py-48 min-h-screen gap-10 lg:gap-14 text-center lg:text-left"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <div className="w-full lg:w-2/3 flex justify-center">
+          <div className="w-full lg:w-3/4 flex justify-center">
             <img
               src="/images/main2.jpg"
               alt="반려동물 메인"
-              className="rounded-3xl shadow-xl w-full max-w-md sm:max-w-lg lg:max-w-[800px] h-auto object-cover"
+              className="rounded-3xl shadow-xl w-full max-w-md md:max-w-lg lg:max-w-[900px] h-auto object-cover"
             />
           </div>
 
-          <div className="w-full lg:w-1/3 flex flex-col items-center lg:items-start gap-6 sm:gap-8">
+          <div className="w-full lg:w-1/4 flex flex-col items-center lg:items-center gap-6 md:gap-8">
             <img
               src="/images/main1.gif"
               alt="반려동물 캐릭터"
-              className="w-20 h-20 sm:w-28 sm:h-28 rounded-full shadow-lg"
+              className="w-20 h-20 md:w-28 md:h-28 rounded-full shadow-lg"
             />
-            <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-xl shadow-md text-base sm:text-lg relative max-w-md">
+            <div className="bg-white px-5 py-4 md:px-6 md:py-5 rounded-xl shadow-md text-base md:text-lg relative max-w-md">
               <p>
                 요기요~ 🪽{' '}
                 <span className="font-bold text-plog-main4">
@@ -237,7 +237,7 @@ export default function Index() {
               </p>
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white" />
             </div>
-            <div className="flex gap-3 flex-col sm:flex-row">
+            <div className="flex gap-3 flex-col md:flex-row">
               <button
                 onClick={handleLogin}
                 className="bg-plog-main5 hover:bg-plog-main4 text-white font-semibold px-6 py-3 rounded-full shadow transition-all"
@@ -257,7 +257,7 @@ export default function Index() {
         {/* Section 1 */}
         <motion.section
           ref={el => (sectionRefs.current[1] = el)}
-          className="snap-start relative flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-24 sm:py-32 lg:py-40 min-h-screen"
+          className="snap-start relative flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-24 md:py-32 lg:py-40 min-h-screen"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
@@ -266,61 +266,62 @@ export default function Index() {
           {/* 이미지: 왼쪽 위 */}
           <img
             src="/images/main3-1.gif"
-            className="hidden sm:block absolute top-10 left-0 w-28 sm:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
+            className="hidden md:block absolute top-10 left-0 w-28 md:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
             alt="동물1"
           />
           {/* 이미지: 오른쪽 아래 */}
           <img
             src="/images/main3-2.gif"
-            className="hidden sm:block absolute bottom-10 right-0 w-28 sm:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
+            className="hidden md:block absolute bottom-10 right-0 w-28 md:w-40 lg:w-60 rounded-3xl shadow-xl opacity-80"
             alt="동물2"
           />
 
           <div className="relative z-10 w-full lg:w-2/3 text-center flex flex-col gap-8">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-plog-main4 leading-snug">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-plog-main4 leading-snug">
               알고 계셨나요?
               <br />
-              반려동물과 관련된 특별한 이야기 🐕🐈
+              반려동물과 관련된 <br className="block md:hidden" /> 특별한 이야기
+              🐕🐈
             </h2>
-            <ul className="text-gray-700 text-base sm:text-lg leading-relaxed space-y-4 px-2 sm:px-4">
+            <ul className="text-gray-700 text-base md:text-lg leading-relaxed space-y-4 px-2 md:px-4">
               <li>
                 📅 <strong>4월 11일</strong>은{' '}
                 <span className="text-plog-main5 font-semibold">
                   세계 반려동물의 날
                 </span>
-                이에요. <br className="block sm:hidden" /> 사람과 동물이
-                공존하는 가치를 <br className="block sm:hidden" /> 기념하는
+                이에요. <br className="block md:hidden" /> 사람과 동물이
+                공존하는 가치를 <br className="block md:hidden" /> 기념하는
                 날입니다.
               </li>
               <li>
                 🧠 반려견은 평균 <strong>165개의 단어</strong>를{' '}
-                <br className="block sm:hidden" /> 인식할 수 있고, 훈련을 통해
-                최대 <br className="block sm:hidden" />
+                <br className="block md:hidden" /> 인식할 수 있고, 훈련을 통해
+                최대 <br className="block md:hidden" />
                 250개 이상도 가능해요!
               </li>
               <li>
-                🇯🇵 일본에는 ‘고양이역장’으로 <br className="block sm:hidden" />{' '}
+                🇯🇵 일본에는 ‘고양이역장’으로 <br className="block md:hidden" />{' '}
                 유명한 <strong>타마 역장</strong>
                 이라는 고양이가 있어요.
-                <br className="block sm:hidden" /> 실제로 지역 경제를 살리고
-                <br className="block sm:hidden" />
+                <br className="block md:hidden" /> 실제로 지역 경제를 살리고
+                <br className="block md:hidden" />
                 현재는 신사에 모셔졌습니다.
               </li>
               <li>
-                🌎 세계에서 <br className="block sm:hidden" />
+                🌎 세계에서 <br className="block md:hidden" />
                 가장 많이 키우는 반려동물은 <strong>물고기</strong>
-                입니다. <br className="block sm:hidden" />
+                입니다. <br className="block md:hidden" />
                 유지비 저렴 + 공간 절약이 이유죠!
               </li>
               <li>
                 🇰🇷 한국 반려동물 가구 비율은 <strong>약 31%</strong>,{' '}
-                <br className="block sm:hidden" />
+                <br className="block md:hidden" />
                 관련 산업 규모는 <strong>4조 원</strong> 이상입니다.
               </li>
             </ul>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-md text-gray-500 mt-2">
               ✨ 오늘도 우리 반려동물과의 일상을{' '}
-              <br className="block sm:hidden" /> 더 특별하게 만들어보세요!
+              <br className="block md:hidden" /> 더 특별하게 만들어보세요!
             </p>
           </div>
         </motion.section>
@@ -328,32 +329,32 @@ export default function Index() {
         {/* Section 2 */}
         <motion.section
           ref={el => (sectionRefs.current[2] = el)}
-          className="snap-start flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-20 sm:py-24 lg:py-32 min-h-screen border-t border-gray-200 text-center"
+          className="snap-start flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 py-20 md:py-24 lg:py-32 min-h-screen border-t border-gray-200 text-center"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-plog-main4 leading-snug">
-            반려동물의 일상부터 건강까지
-            <br />
-            하나도 놓치지 마세요 🐶💉
+          <h2 className="text-3xl md:text-4xl font-bold text-plog-main4 leading-snug">
+            반려동물의 일상부터 <br className="block md:hidden" /> 건강까지
+            <br className="block lg:hidden" />
+            하나도 놓치지 마세요 <br className="block md:hidden" /> 🐶💉
           </h2>
-          <p className="text-gray-600 text-base sm:text-lg mt-6">
+          <p className="text-gray-600 text-base md:text-lg mt-6">
             산책, 식사, 목욕부터 병원 방문과 예방접종까지!
             <br />
             다양한 활동과 건강 기록을 남기고,
             <br />
             연도별로 쉽게 확인할 수 있어요.
           </p>
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full mt-10">
+          <div className="grid grid-cols-2 gap-4 md:gap-6 w-full mt-10">
             {['main4-1.gif', 'main4-2.gif', 'main4-3.gif', 'main4-4.gif'].map(
               (img, idx) => (
                 <img
                   key={idx}
                   src={`/images/${img}`}
                   alt={`기록${idx}`}
-                  className="rounded-3xl shadow-xl object-contain max-h-[160px] sm:max-h-[220px] lg:max-h-[240px] w-full"
+                  className="rounded-3xl shadow-xl object-contain max-h-[160px] md:max-h-[220px] lg:max-h-[240px] w-full"
                 />
               ),
             )}
@@ -396,13 +397,13 @@ export default function Index() {
           </h2>
           <div className="daily-content flex flex-row gap-6 flex-nowrap">
             <div className="flex flex-col justify-between w-1/2 min-w-[300px]">
-              <div className="daily-card bg-white rounded flex-1 overflow-y-auto max-h-60 text-sm">
+              <div className="daily-card bg-white rounded flex-1 overflow-y-auto max-h-60 text-md">
                 {filteredDailyLogs.length > 0 ? (
                   filteredDailyLogs.map(log => (
                     <div
                       key={log.log_id}
                       onClick={() => handleDailyLogClick(log)}
-                      className="daily mb-4 p-3 bg-white rounded shadow-sm cursor-pointer"
+                      className="daily mb-4 p-3 bg-white rounded shadow-md cursor-pointer"
                     >
                       <div className="font-semibold text-plog-main4 mb-1">
                         📌 {getLogTitle(log.type, log.mealType)}
@@ -488,7 +489,7 @@ export default function Index() {
                   <div
                     key={log.log_id}
                     onClick={() => handleHealthLogClick(log)}
-                    className="text-sm text-gray-700 border-b border-dashed border-gray-300 pb-2 mb-2 cursor-pointer hover:bg-gray-100"
+                    className="text-md text-gray-700 border-b border-dashed border-gray-300 pb-2 mb-2 cursor-pointer hover:bg-gray-100"
                   >
                     <div className="font-semibold">💉 {log.vaccination}</div>
                     <div>🏥 병원명: {log.hospital}</div>
@@ -517,7 +518,7 @@ export default function Index() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-600">
+                <p className="text-md text-gray-600">
                   {selectedYear}년 접종 내역이 없습니다.
                 </p>
               )}
