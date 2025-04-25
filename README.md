@@ -1,4 +1,4 @@
-<img src="https://github.com/user-attachments/assets/53b15c87-6680-44fc-a1b7-78c2b2e6b896" width="100%">
+<img src="https://github.com/user-attachments/assets/53b15c87-6680-44fc-a1b7-78c2b2e6b896" width="90%">
 
 ## 🐶🐱 서비스 소개
 
