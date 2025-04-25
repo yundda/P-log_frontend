@@ -8,10 +8,18 @@
   min-height: 100vh;
   background-color: $color-white;
 
-  .title {
+  @media (max-width: 768px) {
+    min-height: 120vh;
+  }
+
+  .title-rej {
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      color: $color-4;
+    }
   }
 
   .register-card {
@@ -153,7 +161,7 @@
   @media (max-width: 768px) {
     .register-container {
       padding: 30px 20px 60px;
-      min-height: 100vh;
+      // min-height: 140vh;
       background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
       justify-content: flex-start;
     }

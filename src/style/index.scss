@@ -11,8 +11,7 @@
 
   @media (min-width: 1024px) {
     flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
+    padding-top: 80px;
   }
 
   @media (max-width: 768px) {
