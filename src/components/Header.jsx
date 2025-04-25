@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../style/Header.scss';
 import axios from '../api/axiosInterceptor';
@@ -18,15 +18,17 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showPetMenu, setShowPetMenu] = useState(false);
-  // const [selectedPet, setSelectedPet] = useState(null);
   const [selectedPet, setSelectedPet] = useRecoilState(selectedPetState);
-
   const [petList, setPetList] = useState([]);
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
-  const toggleMenu = () => setMenuOpen(prev => !prev);
+
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
   const resetSelectedPetProfile = useResetRecoilState(selectedPetProfileState);
   const resetSelectedPetName = useResetRecoilState(selectedpetNameState);
+
+  const petMenuRef = useRef(null);
+
+  const toggleMenu = () => setMenuOpen(prev => !prev);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('auth');
@@ -40,16 +42,27 @@ export default function Header() {
 
     const storedPet = localStorage.getItem('selectedPet');
     if (storedPet) {
-      setSelectedPet(JSON.parse(storedPet));
+      const parsed = JSON.parse(storedPet);
+      setSelectedPet(parsed);
+      setSelectedPetProfile(parsed);
     }
 
     const handleResize = () => {
-      if (window.innerWidth > 923) {
-        setMenuOpen(false);
+      if (window.innerWidth > 923) setMenuOpen(false);
+    };
+    const handleClickOutside = e => {
+      if (petMenuRef.current && !petMenuRef.current.contains(e.target)) {
+        setShowPetMenu(false);
       }
     };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchPetList = async () => {
@@ -95,7 +108,6 @@ export default function Header() {
         setSelectedPetProfile(formattedPet);
         setShowPetMenu(false);
         setMenuOpen(false);
-        // navigate('/');
       }
     } catch (error) {
       console.error('[펫 선택 실패]', error);
@@ -103,52 +115,28 @@ export default function Header() {
     }
   };
 
-  const openAddPetModal = () => {
-    setIsAddPetModalOpen(true);
-  };
-
+  const openAddPetModal = () => setIsAddPetModalOpen(true);
   const closeAddPetModal = () => {
     setIsAddPetModalOpen(false);
     fetchPetList();
   };
 
-  const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
+  const handleLogoutClick = () => setIsLogoutModalOpen(true);
   const confirmLogout = () => {
-    localStorage.removeItem('auth');
-    localStorage.removeItem('selectedPet');
-    localStorage.removeItem('selectedPetNameState');
-    localStorage.removeItem('selectedpetNameState');
-    localStorage.removeItem('selectedPetProfileState');
-    localStorage.removeItem('selectedPetId');
-    localStorage.removeItem('profileIcon');
-    localStorage.removeItem('recoil-persist');
-
+    localStorage.clear();
     resetSelectedPetProfile();
     resetSelectedPetName();
-
     setIsLoggedIn(false);
     setMenuOpen(false);
     setIsLogoutModalOpen(false);
     window.location.href = '/login';
   };
+  const cancelLogout = () => setIsLogoutModalOpen(false);
 
-  const cancelLogout = () => {
-    setIsLogoutModalOpen(false);
-  };
-
-  useEffect(() => {
-    const storedPet = localStorage.getItem('selectedPet');
-    if (storedPet) {
-      const parsed = JSON.parse(storedPet);
-      setSelectedPet(parsed);
-    }
-  }, []);
   return (
     <>
-      <header className="hidden md:flex justify-between items-center px-6 py-3 w-[90%] h-20 mx-auto">
+      {/* PC Header */}
+      <header className="hidden md:flex fixed top-0 left-0 right-0 z-50 bg-white justify-between items-center px-6 py-3 w-full h-20">
         <Link to="/">
           <img src="/images/Logo.png" alt="logo" className="w-14" />
         </Link>
@@ -167,7 +155,7 @@ export default function Header() {
         </nav>
         <div className="mr-4 flex items-center gap-4 relative">
           {isLoggedIn && selectedPet && (
-            <div className="relative">
+            <div className="relative" ref={petMenuRef}>
               <button
                 className="flex items-center gap-2 focus:outline-none"
                 onClick={() => setShowPetMenu(prev => !prev)}
@@ -183,32 +171,27 @@ export default function Header() {
               </button>
 
               {showPetMenu && (
-                <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-auto">
+                <div className="pet-menu absolute right-0 mt-2 w-64 z-50">
                   {petList.map(pet => (
                     <div
                       key={pet.petName}
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      className="pet-item"
                       onClick={() => handlePetSelect(pet.petName)}
                     >
                       <img
                         src={pet.petImageUrl || '/images/default-pet.png'}
                         alt={pet.petName}
-                        className="w-8 h-8 rounded-full object-cover"
                       />
-                      <span className="text-sm">{pet.petName}</span>
+                      <span>{pet.petName}</span>
                     </div>
                   ))}
-                  <div
-                    className="px-4 py-2 text-center text-sm text-plog-main4 cursor-pointer hover:underline border-t border-gray-100"
-                    onClick={openAddPetModal}
-                  >
+                  <div className="add-pet" onClick={openAddPetModal}>
                     + 반려동물 추가하기
                   </div>
                 </div>
               )}
             </div>
           )}
-
           {isLoggedIn ? (
             <button
               onClick={handleLogoutClick}
@@ -226,84 +209,6 @@ export default function Header() {
 
       {/* AddPet 모달 */}
       {isAddPetModalOpen && <AddPet onClose={closeAddPetModal} />}
-
-      {/* Mobile Header */}
-      <div className="md:hidden flex justify-between items-center px-6 py-3  mobile-header">
-        <Link to="/">
-          <img src="/images/Logo.png" alt="logo" className="w-[40px]" />
-        </Link>
-        <button className="menu-button" onClick={toggleMenu}>
-          <img src="/images/bonebar.png" alt="nav" className="w-[30px]" />
-        </button>
-      </div>
-
-      {menuOpen && (
-        <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />
-      )}
-
-      {/* Mobile Side Nav */}
-      <nav className={`mobile-nav ${menuOpen ? 'open' : ''}`}>
-        <div className="mobile-nav-content flex flex-col justify-between h-full p-6">
-          <div>
-            {isLoggedIn && petList.length > 0 && (
-              <div className="mb-4 border-b pb-4 border-gray-200">
-                <p className="text-xl text-center text-plog-main4 font-bold mb-2">
-                  반려동물 선택
-                </p>
-                <div className="flex flex-wrap gap-6 justify-center">
-                  {petList.map(pet => (
-                    <div
-                      key={pet.petName}
-                      onClick={() => handlePetSelect(pet.petName)}
-                      className="flex flex-col items-center cursor-pointer"
-                    >
-                      <img
-                        src={pet.petImageUrl || '/images/default-pet.png'}
-                        alt={pet.petName}
-                        className="w-14 h-14 rounded-full object-cover"
-                      />
-                      <span className="text-xs mt-1">{pet.petName}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <ul className="flex flex-col gap-4 text-plog-main4 font-semibold text-lg mt-6">
-              <li>
-                <Link to="/mypet" onClick={() => setMenuOpen(false)}>
-                  마이 펫
-                </Link>
-              </li>
-              <li>
-                <Link to="/mypage" onClick={() => setMenuOpen(false)}>
-                  회원정보 수정
-                </Link>
-              </li>
-              <li>
-                <Link to="/petsetting">펫 수정</Link>
-              </li>
-            </ul>
-          </div>
-
-          {isLoggedIn ? (
-            <button
-              className="logout-button text-red-500 border-t border-gray-200 pt-4 mt-4"
-              onClick={handleLogoutClick}
-            >
-              로그아웃
-            </button>
-          ) : (
-            <Link
-              to="/login"
-              className="login-button"
-              onClick={() => setMenuOpen(false)}
-            >
-              로그인
-            </Link>
-          )}
-        </div>
-      </nav>
 
       {/* 로그아웃 모달 */}
       {isLogoutModalOpen && (

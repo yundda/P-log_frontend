@@ -6,6 +6,7 @@ import { useSetRecoilState } from 'recoil';
 import {
   selectedpetNameState,
   selectedPetProfileState,
+  selectedPetState,
 } from '../recoil/petAtom';
 import LoginRequired from '../components/Modal/LoginRequired';
 
@@ -18,6 +19,7 @@ export default function ChooseProfile() {
 
   const setSelectedpetName = useSetRecoilState(selectedpetNameState);
   const setSelectedPetProfile = useSetRecoilState(selectedPetProfileState);
+  const setSelectedPet = useSetRecoilState(selectedPetState);
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -112,6 +114,7 @@ export default function ChooseProfile() {
         console.log('[포맷된 반려동물 데이터]', formattedPetData);
 
         setSelectedPetProfile(formattedPetData);
+        setSelectedPet(formattedPetData);
         localStorage.setItem('selectedPet', JSON.stringify(formattedPetData));
         navigate('/');
       } else {
