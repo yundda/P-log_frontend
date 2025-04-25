@@ -1,6 +1,6 @@
-<img src="/images/main2.jpg" width="100%">
+<img src="../p-log-frontend/public/images/main2.jpg" width="100%">
 
-## 서비스 소개
+## 🐶🐱 서비스 소개
 
 > "반려동물의 일상 공유 펫로그" <P> P-log는 가족 구성원들이 반려동물의 일상과 건강을 함께 관리하고 공유할 수 있는 서비스를 제공합니다.</p>
 
@@ -20,10 +20,9 @@
 <div align="center">
 <table>
 <th>팀원</th>
-    <th> 최수연 <a href="https://github.com/yundda"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
+    <th> 윤다선 <a href="https://github.com/yundda"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
     <th> 김철순 <a href="https://github.com/kim-chulsoon"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
     <th> 간솝드 <a href="https://github.com/suvd0377"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
-
     <tr>
     <td> 프로필 </td>
     	<td>
@@ -65,7 +64,6 @@
 <img src="https://img.shields.io/badge/recoil-764ABC?style=for-the-badge&logo=redux&logoColor=white">
 <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
 <img src="https://img.shields.io/badge/Sass-CC6699?style=flat-square&logo=Sass&logoColor=white">
-<img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
 
 ### Backend
 
@@ -80,6 +78,7 @@
 <img src="https://img.shields.io/badge/amazonec2-FF6C37?style=for-the-badge&logo=amazonec2&logoColor=white">
 <img src="https://img.shields.io/badge/nginx-FF6C37?style=for-the-badge&logo=nginx&logoColor=white">
 <img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
+<img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
 
 ### Tools
 
