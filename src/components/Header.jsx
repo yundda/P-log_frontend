@@ -29,7 +29,7 @@ export default function Header() {
   const resetSelectedPetName = useResetRecoilState(selectedpetNameState);
 
   useEffect(() => {
-    const storedAuth = localStorage.getItem('auth');
+    const storedAuth = localStorage.getItem("auth");
     if (storedAuth) {
       const { isLoggedIn } = JSON.parse(storedAuth);
       if (isLoggedIn) {
@@ -38,7 +38,7 @@ export default function Header() {
       }
     }
 
-    const storedPet = localStorage.getItem('selectedPet');
+    const storedPet = localStorage.getItem("selectedPet");
     if (storedPet) {
       setSelectedPet(JSON.parse(storedPet));
     }
@@ -48,36 +48,36 @@ export default function Header() {
         setMenuOpen(false);
       }
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const fetchPetList = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem('auth'))?.token;
+      const token = JSON.parse(localStorage.getItem("auth"))?.token;
       const response = await axios.get(`${API}/pets`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.code === 'SU') {
+      if (response.data.code === "SU") {
         setPetList(response.data.data || []);
       }
     } catch (error) {
-      console.error('[펫 목록 불러오기 실패]', error);
+      console.error("[펫 목록 불러오기 실패]", error);
     }
   };
 
-  const handlePetSelect = async petName => {
+  const handlePetSelect = async (petName) => {
     try {
-      const token = JSON.parse(localStorage.getItem('auth'))?.token;
+      const token = JSON.parse(localStorage.getItem("auth"))?.token;
       const response = await axios.get(
         `${API}/pets/profile/${encodeURIComponent(petName)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
 
-      if (response.data.code === 'SU') {
+      if (response.data.code === "SU") {
         const petData = response.data.data;
         const formattedPet = {
           id: petData.id || petData.petId,
@@ -90,7 +90,7 @@ export default function Header() {
           petWeight: petData.petWeight,
         };
 
-        localStorage.setItem('selectedPet', JSON.stringify(formattedPet));
+        localStorage.setItem("selectedPet", JSON.stringify(formattedPet));
         setSelectedPet(formattedPet);
         setSelectedPetProfile(formattedPet);
         setShowPetMenu(false);
@@ -98,8 +98,8 @@ export default function Header() {
         // navigate('/');
       }
     } catch (error) {
-      console.error('[펫 선택 실패]', error);
-      alert('펫 정보를 불러오는 데 실패했습니다.');
+      console.error("[펫 선택 실패]", error);
+      alert("펫 정보를 불러오는 데 실패했습니다.");
     }
   };
 
@@ -117,14 +117,14 @@ export default function Header() {
   };
 
   const confirmLogout = () => {
-    localStorage.removeItem('auth');
-    localStorage.removeItem('selectedPet');
-    localStorage.removeItem('selectedPetNameState');
-    localStorage.removeItem('selectedpetNameState');
-    localStorage.removeItem('selectedPetProfileState');
-    localStorage.removeItem('selectedPetId');
-    localStorage.removeItem('profileIcon');
-    localStorage.removeItem('recoil-persist');
+    localStorage.removeItem("auth");
+    localStorage.removeItem("selectedPet");
+    localStorage.removeItem("selectedPetNameState");
+    localStorage.removeItem("selectedpetNameState");
+    localStorage.removeItem("selectedPetProfileState");
+    localStorage.removeItem("selectedPetId");
+    localStorage.removeItem("profileIcon");
+    localStorage.removeItem("recoil-persist");
 
     resetSelectedPetProfile();
     resetSelectedPetName();
@@ -132,7 +132,7 @@ export default function Header() {
     setIsLoggedIn(false);
     setMenuOpen(false);
     setIsLogoutModalOpen(false);
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   const cancelLogout = () => {
@@ -170,21 +170,21 @@ export default function Header() {
             <div className="relative">
               <button
                 className="flex items-center gap-2 focus:outline-none"
-                onClick={() => setShowPetMenu(prev => !prev)}
+                onClick={() => setShowPetMenu((prev) => !prev)}
               >
                 <img
-                  src={selectedPet.petImageUrl || '/images/default-pet.png'}
+                  src={selectedPet.petImageUrl || "/images/default-pet.png"}
                   alt="pet"
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <span className="text-sm font-medium text-gray-800">
-                  {selectedPet.petName || '펫 선택'}
+                  {selectedPet.petName || "펫 선택"}
                 </span>
               </button>
 
               {showPetMenu && (
                 <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-auto">
-                  {petList.map(pet => (
+                  {petList.map((pet) => (
                     <div
                       key={pet.petName}
                       className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -242,7 +242,7 @@ export default function Header() {
       )}
 
       {/* Mobile Side Nav */}
-      <nav className={`mobile-nav ${menuOpen ? 'open' : ''}`}>
+      <nav className={`mobile-nav ${menuOpen ? "open" : ""}`}>
         <div className="mobile-nav-content flex flex-col justify-between h-full p-6">
           <div>
             {isLoggedIn && petList.length > 0 && (
@@ -251,14 +251,14 @@ export default function Header() {
                   반려동물 선택
                 </p>
                 <div className="flex flex-wrap gap-6 justify-center">
-                  {petList.map(pet => (
+                  {petList.map((pet) => (
                     <div
                       key={pet.petName}
                       onClick={() => handlePetSelect(pet.petName)}
                       className="flex flex-col items-center cursor-pointer"
                     >
                       <img
-                        src={pet.petImageUrl || '/images/default-pet.png'}
+                        src={pet.petImageUrl || "/images/default-pet.png"}
                         alt={pet.petName}
                         className="w-14 h-14 rounded-full object-cover"
                       />
