@@ -1,70 +1,94 @@
-# Getting Started with Create React App [P-log_frontend]
+<img src="/images/main2.jpg" width="100%">
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 서비스 소개
 
-## Available Scripts
+> "반려동물의 일상 공유 펫로그" <P> P-log는 가족 구성원들이 반려동물의 일상과 건강을 함께 관리하고 공유할 수 있는 서비스를 제공합니다.</p>
 
-In the project directory, you can run:
+<br>
 
-### `npm start`
+- 서비스명 : P-log(펫로그) | 가족과 함께 기록하는 펫 케어 플랫폼
+- 기간 : 2025.3.31.월 ~ 4.21.월 (총 22일, 기획 ~ 배포 및 발표)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+<br>
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🐾 팀 소개
 
-### `npm test`
+> 팀 Plug
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<br/>
 
-### `npm run build`
+<div align="center">
+<table>
+<th>팀원</th>
+    <th> 최수연 <a href="https://github.com/yundda"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
+    <th> 김철순 <a href="https://github.com/kim-chulsoon"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
+    <th> 간솝드 <a href="https://github.com/suvd0377"><br/><img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=Github&logoColor=white"/><a></th>
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    <tr>
+    <td> 프로필 </td>
+    	<td>
+        <img width="120" alt="프로필 이미지" src="https://github.com/user-attachments/assets/06059340-9c12-4519-88ad-e1e3548c9df2" />
+      </td>
+       <td>
+        <img width="120" alt="프로필 이미지" src="https://github.com/user-attachments/assets/078db9aa-9782-4857-8edd-4d0735dbd0c9" />
+      </td>
+      <td>
+        <img width="120" alt="프로필 이미지" src="https://github.com/user-attachments/assets/d004f72b-b3d4-4809-81c6-e3dce2fe6d05" />
+      </td>
+    </tr>
+    <tr>
+    <td> 역할 </td>
+    <td>
+    	<p align="center">BE / 팀장 / 배포</p>
+    </td>
+    <td>
+    	<p align="center">BE</p>
+    </td>
+    <td>
+    	<p align="center">FE</p>
+    </td>
+    </tr>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  </table>
+</div>
+<br />
+<br />
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🛠 기술스택
 
-### `npm run eject`
+<div align="center">
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
+	  <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white"> 
+<img src="https://img.shields.io/badge/recoil-764ABC?style=for-the-badge&logo=redux&logoColor=white">
+<img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
+<img src="https://img.shields.io/badge/Sass-CC6699?style=flat-square&logo=Sass&logoColor=white">
+<img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Backend
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white">
+<img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
+<img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=nmysql&logoColor=white">
 
-## Learn More
+### Infra
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<img src="https://img.shields.io/badge/postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white">
+<img src="https://img.shields.io/badge/amazonec2-FF6C37?style=for-the-badge&logo=amazonec2&logoColor=white">
+<img src="https://img.shields.io/badge/nginx-FF6C37?style=for-the-badge&logo=nginx&logoColor=white">
+<img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Tools
 
-### Code Splitting
+<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">
+<img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+<img src="https://img.shields.io/badge/slack-4A154B?style=for-the-badge&logo=slack&logoColor=white">
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+</div>
 
-### Analyzing the Bundle Size
+<br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🎥 시연영상

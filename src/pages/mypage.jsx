@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import '../style/mypage.scss';
 import LoginRequired from '../components/Modal/LoginRequired';
+import Alert from '../components/Modal/Alert';
 
 const PROFILE_ICONS = Array.from(
   { length: 13 },
@@ -21,9 +22,11 @@ export default function MyPage() {
   const [selectedIcon, setSelectedIcon] = useState('');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  // const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -66,23 +69,33 @@ export default function MyPage() {
   const handleIconSelect = icon => setSelectedIcon(icon);
 
   const handleIconUpdate = async () => {
+    if (!form.beforePassword) {
+      openAlert(
+        '현재 비밀번호를 입력해야           아이콘을 변경할 수 있습니다.',
+      );
+      return;
+    }
+
     const iconFileName = selectedIcon.split('/').pop();
     const profileName = iconFileName?.split('.')[0];
 
     try {
-      const res = await api.patch(`/user/update/${profileName}`);
+      const res = await api.patch(`/user/update/${profileName}`, {
+        beforePassword: form.beforePassword,
+      });
+
       if (res.data.code === 'SU') {
         localStorage.setItem('profileIcon', selectedIcon);
-        setMessage('프로필 아이콘이 수정되었습니다!');
+        openAlert('프로필 아이콘이 수정되었습니다!');
       }
     } catch (err) {
       const res = err.response;
       const code = res?.data?.code;
       const msg = res?.data?.message;
 
-      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
-      else if (code === 'DBE') setMessage('프로필 이미지 변경 실패 (DB 오류)');
-      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
+      if (code === 'NF') openAlert('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') openAlert('프로필 이미지 변경 실패 (DB 오류)');
+      else openAlert(msg || '알 수 없는 오류가 발생했습니다.');
     }
   };
 
@@ -90,7 +103,7 @@ export default function MyPage() {
     const { beforePassword, afterPassword, nickname } = form;
 
     if (!beforePassword) {
-      setMessage('현재 비밀번호를 입력해주세요.');
+      openAlert('현재 비밀번호를 입력해주세요.');
       return;
     }
 
@@ -99,19 +112,19 @@ export default function MyPage() {
       (!/(?=.*[a-zA-Z])(?=.*[0-9])|(?=.*[!@#$%^&*])/.test(afterPassword) ||
         afterPassword.length < 8)
     ) {
-      setMessage(
+      openAlert(
         '새 비밀번호는 영문/숫자/특수문자 중 2가지 이상 조합, 8자 이상이어야 합니다.',
       );
       return;
     }
 
     if (!afterPassword && nickname === userData.nickname) {
-      setMessage('변경할 정보가 없습니다.');
+      openAlert('변경할 정보가 없습니다.');
       return;
     }
 
     if (afterPassword && beforePassword === afterPassword) {
-      setMessage('현재 비밀번호와 새 비밀번호가 같습니다.');
+      openAlert('현재 비밀번호와 새 비밀번호가 같습니다.');
       return;
     }
 
@@ -122,7 +135,7 @@ export default function MyPage() {
     try {
       const res = await api.patch('/user/update', payload);
       if (res.data.code === 'SU') {
-        setMessage('수정이 완료되었습니다.');
+        openAlert('수정이 완료되었습니다.');
         setUserData(prev => ({ ...prev, nickname }));
         setForm(prev => ({ ...prev, beforePassword: '', afterPassword: '' }));
       }
@@ -131,10 +144,10 @@ export default function MyPage() {
       const code = res?.data?.code;
       const msg = res?.data?.message;
 
-      if (code === 'NF') setMessage('해당 사용자를 찾을 수 없습니다.');
-      else if (code === 'DBE') setMessage('DB 업데이트에 실패했습니다.');
-      else if (code === 'BR') setMessage(msg || '유효성 검사에 실패했습니다.');
-      else setMessage(msg || '알 수 없는 오류가 발생했습니다.');
+      if (code === 'NF') openAlert('해당 사용자를 찾을 수 없습니다.');
+      else if (code === 'DBE') openAlert('DB 업데이트에 실패했습니다.');
+      else if (code === 'BR') openAlert(msg || '유효성 검사에 실패했습니다.');
+      else openAlert(msg || '알 수 없는 오류가 발생했습니다.');
     }
   };
 
@@ -145,6 +158,15 @@ export default function MyPage() {
   // };
   // const cancelLogout = () => setIsLogoutModalOpen(false);
 
+  const openAlert = msg => {
+    setAlertMessage(msg);
+    setShowAlert(true);
+  };
+
+  const closeAlert = () => {
+    setAlertMessage('');
+    setShowAlert(false);
+  };
   if (!isLogin && showLoginModal) {
     return <LoginRequired onClose={() => setShowLoginModal(false)} />;
   }
@@ -266,7 +288,7 @@ export default function MyPage() {
               {message}
             </p>
           )}
-
+          <br />
           <button
             onClick={handleSubmit}
             className="submit-button bg-plog-main5 text-white py-2 px-4 rounded-md mt-4"
@@ -303,6 +325,8 @@ export default function MyPage() {
           </div>
         </div>
       )} */}
+
+      {showAlert && <Alert message={alertMessage} onClose={closeAlert} />}
     </div>
   );
 }

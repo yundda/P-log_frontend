@@ -93,20 +93,20 @@
   }
 }
 
-.logout-button {
-  background: $color-5;
-  color: $color-white;
-  font-size: 1.25rem;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  text-align: center;
-  transition: background 0.2s ease;
-  margin-bottom: 2rem;
+// .logout-button {
+//   background: $color-5;
+//   color: $color-white;
+//   font-size: 1.25rem;
+//   padding: 0.75rem 2rem;
+//   border-radius: 8px;
+//   text-align: center;
+//   transition: background 0.2s ease;
+//   margin-bottom: 2rem;
 
-  &:hover {
-    background: $color-4;
-  }
-}
+//   &:hover {
+//     background: $color-4;
+//   }
+// }
 
 .icon-save-button-wrapper {
   display: flex;
@@ -115,7 +115,7 @@
 }
 
 .submit-button {
-  width: 40%;
+  width: 30%;
   max-width: 280px;
   margin: 0 auto;
   display: block;

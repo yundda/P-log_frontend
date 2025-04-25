@@ -225,6 +225,7 @@ export default function Daily({
         return null;
     }
   };
+  console.log(dailyLogs);
 
   return (
     <div className="modal-overlay">

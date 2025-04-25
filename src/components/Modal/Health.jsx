@@ -151,6 +151,7 @@ export default function Health({
       });
     }
   };
+  console.log(healthLogs);
 
   return (
     <div className="modal-overlay">
