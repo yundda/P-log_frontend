@@ -118,7 +118,7 @@
         }
       }
 
-      button {
+      .login-button {
         @include button1;
         //     background-color: #9c6644;
         //     color: white;
@@ -239,7 +239,7 @@
           }
         }
 
-        button {
+        .login-button {
           font-size: 16px;
           padding: 14px;
           border-radius: 12px;
