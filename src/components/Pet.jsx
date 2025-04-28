@@ -1,78 +1,80 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
-import axios from '../api/axiosInterceptor';
-import { selectedPetState } from '../recoil/petAtom';
-import '../style/pet.scss';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import axios from "../api/axiosInterceptor";
+import { selectedPetState } from "../recoil/petAtom";
+import "../style/pet.scss";
 
 const API = process.env.REACT_APP_API_SERVER;
 const S3_URL = process.env.REACT_APP_S3;
 
 export default function Pet({ mode, pet, onSuccess }) {
-  const isCreateMode = mode === 'create';
-  const isEditMode = mode === 'edit';
-  const isReadMode = mode === 'read';
+  const isCreateMode = mode === "create";
+  const isEditMode = mode === "edit";
+  const isReadMode = mode === "read";
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const setSelectedPet = useSetRecoilState(selectedPetState);
 
-  const [previewImage, setPreviewImage] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [previewImage, setPreviewImage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [formData, setFormData] = useState({
-    petName: '',
-    species: '',
-    breed: '',
-    birthday: '',
-    gender: '',
-    weight: '',
+    originalPetName: "",
+    petName: "",
+    species: "",
+    breed: "",
+    birthday: "",
+    gender: "",
+    weight: "",
   });
 
   useEffect(() => {
     if (isCreateMode) {
       setFormData({
-        petName: '',
-        species: '',
-        breed: '',
-        birthday: '',
-        gender: '',
-        weight: '',
+        petName: "",
+        species: "",
+        breed: "",
+        birthday: "",
+        gender: "",
+        weight: "",
       });
-      setPreviewImage('/images/default-pet.png');
-      setImageUrl('');
+      setPreviewImage("/images/default-pet.png");
+      setImageUrl("");
     }
   }, [isCreateMode]);
 
   useEffect(() => {
     if ((isReadMode || isEditMode) && pet) {
       setFormData({
-        petName: pet.petName || '',
-        species: pet.petSpecies || '',
-        breed: pet.petBreed || '',
-        birthday: pet.petBirthday?.slice(0, 10) || '',
-        gender: pet.petGender === 'MALE' ? 'man' : 'woman',
-        weight: pet.petWeight?.toString() || '',
+        originalPetName: pet.petName || "",
+        petName: pet.petName || "",
+        species: pet.petSpecies || "",
+        breed: pet.petBreed || "",
+        birthday: pet.petBirthday?.slice(0, 10) || "",
+        gender: pet.petGender === "MALE" ? "man" : "woman",
+        weight: pet.petWeight?.toString() || "",
       });
       setPreviewImage(
-        pet.petImageUrl || pet.petPhoto || '/images/default-pet.png',
+        pet.petImageUrl || pet.petPhoto || "/images/default-pet.png"
       );
-      setImageUrl(pet.petImageUrl || pet.petPhoto || '');
+      setImageUrl(pet.petImageUrl || pet.petPhoto || "");
     }
   }, [pet, isEditMode, isReadMode]);
 
   const handleImageClick = () => {
     if (isReadMode) {
-      navigate('/petSetting', { state: { petName: pet?.petName } });
+      navigate("/petSetting", { state: { petName: pet?.petName } });
       return;
     }
     fileInputRef.current?.click();
   };
 
-  const handleImageChange = e => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('5MB 이하 파일만 업로드 가능합니다.');
+      alert("5MB 이하 파일만 업로드 가능합니다.");
       return;
     }
 
@@ -84,51 +86,52 @@ export default function Pet({ mode, pet, onSuccess }) {
     setImageUrl(s3ImageUrl);
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.birthday) {
-      alert('생일을 입력해주세요.');
+      alert("생일을 입력해주세요.");
       return;
     }
 
     const petRequest = {
+      originalPetName: formData.originalPetName,
       petName: formData.petName,
       petSpecies: formData.species,
       petBreed: formData.breed,
       petBirthday: formData.birthday,
-      petGender: formData.gender === 'man' ? 'MALE' : 'FEMALE',
+      petGender: formData.gender === "man" ? "MALE" : "FEMALE",
       petWeight: parseFloat(formData.weight),
       petPhoto: formData.petImageUrl,
     };
 
     const form = new FormData();
     form.append(
-      'info',
-      new Blob([JSON.stringify(petRequest)], { type: 'application/json' }),
+      "info",
+      new Blob([JSON.stringify(petRequest)], { type: "application/json" })
     );
 
     if (fileInputRef.current?.files[0]) {
-      form.append('image', fileInputRef.current.files[0]);
+      form.append("image", fileInputRef.current.files[0]);
     } else if (isCreateMode) {
-      alert('이미지를 선택해주세요.');
+      alert("이미지를 선택해주세요.");
       return;
     }
 
     try {
       if (isCreateMode) {
         await axios.post(`${API}/pets`, form, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { "Content-Type": "multipart/form-data" },
         });
       }
 
       if (isEditMode) {
         await axios.patch(`${API}/pets/update`, form, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { "Content-Type": "multipart/form-data" },
         });
 
         const updatedPet = {
@@ -137,13 +140,13 @@ export default function Pet({ mode, pet, onSuccess }) {
         };
 
         setSelectedPet(updatedPet);
-        localStorage.setItem('selectedPet', JSON.stringify(updatedPet));
+        localStorage.setItem("selectedPet", JSON.stringify(updatedPet));
       }
 
-      if (typeof onSuccess === 'function') onSuccess();
+      if (typeof onSuccess === "function") onSuccess();
     } catch (error) {
-      console.error('[요청 실패]', error);
-      alert(error.response?.data?.message || '에러가 발생했습니다.');
+      console.error("[요청 실패]", error);
+      alert(error.response?.data?.message || "에러가 발생했습니다.");
     }
   };
 
@@ -151,7 +154,7 @@ export default function Pet({ mode, pet, onSuccess }) {
     <div className="add-container flex flex-col items-center gap-10 p-6 rounded-3xl relative">
       <div className="img-card flex items-center gap-4 flex-wrap justify-center">
         <img
-          src={previewImage || '/images/default-pet.png'}
+          src={previewImage || "/images/default-pet.png"}
           alt="사진"
           onClick={handleImageClick}
           className="img w-52 h-52 rounded-full object-cover cursor-pointer"
@@ -164,17 +167,17 @@ export default function Pet({ mode, pet, onSuccess }) {
               onClick={handleImageClick}
             >
               {isCreateMode
-                ? '사진 추가하기'
+                ? "사진 추가하기"
                 : isEditMode
-                ? ' 사진 수정하기'
-                : ''}
+                ? " 사진 수정하기"
+                : ""}
             </button>
             <input
               type="file"
               accept="image/*"
               ref={fileInputRef}
               onChange={handleImageChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           </>
         )}
@@ -185,10 +188,10 @@ export default function Pet({ mode, pet, onSuccess }) {
         onSubmit={handleSubmit}
       >
         {[
-          { label: '이름', name: 'petName', type: 'text' },
-          { label: '품종', name: 'species', type: 'text' },
-          { label: '견종', name: 'breed', type: 'text' },
-          { label: '생일', name: 'birthday', type: 'date' },
+          { label: "이름", name: "petName", type: "text" },
+          { label: "품종", name: "species", type: "text" },
+          { label: "견종", name: "breed", type: "text" },
+          { label: "생일", name: "birthday", type: "date" },
         ].map(({ label, name, type }) => (
           <div
             className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full"
@@ -208,10 +211,10 @@ export default function Pet({ mode, pet, onSuccess }) {
               value={formData[name]}
               onChange={handleChange}
               className={`border border-plog-main1 rounded-md px-4 py-2 ${
-                isReadMode && name === 'birthday' ? 'w-40' : 'w-full'
+                isReadMode && name === "birthday" ? "w-40" : "w-full"
               }`}
               disabled={isReadMode}
-              readOnly={isEditMode && name === 'petName'}
+              readOnly={isEditMode && name === "petName"}
             />
           </div>
         ))}
@@ -227,11 +230,11 @@ export default function Pet({ mode, pet, onSuccess }) {
             <input
               type="text"
               value={
-                formData.gender === 'man'
-                  ? '남자'
-                  : formData.gender === 'woman'
-                  ? '여자'
-                  : ''
+                formData.gender === "man"
+                  ? "남자"
+                  : formData.gender === "woman"
+                  ? "여자"
+                  : ""
               }
               readOnly
               className="border border-plog-main1 rounded-md px-4 py-2 w-40 bg-gray-100/20"
@@ -279,7 +282,7 @@ export default function Pet({ mode, pet, onSuccess }) {
 
         {!isReadMode && (
           <button type="submit" className="submit-button self-end">
-            {isCreateMode ? '추가하기' : isEditMode ? '수정하기' : ''}
+            {isCreateMode ? "추가하기" : isEditMode ? "수정하기" : ""}
           </button>
         )}
       </form>
